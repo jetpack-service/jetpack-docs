@@ -1,14 +1,24 @@
+import bundleAnalyzer from '@next/bundle-analyzer'
 import nextra from 'nextra'
 
 const withNextra = nextra({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx',
+  defaultShowCopyCode: true,
   latex: true,
-  flexsearch: {
-    codeblock: false
+  search: {
+    codeblocks: false
   }
 })
 
-export default withNextra({
-  reactStrictMode: true
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true'
 })
+
+export default withBundleAnalyzer(withNextra({
+  i18n: {
+    locales: ['en'],
+    defaultLocale: 'en'
+  },
+  reactStrictMode: true
+}))
