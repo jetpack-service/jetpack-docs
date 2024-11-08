@@ -17,7 +17,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 export default withBundleAnalyzer(withNextra({
   i18n: {
-    locales: ['en'],
+    locales: ['en', 'ko'],
     defaultLocale: 'en'
   },
   reactStrictMode: true
