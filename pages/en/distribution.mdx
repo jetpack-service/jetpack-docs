@@ -1,0 +1,529 @@
+# 5. How JetPack Tokens Work
+
+The JetPack token system comprises **activity-based token issuance and distribution**, a **service level system**, **user rewards and token utilization methods**, and a **mechanism for purchasing and redistributing tokens**. This structure provides a **fair and efficient reward system** for both users and service providers.
+
+## 5.1 Token Distribution (Drop) Mechanism
+
+### Total Token Supply and Distribution Period
+
+- **Total Supply**: JetPack will issue a total of **1 billion Jet** tokens.
+- **Distribution Period**: Tokens will be distributed over **38 years**, with a total of **2,776 distributions** occurring at the same intervals as the **Cardano Epoch** (1 epoch = 5 days).
+
+### Token Distribution Amount per Epoch
+
+#### Calculating Distribution Amount Based on a Logarithmic Function
+
+The amount of tokens distributed per epoch is designed to decrease over time. A **logarithmic function** is used to calculate the distribution amount for each epoch. **1 Jet equals 1,000,000 Pack**, so the distribution amounts are calculated to the **sixth decimal place** and paid accordingly.
+
+1. **Definition of the Logarithmic Function $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Where:
+
+    - $ t $ is the epoch number, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ is the natural logarithm function.
+
+2. **Calculating the Sum of the Log Function $ f(t) $ Over All Epochs**:
+
+   The total sum of the function values over the entire distribution period $ S $ is:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Calculating the Scaling Constant $ A $**:
+
+   The total token supply of **1 billion Jet** is divided by the sum $ S $ to adjust the distribution amount for each epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Calculating the Token Distribution Amount per Epoch**:
+
+   The distribution amount for each epoch is:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Examples of Distribution Amounts**:
+
+   Calculating the distribution amounts for the initial epochs:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   The distribution amount for each epoch is determined by the value of the log function corresponding to the epoch number.
+
+**Distribution Characteristics**
+
+- Since $ \ln(t + 1) $ increases as $ t $ increases, the denominator becomes larger, causing the overall distribution amount to gradually decrease.
+- The distribution amount per epoch decreases over time, approaching zero.
+- This design incentivizes early participants and increases the scarcity of the token.
+
+### Overall Distribution Schedule
+
+Below is a partial table summarizing the distribution amounts and dates per epoch.
+For detailed information on all epochs, please refer to the separate [document](/attach/token_allocation_per_epoch.csv) and [code](/attach/token_allocation_per_epoch.py).
+
+| Epoch Number | Date           | Distribution Amount (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Token Distribution Criteria per Service
+
+#### Calculating Ratios Among Services
+
+The distribution ratio for each service is calculated based on its performance score $ P_n $ relative to the total performance score $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Where:
+
+- $ P_n $: Performance score of service $ n $.
+- $ P $: Sum of performance scores of all services.
+
+#### Calculating Distribution Amount per Service
+
+The amount of tokens that service $ n $ receives in each epoch $ S_n $ is:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Adjusted total distribution amount for the epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Maximum token amount allocated based on the service's level (see level-based maximum token distribution below).
+
+#### Handling of Undistributed Tokens
+
+##### Carrying Over Undistributed Tokens
+
+- Undistributed tokens from each epoch are **added** to the total distribution amount for the next epoch.
+- This ensures effective token distribution even when initial service participation is low.
+
+##### Calculating Adjusted Total Distribution Amount per Epoch
+
+The total distribution amount for the next epoch is:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Adjusted total distribution amount for epoch $ t+1 $.
+- $ f(t+1) $: Distribution amount based on the basic distribution function.
+- **Carried-over Undistributed Tokens**: Number of tokens not distributed in epoch $ t $.
+
+#### Calculating Performance Score ($ P_n $) per Service
+
+Each service's performance score is calculated based on the following metrics. The weight of each metric can be adjusted through governance.
+
+1. **JetPack Token Consumption ($ M_{1n} $)**
+    - **Weight**: $ w_1 = 50\% $
+    - **Description**: Total amount of JetPack tokens consumed by users within the service.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Weight**: $ w_2 = 30\% $
+    - **Description**: Number of votes received from OG Degen Bunnies.
+
+3. **Active User Count ($ M_{3n} $)**
+    - **Weight**: $ w_3 = 20\% $
+    - **Description**: Number of unique users who accessed and were active in the service during the epoch.
+
+Each service's performance score $ P_n $ is calculated as:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Where:
+
+- $ M_{1n} $: JetPack token consumption of service $ n $.
+- $ M_{1\text{total}} $: Total JetPack token consumption across all services.
+- $ M_{2n} $: Degen Bunny vote count for service $ n $.
+- $ M_{2\text{total}} $: Total Degen Bunny votes across all services.
+- $ M_{3n} $: Active user count of service $ n $.
+- $ M_{3\text{total}} $: Total active users across all services.
+
+**Example**:
+
+- **Service A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Service B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Service C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totals**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Weights**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Calculating Performance Score for Service A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Calculating Performance Score for Service B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Calculating Performance Score for Service C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Thus, the performance scores are:
+
+- **Service A**: $ P_A = 0.38 $
+- **Service B**: $ P_B = 0.29 $
+- **Service C**: $ P_C = 0.33 $
+
+#### Level Determination Criteria and Maximum Token Distribution Amount
+
+Based on the performance score $ P_n $, each service is classified into **Levels 1 through 9**. This classification uses the **cumulative top percentile** of all services' performance scores.
+
+##### Cumulative Top Percentiles and Maximum Token Distribution Amounts per Level
+
+| **Level** | **Cumulative Top Percentile** | **Maximum Token Distribution (Jet)** |
+|-----------|-------------------------------|--------------------------------------|
+| Level 1   | Top 4%                        | 30,000                               |
+| Level 2   | Top 11%                       | 25,000                               |
+| Level 3   | Top 23%                       | 20,000                               |
+| Level 4   | Top 40%                       | 15,000                               |
+| Level 5   | Top 60%                       | 10,000                               |
+| Level 6   | Top 77%                       | 7,000                                |
+| Level 7   | Top 89%                       | 5,000                                |
+| Level 8   | Top 96%                       | 3,000                                |
+| Level 9   | Top 100%                      | 1,000                                |
+
+##### Level Determination Method
+
+1. **Calculate Performance Scores**
+
+   Use the previously defined method to calculate each service's performance score $ P_n $.
+
+2. **Determine Service Rankings**
+
+   Rank all services in **descending order** based on their performance scores.
+
+3. **Calculate Cumulative Top Percentiles**
+
+   For each service, calculate the cumulative top percentile:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Where:
+
+    - $ \text{Rank} $: The service's rank (starting from 1).
+    - $ N $: Total number of services.
+
+4. **Assign Levels**
+
+   Assign levels based on the cumulative top percentiles:
+
+    - **Level 1**: Cumulative top percentile > 96%
+    - **Level 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Level 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Level 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Level 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Level 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Level 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Level 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Level 9**: Cumulative top percentile ≤ 4%
+
+**Example**:
+
+With a total of **3** services:
+
+1. **Calculate Rankings and Cumulative Top Percentiles**
+
+    - **Service A**:
+
+        - Performance Score: $ P_A = 0.38 $
+        - Rank: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Service C**:
+
+        - Performance Score: $ P_C = 0.33 $
+        - Rank: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Service B**:
+
+        - Performance Score: $ P_B = 0.29 $
+        - Rank: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Assign Levels**
+
+    - **Service A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Level**: **Level 1** (Cumulative Top Percentile > 96%)
+        - **Maximum Token Distribution**: 30,000 Jet
+
+    - **Service C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Level**: **Level 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum Token Distribution**: 15,000 Jet
+
+    - **Service B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Level**: **Level 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum Token Distribution**: 7,000 Jet
+
+**Notes**:
+
+- **Tied Scores**: Services with identical performance scores receive the same rank. In calculating cumulative top percentiles, the average rank is used.
+- **Maximum Token Distribution** refers to the maximum token amount a service can receive based on its level.
+
+### Example Scenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basic Distribution Amount**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Calculating Distribution Amount per Service**
+
+Based on the performance scores and levels:
+
+- **Total Performance Score $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Service A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Distribution Amount:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Distribution Amount:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Distribution Amount:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distribution Results**
+
+- **Total Tokens Distributed**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Undistributed Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basic Distribution Amount**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Carried-over Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Updated Performance Scores and Levels**
+
+Assuming changes in performance scores:
+
+- **Service A**:
+
+    - Performance Score: $ P_A = 0.40 $
+    - Rank: 1
+    - Cumulative Top Percentile: 100%
+    - **Level**: Level 1
+    - **Maximum Token Distribution**: 30,000 Jet
+
+- **Service C**:
+
+    - Performance Score: $ P_C = 0.35 $
+    - Rank: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Level**: Level 4
+    - **Maximum Token Distribution**: 15,000 Jet
+
+- **Service B**:
+
+    - Performance Score: $ P_B = 0.25 $
+    - Rank: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Level**: Level 6
+    - **Maximum Token Distribution**: 7,000 Jet
+
+**Total Performance Score $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Calculating Distribution Amount per Service**
+
+1. **Service A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Distribution Amount:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Distribution Amount:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Distribution Amount:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distribution Results**
+
+- **Total Tokens Distributed**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Undistributed Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impact of Accumulated Undistributed Tokens
+
+- **Increased Service Participation and Improved Performance** will gradually reduce the amount of undistributed tokens.
+- **Initial services can utilize the maximum distribution amount** to foster growth.
+- Carrying over tokens helps **maintain value stability** and regulate circulation.
+
+## 5.2 User Rewards and Token Usage
+
+### **User Reward Mechanism**
+
+- **Activity-Based Rewards**: Users receive JetPack tokens when they perform **pre-agreed activities** (e.g., content creation, gameplay) within a service.
+- **Token Reward Criteria**: The amount of tokens rewarded for each activity is **determined through consultation** between the service and the JetPack ecosystem operator.
+
+### **Token Usage Methods**
+
+1. **Within the Service**:
+    - **Access Premium Features**: Use tokens to access paid features or content within the service.
+    - **Purchase Goods**: Buy digital goods or in-service items using tokens.
+
+2. **Using the JetPack Wallet Service Exchange**:
+    - **Token Sales**: Users can exchange their tokens for **ADA** (the currency of **Cardano**).
+    - **Wallet Management**: The JetPack wallet allows secure management of tokens and transfers to other services.
+
+### **Expected Benefits from Token Value Appreciation**
+
+- **Token Liquidity**: Trading tokens on exchanges increases their **liquidity**.
+- **Economic Gains**: Users can achieve **additional economic benefits** by selling tokens if their value appreciates.
+
+## 5.3 Token Purchase and Redistribution
+
+### **Additional Token Purchases by Services**
+
+- **When Distributed Tokens Are Depleted**: If a service uses all its allocated tokens, it can purchase additional tokens from the **JetPack Wallet Service Exchange**.
+- **Purchase Currency**: Tokens are purchased using **ADA**.
+- **Utilization of Purchased Tokens**: Purchased tokens can be used to **reward users** or **within the service**.
+
+### **Resellable vs. Non-Resellable Tokens**
+
+- **Distributed Tokens** (**Non-Resellable**): Tokens allocated to services **cannot be resold** and are only for **user rewards**.
+- **Purchased Tokens and Tokens Acquired from Users** (**Resellable**): Tokens bought with ADA and tokens received from users **can be resold**, aiding in **liquidity acquisition**.
+
+### **Token Redistribution and Ecosystem Activation**
+
+1. **Token Circulation Structure**:
+    - Services reward users with tokens; users use them within services or sell them on exchanges.
+    - Services acquire tokens from users or purchase them to maintain a **sustainable reward system**.
+
+2. **Ecosystem Activation Effects**:
+    - Token circulation promotes **user engagement** and **service activation**.
+    - This contributes to **token value stabilization** and the **sustainable growth** of the ecosystem.

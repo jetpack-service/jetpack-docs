@@ -5,4 +5,10 @@ export default {
       breadcrumb: false,
     }
   },
+  distribution: {
+    title: '배분 로직',
+    theme: {
+      breadcrumb: false
+    }
+  }
 }

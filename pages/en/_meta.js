@@ -5,4 +5,10 @@ export default {
       breadcrumb: false,
     }
   },
+  distribution: {
+    title: 'Distribution Logic',
+    theme: {
+      breadcrumb: false
+    }
+  }
 }
