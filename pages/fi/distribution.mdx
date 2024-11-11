@@ -1,0 +1,529 @@
+# Kuinka JetPack-tokenit toimivat
+
+JetPack-tokenijärjestelmä koostuu **toimintaan perustuvasta tokenien liikkeellelaskusta ja jakelusta**, **palvelutason järjestelmästä**, **käyttäjäpalkkioista ja tokenien hyödyntämismenetelmistä** sekä **mekanismista tokenien ostamiseen ja uudelleenjakamiseen**. Tämä rakenne tarjoaa **reilun ja tehokkaan palkkiojärjestelmän** sekä käyttäjille että palveluntarjoajille.
+
+## Tokenien jakelumekanismi (Drop)
+
+### Kokonaismäärä ja jakelujakso
+
+- **Kokonaismäärä**: JetPack laskee liikkeelle yhteensä **1 miljardi Jet**-tokenia.
+- **Jakelujakso**: Tokeneita jaetaan **38 vuoden** aikana, yhteensä **2,776 jakelua**, jotka tapahtuvat samoin välein kuin **Cardano Epoch** (1 epookki = 5 päivää).
+
+### Tokenien jakelumäärä per epookki
+
+#### Jakelumäärän laskeminen logaritmisen funktion perusteella
+
+Epookkia kohden jaettavien tokenien määrä on suunniteltu väheneväksi ajan myötä. **Logaritmista funktiota** käytetään laskemaan jakelumäärä kullekin epookille. **1 Jet vastaa 1,000,000 Pack**, joten jakelumäärät lasketaan **kuudenteen desimaaliin** ja maksetaan sen mukaisesti.
+
+1. **Logaritmisen funktion $ f(t) $ määritelmä**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Missä:
+
+    - $ t $ on epookin numero, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ on luonnollinen logaritmifunktio.
+
+2. **Log-funktion $ f(t) $ summan laskeminen kaikille epookeille**:
+
+   Koko jakelujakson funktion arvojen summa $ S $ on:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Skaalauskertoimen $ A $ laskeminen**:
+
+   Kokonaismäärä **1 miljardi Jet** jaetaan summalla $ S $ säätämään jakelumäärää kullekin epookille:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Tokenien jakelumäärän laskeminen per epookki**:
+
+   Jakelumäärä kullekin epookille on:
+
+   $$
+   \text{Jakelumäärä}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Jakelumäärien esimerkkejä**:
+
+   Jakelumäärien laskeminen alkuvaiheen epookeille:
+
+    - **Epookki 1**:
+
+      $$
+      \text{Jakelumäärä}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epookki 2**:
+
+      $$
+      \text{Jakelumäärä}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epookki 3**:
+
+      $$
+      \text{Jakelumäärä}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Jakelumäärä kullekin epookille määräytyy log-funktion arvon perusteella, joka vastaa epookin numeroa.
+
+**Jakelun ominaisuudet**
+
+- Koska $ \ln(t + 1) $ kasvaa, kun $ t $ kasvaa, nimittäjä suurenee, mikä aiheuttaa jakelumäärän vähittäisen vähenemisen.
+- Jakelumäärä per epookki vähenee ajan myötä, lähestyen nollaa.
+- Tämä suunnittelu kannustaa aikaisia osallistujia ja lisää tokenin niukkuutta.
+
+### Kokonaisjakeluaikataulu
+
+Alla on osittainen taulukko, joka tiivistää jakelumäärät ja päivämäärät per epookki.
+Yksityiskohtaiset tiedot kaikista epookeista löytyvät erillisestä [dokumentista](/attach/token_allocation_per_epoch.csv) ja [koodista](/attach/token_allocation_per_epoch.py).
+
+| Epookin numero | Päivämäärä    | Jakelumäärä (Jet) |
+|----------------|---------------|-------------------|
+| 1              | 2025-01-01    | 3,479,788.70      |
+| 2              | 2025-01-06    | 2,195,502.227     |
+| 3              | 2025-01-11    | 1,739,894.35      |
+| ...            | ...           | ...               |
+| 2774           | 2062-12-18    | 304,223.285       |
+| 2775           | 2062-12-23    | 304,209.4607      |
+| 2776           | 2062-12-28    | 304,195.6425      |
+
+### Tokenien jakelukriteerit per palvelu
+
+#### Suhdelukujen laskeminen palveluiden kesken
+
+Kunkin palvelun jakelusuhde lasketaan sen suorituskykypisteen $ P_n $ perusteella suhteessa kokonaispisteisiin $ P $:
+
+$$
+\text{Suhde palvelulle } n = \frac{P_n}{P}
+$$
+
+Missä:
+
+- $ P_n $: Palvelun $ n $ suorituskykypisteet.
+- $ P $: Kaikkien palveluiden suorituskykypisteiden summa.
+
+#### Jakelumäärän laskeminen per palvelu
+
+Palvelun $ n $ saama tokenien määrä kussakin epookissa $ S_n $ on:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimi tokenien jakelu palvelulle } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Säädetty kokonaisjakelumäärä epookille.
+- $ \text{Maksimi tokenien jakelu palvelulle } n $: Maksimi tokenimäärä, joka on allokoitu palvelun tason perusteella (katso tasoon perustuva maksimijakelu alla).
+
+#### Jakamattomien tokenien käsittely
+
+##### Jakamattomien tokenien siirtäminen
+
+- Kunkin epookin jakamattomat tokenit **lisätään** seuraavan epookin kokonaisjakelumäärään.
+- Tämä varmistaa tehokkaan tokenien jakelun, vaikka alkuperäinen palveluosallistuminen olisi vähäistä.
+
+##### Säädetyn kokonaisjakelumäärän laskeminen per epookki
+
+Seuraavan epookin kokonaisjakelumäärä on:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Edellisen epookin jakamattomat tokenit}
+$$
+
+- $ f_{\text{total}}(t+1) $: Säädetty kokonaisjakelumäärä epookille $ t+1 $.
+- $ f(t+1) $: Jakelumäärä perustuen perusjakelufunktioon.
+- **Siirretyt jakamattomat tokenit**: Tokenien määrä, joita ei jaettu epookissa $ t $.
+
+#### Suorituskykypisteiden ($ P_n $) laskeminen per palvelu
+
+Kunkin palvelun suorituskykypisteet lasketaan seuraavien mittareiden perusteella. Kunkin mittarin painoarvoa voidaan säätää hallinnon kautta.
+
+1. **JetPack-tokenien kulutus ($ M_{1n} $)**
+    - **Paino**: $ w_1 = 50\% $
+    - **Kuvaus**: JetPack-tokenien kokonaismäärä, jonka käyttäjät ovat kuluttaneet palvelun sisällä.
+
+2. **Degen Bunny -äänimäärä ($ M_{2n} $)**
+    - **Paino**: $ w_2 = 30\% $
+    - **Kuvaus**: OG Degen Bunnies -äänien määrä.
+
+3. **Aktiivisten käyttäjien määrä ($ M_{3n} $)**
+    - **Paino**: $ w_3 = 20\% $
+    - **Kuvaus**: Uniikkien käyttäjien määrä, jotka ovat käyttäneet ja olleet aktiivisia palvelussa epookin aikana.
+
+Kunkin palvelun suorituskykypisteet $ P_n $ lasketaan seuraavasti:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Missä:
+
+- $ M_{1n} $: JetPack-tokenien kulutus palvelussa $ n $.
+- $ M_{1\text{total}} $: JetPack-tokenien kokonaiskulutus kaikissa palveluissa.
+- $ M_{2n} $: Degen Bunny -äänimäärä palvelulle $ n $.
+- $ M_{2\text{total}} $: Degen Bunny -äänien kokonaismäärä kaikissa palveluissa.
+- $ M_{3n} $: Aktiivisten käyttäjien määrä palvelussa $ n $.
+- $ M_{3\text{total}} $: Aktiivisten käyttäjien kokonaismäärä kaikissa palveluissa.
+
+**Esimerkki**:
+
+- **Palvelu A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Palvelu B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Palvelu C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Kokonaismäärät**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Painot**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Suorituskykypisteiden laskeminen palvelulle A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Suorituskykypisteiden laskeminen palvelulle B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Suorituskykypisteiden laskeminen palvelulle C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Näin ollen suorituskykypisteet ovat:
+
+- **Palvelu A**: $ P_A = 0.38 $
+- **Palvelu B**: $ P_B = 0.29 $
+- **Palvelu C**: $ P_C = 0.33 $
+
+#### Tason määrityskriteerit ja maksimijakelumäärä
+
+Suorituskykypisteiden $ P_n $ perusteella kukin palvelu luokitellaan **tasolle 1–9**. Tämä luokittelu käyttää **kumulatiivista huippuprosenttia** kaikkien palveluiden suorituskykypisteistä.
+
+##### Kumulatiiviset huippuprosentit ja maksimijakelumäärät per taso
+
+| **Taso** | **Kumulatiivinen huippuprosentti** | **Maksimi tokenien jakelu (Jet)** |
+|----------|-----------------------------------|-----------------------------------|
+| Taso 1   | Huippu 4%                         | 30,000                            |
+| Taso 2   | Huippu 11%                        | 25,000                            |
+| Taso 3   | Huippu 23%                        | 20,000                            |
+| Taso 4   | Huippu 40%                        | 15,000                            |
+| Taso 5   | Huippu 60%                        | 10,000                            |
+| Taso 6   | Huippu 77%                        | 7,000                             |
+| Taso 7   | Huippu 89%                        | 5,000                             |
+| Taso 8   | Huippu 96%                        | 3,000                             |
+| Taso 9   | Huippu 100%                       | 1,000                             |
+
+##### Tason määritysmenetelmä
+
+1. **Laske suorituskykypisteet**
+
+   Käytä aiemmin määriteltyä menetelmää kunkin palvelun suorituskykypisteiden $ P_n $ laskemiseen.
+
+2. **Määritä palveluiden sijoitukset**
+
+   Järjestä kaikki palvelut **laskevassa järjestyksessä** suorituskykypisteiden perusteella.
+
+3. **Laske kumulatiiviset huippuprosentit**
+
+   Kullekin palvelulle laske kumulatiivinen huippuprosentti:
+
+   $$
+   \text{Kumulatiivinen huippuprosentti (\%)} = \left(1 - \frac{\text{Sijoitus} - 1}{N} \right) \times 100\%
+   $$
+
+   Missä:
+
+    - $ \text{Sijoitus} $: Palvelun sijoitus (alkaen 1:stä).
+    - $ N $: Palveluiden kokonaismäärä.
+
+4. **Määritä tasot**
+
+   Määritä tasot kumulatiivisten huippuprosenttien perusteella:
+
+    - **Taso 1**: Kumulatiivinen huippuprosentti > 96%
+    - **Taso 2**: 89% < Kumulatiivinen huippuprosentti ≤ 96%
+    - **Taso 3**: 77% < Kumulatiivinen huippuprosentti ≤ 89%
+    - **Taso 4**: 60% < Kumulatiivinen huippuprosentti ≤ 77%
+    - **Taso 5**: 40% < Kumulatiivinen huippuprosentti ≤ 60%
+    - **Taso 6**: 23% < Kumulatiivinen huippuprosentti ≤ 40%
+    - **Taso 7**: 11% < Kumulatiivinen huippuprosentti ≤ 23%
+    - **Taso 8**: 4% < Kumulatiivinen huippuprosentti ≤ 11%
+    - **Taso 9**: Kumulatiivinen huippuprosentti ≤ 4%
+
+**Esimerkki**:
+
+Kun palveluita on yhteensä **3**:
+
+1. **Laske sijoitukset ja kumulatiiviset huippuprosentit**
+
+    - **Palvelu A**:
+
+        - Suorituskykypisteet: $ P_A = 0.38 $
+        - Sijoitus: 1
+        - Kumulatiivinen huippuprosentti:
+
+          $$
+          \text{Kumulatiivinen huippuprosentti} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Palvelu C**:
+
+        - Suorituskykypisteet: $ P_C = 0.33 $
+        - Sijoitus: 2
+        - Kumulatiivinen huippuprosentti:
+
+          $$
+          \text{Kumulatiivinen huippuprosentti} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Palvelu B**:
+
+        - Suorituskykypisteet: $ P_B = 0.29 $
+        - Sijoitus: 3
+        - Kumulatiivinen huippuprosentti:
+
+          $$
+          \text{Kumulatiivinen huippuprosentti} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Määritä tasot**
+
+    - **Palvelu A**:
+
+        - Kumulatiivinen huippuprosentti: 100%
+        - **Taso**: **Taso 1** (Kumulatiivinen huippuprosentti > 96%)
+        - **Maksimi tokenien jakelu**: 30,000 Jet
+
+    - **Palvelu C**:
+
+        - Kumulatiivinen huippuprosentti: 66.67%
+        - **Taso**: **Taso 4** (60% < Kumulatiivinen huippuprosentti ≤ 77%)
+        - **Maksimi tokenien jakelu**: 15,000 Jet
+
+    - **Palvelu B**:
+
+        - Kumulatiivinen huippuprosentti: 33.33%
+        - **Taso**: **Taso 6** (23% < Kumulatiivinen huippuprosentti ≤ 40%)
+        - **Maksimi tokenien jakelu**: 7,000 Jet
+
+**Huomautukset**:
+
+- **Tasapisteet**: Palvelut, joilla on samat suorituskykypisteet, saavat saman sijoituksen. Kumulatiivisten huippuprosenttien laskennassa käytetään keskimääräistä sijoitusta.
+- **Maksimi tokenien jakelu** viittaa maksimimäärään tokeneita, jotka palvelu voi saada tasonsa perusteella.
+
+### Esimerkkitilanne
+
+#### Epookki 1 ($ t = 1 $)
+
+- **Perusjakelumäärä**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Säädetty kokonaisjakelumäärä**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Jakelumäärän laskeminen per palvelu**
+
+Suorituskykypisteiden ja tasojen perusteella:
+
+- **Kokonaispisteet $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Palvelu A**:
+
+    - Suhde: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Jakelumäärä:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Palvelu C**:
+
+    - Suhde: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Jakelumäärä:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Palvelu B**:
+
+    - Suhde: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Jakelumäärä:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Jakelutulokset**
+
+- **Jaetut tokenit yhteensä**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Jakamattomat tokenit**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epookki 2 ($ t = 2 $)
+
+- **Perusjakelumäärä**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Siirretyt tokenit**: $ 3,427,788.70 \text{ Jet} $
+- **Säädetty kokonaisjakelumäärä**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Päivitetyt suorituskykypisteet ja tasot**
+
+Oletetaan muutoksia suorituskykypisteissä:
+
+- **Palvelu A**:
+
+    - Suorituskykypisteet: $ P_A = 0.40 $
+    - Sijoitus: 1
+    - Kumulatiivinen huippuprosentti: 100%
+    - **Taso**: Taso 1
+    - **Maksimi tokenien jakelu**: 30,000 Jet
+
+- **Palvelu C**:
+
+    - Suorituskykypisteet: $ P_C = 0.35 $
+    - Sijoitus: 2
+    - Kumulatiivinen huippuprosentti: 66.67%
+    - **Taso**: Taso 4
+    - **Maksimi tokenien jakelu**: 15,000 Jet
+
+- **Palvelu B**:
+
+    - Suorituskykypisteet: $ P_B = 0.25 $
+    - Sijoitus: 3
+    - Kumulatiivinen huippuprosentti: 33.33%
+    - **Taso**: Taso 6
+    - **Maksimi tokenien jakelu**: 7,000 Jet
+
+**Kokonaispisteet $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Jakelumäärän laskeminen per palvelu**
+
+1. **Palvelu A**:
+
+    - Suhde: $ \frac{P_A}{P} = 0.40 $
+    - Jakelumäärä:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Palvelu C**:
+
+    - Suhde: $ \frac{P_C}{P} = 0.35 $
+    - Jakelumäärä:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Palvelu B**:
+
+    - Suhde: $ \frac{P_B}{P} = 0.25 $
+    - Jakelumäärä:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Jakelutulokset**
+
+- **Jaetut tokenit yhteensä**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Jakamattomat tokenit**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Kertyneiden jakamattomien tokenien vaikutus
+
+- **Palveluiden osallistumisen lisääntyminen ja suorituskyvyn parantuminen** vähentävät vähitellen jakamattomien tokenien määrää.
+- **Alkuperäiset palvelut voivat hyödyntää maksimijakelumäärää** kasvun edistämiseksi.
+- Tokenien siirtäminen auttaa **ylläpitämään arvon vakautta** ja säätelemään kiertoa.
+
+## Käyttäjäpalkkiot ja tokenien käyttö
+
+### **Käyttäjäpalkkiojärjestelmä**
+
+- **Toimintaan perustuvat palkkiot**: Käyttäjät saavat JetPack-tokeneita, kun he suorittavat **ennalta sovittuja toimintoja** (esim. sisällön luominen, pelaaminen) palvelun sisällä.
+- **Token-palkkiokriteerit**: Kullekin toiminnolle myönnettävien tokenien määrä **määritetään neuvottelujen kautta** palvelun ja JetPack-ekosysteemin operaattorin välillä.
+
+### **Tokenien käyttömenetelmät**
+
+1. **Palvelun sisällä**:
+    - **Pääsy premium-ominaisuuksiin**: Käytä tokeneita maksettujen ominaisuuksien tai sisällön käyttöön palvelun sisällä.
+    - **Ostaa tavaroita**: Osta digitaalisia tavaroita tai palvelun sisäisiä esineitä tokeneilla.
+
+2. **JetPack-lompakkopalvelun vaihdon käyttäminen**:
+    - **Tokenien myynti**: Käyttäjät voivat vaihtaa tokeneitaan **ADA**:ksi (**Cardanon** valuutta).
+    - **Lompakon hallinta**: JetPack-lompakko mahdollistaa tokenien turvallisen hallinnan ja siirrot muihin palveluihin.
+
+### **Odotetut hyödyt tokenien arvon noususta**
+
+- **Tokenien likviditeetti**: Tokenien kaupankäynti pörsseissä lisää niiden **likviditeettiä**.
+- **Taloudelliset hyödyt**: Käyttäjät voivat saavuttaa **lisätaloudellisia etuja** myymällä tokeneita, jos niiden arvo nousee.
+
+## Tokenien osto ja uudelleenjakelu
+
+### **Palveluiden lisätokenien ostot**
+
+- **Kun jaetut tokenit ovat loppuneet**: Jos palvelu käyttää kaikki sille allokoidut tokenit, se voi ostaa lisätokeneita **JetPack-lompakkopalvelun vaihdosta**.
+- **Ostovaluutta**: Tokeneita ostetaan **ADA**:lla.
+- **Ostettujen tokenien hyödyntäminen**: Ostettuja tokeneita voidaan käyttää **palkitsemaan käyttäjiä** tai **palvelun sisällä**.
+
+### **Uudelleenmyytävät vs. ei-uudelleenmyytävät tokenit**
+
+- **Jaetut tokenit** (**Ei-uudelleenmyytävät**): Palveluille allokoidut tokenit **eivät ole myytävissä** ja ne on tarkoitettu vain **käyttäjäpalkkioihin**.
+- **Ostetut tokenit ja käyttäjiltä saadut tokenit** (**Uudelleenmyytävät**): ADA:lla ostetut tokenit ja käyttäjiltä saadut tokenit **voivat olla myytävissä**, mikä auttaa **likviditeetin hankinnassa**.
+
+### **Tokenien uudelleenjakelu ja ekosysteemin aktivointi**
+
+1. **Tokenien kiertorakenne**:
+    - Palvelut palkitsevat käyttäjiä tokeneilla; käyttäjät käyttävät niitä palveluissa tai myyvät ne pörsseissä.
+    - Palvelut hankkivat tokeneita käyttäjiltä tai ostavat niitä ylläpitääkseen **kestävää palkkiojärjestelmää**.
+
+2. **Ekosysteemin aktivointivaikutukset**:
+    - Tokenien kierto edistää **käyttäjien sitoutumista** ja **palvelun aktivointia**.
+    - Tämä edistää **tokenien arvon vakauttamista** ja ekosysteemin **kestävää kasvua**.

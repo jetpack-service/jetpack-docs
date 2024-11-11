@@ -1,0 +1,529 @@
+# Indlela AmaJetPack Tokens Asebenza Ngayo
+
+Uhlelo lweJetPack token luqukethe **ukukhishwa kwe-token okusekelwe kumsebenzi nokusatshalaliswa**, uhlelo lwezinga lenkonzo, **imivuzo yomsebenzisi nezindlela zokusebenzisa i-token**, kanye **nomshini wokuthenga nokusatshalaliswa kabusha kwama-token**. Lesi sakhiwo sihlinzeka **ngohlelo lokuvuza olufanele nolusebenzayo** kubasebenzisi kanye nabahlinzeki bezinsizakalo.
+
+## Indlela Yokusatshalaliswa Kwe-Token (Drop)
+
+### Inani Eliphelele Le-Token Nesikhathi Sokusatshalaliswa
+
+- **Inani Eliphelele**: IJetPack izokhipha inani eliphelele lama-**1 billion Jet** tokens.
+- **Isikhathi Sokusatshalaliswa**: Ama-tokens azosatshalaliswa ngaphezu kweminyaka **38**, ngokuhlangana okuphelele kwe-**2,776** okwenzeka ngezikhathi ezifanayo ne-**Cardano Epoch** (1 epoch = 5 izinsuku).
+
+### Inani Lokusatshalaliswa Kwe-Token nge-Epoch
+
+#### Ukubala Inani Lokusatshalaliswa Ngokusekelwe Kumsebenzi We-Logarithmic
+
+Inani lama-tokens elisatshalaliswa nge-epoch lihlelwe ukuthi lehle ngokuhamba kwesikhathi. Umsebenzi we-**logarithmic** usetshenziselwa ukubala inani lokusatshalaliswa nge-epoch ngayinye. **1 Jet ilingana no-1,000,000 Pack**, ngakho-ke amanani okusatshalaliswa abalwa kuze kufike endaweni yesithupha yeshumi futhi akhokhelwe ngokufanele.
+
+1. **Incazelo Yomsebenzi We-Logarithmic $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Lapho:
+
+    - $ t $ inombolo ye-epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ umsebenzi we-logarithm yemvelo.
+
+2. **Ukubala Isamba Somsebenzi We-Log $ f(t) $ Phezu Kwazo Zonke I-Epochs**:
+
+   Isamba esiphelele samagugu omsebenzi ngaso sonke isikhathi sokusatshalaliswa $ S $ siyi:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Ukubala Okuguquguqukayo Kokulinganisa $ A $**:
+
+   Inani eliphelele le-token le-**1 billion Jet** lihlukaniswa ngesamba $ S $ ukuze kulungiswe inani lokusatshalaliswa nge-epoch ngayinye:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Ukubala Inani Lokusatshalaliswa Kwe-Token nge-Epoch**:
+
+   Inani lokusatshalaliswa nge-epoch ngayinye liyi:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Izibonelo Zamanani Okusatshalaliswa**:
+
+   Ukubala amanani okusatshalaliswa kwe-epoch yokuqala:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Inani lokusatshalaliswa kwe-epoch ngayinye linqunywa ngenani lomsebenzi we-log elihambisana nenombolo ye-epoch.
+
+**Izici Zokusatshalaliswa**
+
+- Njengoba $ \ln(t + 1) $ likhula njengoba $ t $ likhula, isihlukanisi siba sikhulu, okubangela ukuthi inani eliphelele lokusatshalaliswa lehle kancane kancane.
+- Inani lokusatshalaliswa nge-epoch liyancipha ngokuhamba kwesikhathi, lisondele ku-zero.
+- Lo mklamo ukhuthaza ababambiqhaza bokuqala futhi ukhuphula ukushoda kwe-token.
+
+### Isheduli Yokusatshalaliswa Okuphelele
+
+Ngezansi ithebula elingaphelele elihlanganisa amanani okusatshalaliswa nezinsuku nge-epoch ngayinye.
+Ngemininingwane eningiliziwe kuzo zonke i-epoch, sicela ubheke [idokhumenti](/attach/token_allocation_per_epoch.csv) ehlukile kanye [nekhodi](/attach/token_allocation_per_epoch.py).
+
+| Inombolo ye-Epoch | Usuku          | Inani Lokusatshalaliswa (Jet) |
+|-------------------|----------------|-------------------------------|
+| 1                 | 2025-01-01     | 3,479,788.70                  |
+| 2                 | 2025-01-06     | 2,195,502.227                 |
+| 3                 | 2025-01-11     | 1,739,894.35                  |
+| ...               | ...            | ...                           |
+| 2774              | 2062-12-18     | 304,223.285                   |
+| 2775              | 2062-12-23     | 304,209.4607                  |
+| 2776              | 2062-12-28     | 304,195.6425                  |
+
+### Izinkomba Zokusatshalaliswa Kwe-Token Nge-Service
+
+#### Ukubala Izilinganiso Phakathi Kwezinsizakalo
+
+Isilinganiso sokusatshalaliswa kwenkonzo ngayinye sibalwa ngokusekelwe kumphumela wayo wokusebenza $ P_n $ uma kuqhathaniswa nesamba somphumela wokusebenza $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Lapho:
+
+- $ P_n $: Umphumela wokusebenza kwenkonzo $ n $.
+- $ P $: Isamba semiphumela yokusebenza yazo zonke izinsizakalo.
+
+#### Ukubala Inani Lokusatshalaliswa Kwenkonzo Ngayinye
+
+Inani lama-tokens inkonzo $ n $ elithola nge-epoch ngayinye $ S_n $ liyi:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Inani eliphelele lokusatshalaliswa elilungisiwe le-epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Inani eliphezulu le-token elinikezwe ngokusekelwe ezingeni lenkonzo (bona ukusatshalaliswa kwe-token okukhulu okusekelwe ezingeni ngezansi).
+
+#### Ukuphathwa Kwama-Tokens Angasatshalaliswanga
+
+##### Ukuthwala Phezu Kwama-Tokens Angasatshalaliswanga
+
+- Ama-tokens angasatshalaliswanga nge-epoch ngayinye **engezwa** enanini eliphelele lokusatshalaliswa le-epoch elandelayo.
+- Lokhu kuqinisekisa ukusatshalaliswa kwe-token okusebenzayo ngisho nalapho ukubamba iqhaza kwenkonzo yokuqala kuphansi.
+
+##### Ukubala Inani Eliphelele Lokusatshalaliswa Elilungisiwe Nge-Epoch
+
+Inani eliphelele lokusatshalaliswa le-epoch elandelayo liyi:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Inani eliphelele lokusatshalaliswa elilungisiwe le-epoch $ t+1 $.
+- $ f(t+1) $: Inani lokusatshalaliswa elisekelwe kumsebenzi oyisisekelo wokusatshalaliswa.
+- **Ama-Tokens Angasatshalaliswanga Athwalwe Phezu**: Inani lama-tokens angasatshalaliswanga nge-epoch $ t $.
+
+#### Ukubala Umphumela Wokusebenza ($ P_n $) Nge-Service
+
+Umphumela wokusebenza kwenkonzo ngayinye ubalwa ngokusekelwe kulawa mapharamitha alandelayo. Isisindo sepharamitha ngayinye singalungiswa ngokusebenzisa ukuphatha.
+
+1. **Ukusetshenziswa Kwe-JetPack Token ($ M_{1n} $)**
+    - **Isisindo**: $ w_1 = 50\% $
+    - **Incazelo**: Inani eliphelele lama-JetPack tokens asetshenziswa abasebenzisi ngaphakathi kwenkonzo.
+
+2. **Inani Lezivoti Ze-Degen Bunny ($ M_{2n} $)**
+    - **Isisindo**: $ w_2 = 30\% $
+    - **Incazelo**: Inani lezivoti ezitholwe ku-OG Degen Bunnies.
+
+3. **Inani Labasebenzisi Abasebenzayo ($ M_{3n} $)**
+    - **Isisindo**: $ w_3 = 20\% $
+    - **Incazelo**: Inani labasebenzisi abahlukile abathole ukufinyelela futhi abasebenzayo enkosini ngesikhathi se-epoch.
+
+Umphumela wokusebenza kwenkonzo ngayinye $ P_n $ ubalwa kanje:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Lapho:
+
+- $ M_{1n} $: Ukusetshenziswa kwe-JetPack token kwenkonzo $ n $.
+- $ M_{1\text{total}} $: Ukusetshenziswa kwe-JetPack token okuphelele kuzo zonke izinsizakalo.
+- $ M_{2n} $: Inani lezivoti ze-Degen Bunny kwenkonzo $ n $.
+- $ M_{2\text{total}} $: Inani lezivoti ze-Degen Bunny eliphelele kuzo zonke izinsizakalo.
+- $ M_{3n} $: Inani labasebenzisi abasebenzayo kwenkonzo $ n $.
+- $ M_{3\text{total}} $: Inani labasebenzisi abasebenzayo eliphelele kuzo zonke izinsizakalo.
+
+**Isibonelo**:
+
+- **Inkonzo A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Inkonzo B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Inkonzo C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Izamba**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Izisindo**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Ukubala Umphumela Wokusebenza Kwenkonzo A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Ukubala Umphumela Wokusebenza Kwenkonzo B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Ukubala Umphumela Wokusebenza Kwenkonzo C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Ngakho-ke, imiphumela yokusebenza imi kanje:
+
+- **Inkonzo A**: $ P_A = 0.38 $
+- **Inkonzo B**: $ P_B = 0.29 $
+- **Inkonzo C**: $ P_C = 0.33 $
+
+#### Izinkomba Zokunquma Izinga Nenani Eliphezulu Lokusatshalaliswa Kwe-Token
+
+Ngokusekelwe kumphumela wokusebenza $ P_n $, inkonzo ngayinye ihlukaniswa ibe **Izinga 1 kuya ku-9**. Lokhu kuhlukaniswa kusebenzisa **iphesenti eliphezulu eliqoqiwe** lemiphumela yokusebenza yazo zonke izinsizakalo.
+
+##### Amaphesenti Aphezulu Aqoqa Nenani Eliphezulu Lokusatshalaliswa Kwe-Token Nge-Level
+
+| **Izinga** | **Iphesenti Eliqoqiwe Eliphezulu** | **Inani Eliphezulu Lokusatshalaliswa (Jet)** |
+|------------|------------------------------------|----------------------------------------------|
+| Izinga 1   | Iphesenti eliphezulu elingu-4%      | 30,000                                       |
+| Izinga 2   | Iphesenti eliphezulu elingu-11%     | 25,000                                       |
+| Izinga 3   | Iphesenti eliphezulu elingu-23%     | 20,000                                       |
+| Izinga 4   | Iphesenti eliphezulu elingu-40%     | 15,000                                       |
+| Izinga 5   | Iphesenti eliphezulu elingu-60%     | 10,000                                       |
+| Izinga 6   | Iphesenti eliphezulu elingu-77%     | 7,000                                        |
+| Izinga 7   | Iphesenti eliphezulu elingu-89%     | 5,000                                        |
+| Izinga 8   | Iphesenti eliphezulu elingu-96%     | 3,000                                        |
+| Izinga 9   | Iphesenti eliphezulu elingu-100%    | 1,000                                        |
+
+##### Indlela Yokunquma Izinga
+
+1. **Bala Imiphumela Yokusebenza**
+
+   Sebenzisa indlela echazwe ngaphambili ukubala umphumela wokusebenza kwenkonzo ngayinye $ P_n $.
+
+2. **Nquma Izikhundla Zezinsizakalo**
+
+   Beka zonke izinsizakalo ngokulandelana kwehla ngokusekelwe emiphumeleni yazo yokusebenza.
+
+3. **Bala Amaphesenti Aphezulu Aqoqa**
+
+   Kwinkonzo ngayinye, bala iphesenti eliphezulu eliqoqiwe:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Lapho:
+
+    - $ \text{Rank} $: Isikhundla senkonzo (siqala ku-1).
+    - $ N $: Inani eliphelele lezinsizakalo.
+
+4. **Nika Izinga**
+
+   Nika izinga ngokusekelwe kumaphesenti aphezulu acoqwe:
+
+    - **Izinga 1**: Iphesenti eliphezulu eliqoqiwe > 96%
+    - **Izinga 2**: 89% < Iphesenti eliphezulu eliqoqiwe ≤ 96%
+    - **Izinga 3**: 77% < Iphesenti eliphezulu eliqoqiwe ≤ 89%
+    - **Izinga 4**: 60% < Iphesenti eliphezulu eliqoqiwe ≤ 77%
+    - **Izinga 5**: 40% < Iphesenti eliphezulu eliqoqiwe ≤ 60%
+    - **Izinga 6**: 23% < Iphesenti eliphezulu eliqoqiwe ≤ 40%
+    - **Izinga 7**: 11% < Iphesenti eliphezulu eliqoqiwe ≤ 23%
+    - **Izinga 8**: 4% < Iphesenti eliphezulu eliqoqiwe ≤ 11%
+    - **Izinga 9**: Iphesenti eliphezulu eliqoqiwe ≤ 4%
+
+**Isibonelo**:
+
+Ngokuhlangana kwezinsizakalo **3**:
+
+1. **Bala Izikhundla Namaphesenti Aphezulu Aqoqa**
+
+    - **Inkonzo A**:
+
+        - Umphumela Wokusebenza: $ P_A = 0.38 $
+        - Isikhundla: 1
+        - Iphesenti Eliqoqiwe Eliphezulu:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Inkonzo C**:
+
+        - Umphumela Wokusebenza: $ P_C = 0.33 $
+        - Isikhundla: 2
+        - Iphesenti Eliqoqiwe Eliphezulu:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Inkonzo B**:
+
+        - Umphumela Wokusebenza: $ P_B = 0.29 $
+        - Isikhundla: 3
+        - Iphesenti Eliqoqiwe Eliphezulu:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Nika Izinga**
+
+    - **Inkonzo A**:
+
+        - Iphesenti Eliqoqiwe Eliphezulu: 100%
+        - **Izinga**: **Izinga 1** (Iphesenti Eliqoqiwe Eliphezulu > 96%)
+        - **Inani Eliphezulu Lokusatshalaliswa**: 30,000 Jet
+
+    - **Inkonzo C**:
+
+        - Iphesenti Eliqoqiwe Eliphezulu: 66.67%
+        - **Izinga**: **Izinga 4** (60% < Iphesenti Eliqoqiwe Eliphezulu ≤ 77%)
+        - **Inani Eliphezulu Lokusatshalaliswa**: 15,000 Jet
+
+    - **Inkonzo B**:
+
+        - Iphesenti Eliqoqiwe Eliphezulu: 33.33%
+        - **Izinga**: **Izinga 6** (23% < Iphesenti Eliqoqiwe Eliphezulu ≤ 40%)
+        - **Inani Eliphezulu Lokusatshalaliswa**: 7,000 Jet
+
+**Amanothi**:
+
+- **Imiphumela Efanayo**: Izinsizakalo ezinemiphumela yokusebenza efanayo zithola isikhundla esifanayo. Ekubaleni amaphesenti aphezulu acoqwe, isikhundla esimaphakathi siyasetshenziswa.
+- **Inani Eliphezulu Lokusatshalaliswa** libhekisela enanini eliphezulu le-token inkonzo engalithola ngokusekelwe ezingeni layo.
+
+### Isimo Sesibonelo
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Inani Elisisekelo Lokusatshalaliswa**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Inani Eliphelele Lokusatshalaliswa Elilungisiwe**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Ukubala Inani Lokusatshalaliswa Kwenkonzo Ngayinye**
+
+Ngokusekelwe emiphumeleni yokusebenza nasezingeni:
+
+- **Umphumela Wokusebenza Ophelele $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Inkonzo A**:
+
+    - Isilinganiso: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Inani Lokusatshalaliswa:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Inkonzo C**:
+
+    - Isilinganiso: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Inani Lokusatshalaliswa:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Inkonzo B**:
+
+    - Isilinganiso: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Inani Lokusatshalaliswa:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Imiphumela Yokusatshalaliswa**
+
+- **Inani Eliphelele Lama-Tokens Elisatshalaliswe**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Ama-Tokens Angasatshalaliswanga**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Inani Elisisekelo Lokusatshalaliswa**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Ama-Tokens Athwalwe Phezu**: $ 3,427,788.70 \text{ Jet} $
+- **Inani Eliphelele Lokusatshalaliswa Elilungisiwe**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Imiphumela Yokusebenza Nezinga Elibuyekeziwe**
+
+Uma kucatshangelwa izinguquko emiphumeleni yokusebenza:
+
+- **Inkonzo A**:
+
+    - Umphumela Wokusebenza: $ P_A = 0.40 $
+    - Isikhundla: 1
+    - Iphesenti Eliqoqiwe Eliphezulu: 100%
+    - **Izinga**: Izinga 1
+    - **Inani Eliphezulu Lokusatshalaliswa**: 30,000 Jet
+
+- **Inkonzo C**:
+
+    - Umphumela Wokusebenza: $ P_C = 0.35 $
+    - Isikhundla: 2
+    - Iphesenti Eliqoqiwe Eliphezulu: 66.67%
+    - **Izinga**: Izinga 4
+    - **Inani Eliphezulu Lokusatshalaliswa**: 15,000 Jet
+
+- **Inkonzo B**:
+
+    - Umphumela Wokusebenza: $ P_B = 0.25 $
+    - Isikhundla: 3
+    - Iphesenti Eliqoqiwe Eliphezulu: 33.33%
+    - **Izinga**: Izinga 6
+    - **Inani Eliphezulu Lokusatshalaliswa**: 7,000 Jet
+
+**Umphumela Wokusebenza Ophelele $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Ukubala Inani Lokusatshalaliswa Kwenkonzo Ngayinye**
+
+1. **Inkonzo A**:
+
+    - Isilinganiso: $ \frac{P_A}{P} = 0.40 $
+    - Inani Lokusatshalaliswa:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Inkonzo C**:
+
+    - Isilinganiso: $ \frac{P_C}{P} = 0.35 $
+    - Inani Lokusatshalaliswa:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Inkonzo B**:
+
+    - Isilinganiso: $ \frac{P_B}{P} = 0.25 $
+    - Inani Lokusatshalaliswa:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Imiphumela Yokusatshalaliswa**
+
+- **Inani Eliphelele Lama-Tokens Elisatshalaliswe**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Ama-Tokens Angasatshalaliswanga**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Umthelela Wama-Tokens Angasatshalaliswanga Aqoqiwe
+
+- **Ukukhula Kokubamba Iqhaza Kwezinsizakalo Nokuthuthukiswa Kokusebenza** kuzonciphisa kancane kancane inani lama-tokens angasatshalaliswanga.
+- **Izinsizakalo zokuqala zingasebenzisa inani eliphezulu lokusatshalaliswa** ukukhuthaza ukukhula.
+- Ukuthwala phezu kwama-tokens kusiza **ukugcina ukuzinza kwenani** nokulawula ukusatshalaliswa.
+
+## Imivuzo Yomsebenzisi Nezindlela Zokusebenzisa I-Token
+
+### **Indlela Yemivuzo Yomsebenzisi**
+
+- **Imivuzo Esekelwe Kumsebenzi**: Abasebenzisi bathola ama-JetPack tokens uma benza **imisebenzi evunyelwene ngaphambilini** (isb., ukudala okuqukethwe, ukudlala) ngaphakathi kwenkonzo.
+- **Izinkomba Zemivuzo Ye-Token**: Inani lama-tokens anikezwa imisebenzi ngayinye **linqunywa ngokubonisana** phakathi kwenkonzo nomsebenzisi we-JetPack ecosystem.
+
+### **Izindlela Zokusebenzisa I-Token**
+
+1. **Ngaphakathi Kwenkonzo**:
+    - **Ukufinyelela Izici Ezikhokhelwayo**: Sebenzisa ama-tokens ukufinyelela izici ezikhokhelwayo noma okuqukethwe ngaphakathi kwenkonzo.
+    - **Thenga Izimpahla**: Thenga izimpahla zedijithali noma izinto ezinkonzweni usebenzisa ama-tokens.
+
+2. **Ukusebenzisa I-JetPack Wallet Service Exchange**:
+    - **Ukuthengisa Ama-Tokens**: Abasebenzisi bangashintshanisa ama-tokens abo nge-**ADA** (imali ye-**Cardano**).
+    - **Ukuphathwa Kwe-Wallet**: I-JetPack wallet ivumela ukuphathwa okuphephile kwama-tokens nokudluliselwa kwezinye izinsizakalo.
+
+### **Izinzuzo Ezilindelekile Ekukhuleni Kwenani Le-Token**
+
+- **Uketshezi Lwe-Token**: Ukushintshaniswa kwama-tokens ezinkampanini zokushintshanisa kwandisa **uketshezi** lwawo.
+- **Inzuzo Yomnotho**: Abasebenzisi bangathola **izinzuzo zomnotho ezengeziwe** ngokuthengisa ama-tokens uma inani lawo likhula.
+
+## Ukuthenga Nokusatshalaliswa Kabusha Kwe-Token
+
+### **Ukuthengwa Kwe-Token Okungeziwe Ngezinsizakalo**
+
+- **Uma Ama-Tokens Asatshalaliswa Ephelelwa**: Uma inkonzo isebenzisa wonke ama-tokens anikezwe, ingathenga ama-tokens angeziwe ku-**JetPack Wallet Service Exchange**.
+- **Imali Yokuthenga**: Ama-tokens athengwa usebenzisa **ADA**.
+- **Ukusetshenziswa Kwama-Tokens Athengiwe**: Ama-tokens athengiwe angasetshenziswa **ukuvuza abasebenzisi** noma **ngaphakathi kwenkonzo**.
+
+### **Ama-Tokens Angathengiseki vs. Ama-Tokens Angathengiseka**
+
+- **Ama-Tokens Asatshalaliswa** (**Angathengiseki**): Ama-tokens anikezwe izinsizakalo **awakwazi ukuthengiswa kabusha** futhi awenzelwe kuphela **imivuzo yomsebenzisi**.
+- **Ama-Tokens Athengiwe Nama-Tokens Atholwe Kubasebenzisi** (**Angathengiseka**): Ama-tokens athengwa nge-ADA nama-tokens atholwe kubasebenzisi **angathengiswa kabusha**, okusiza ekutholeni **uketshezi**.
+
+### **Ukusatshalaliswa Kabusha Kwe-Token Nokusebenza Kwe-Ecosystem**
+
+1. **Isakhiwo Sokusatshalaliswa Kwe-Token**:
+    - Izinsizakalo zivuza abasebenzisi ngama-tokens; abasebenzisi bawasebenzisa ngaphakathi kwezinsizakalo noma bawathengise ezinkampanini zokushintshanisa.
+    - Izinsizakalo zithola ama-tokens kubasebenzisi noma zithenge ukuze zigcine **uhlelo lokuvuza oluzinzile**.
+
+2. **Imiphumela Yokusebenza Kwe-Ecosystem**:
+    - Ukusatshalaliswa kwe-token kukhuthaza **ukubamba iqhaza komsebenzisi** nokusebenza kwezinsizakalo.
+    - Lokhu kunikela **ekuzinzeni kwenani le-token** nokukhula okuqhubekayo kwe-ecosystem.

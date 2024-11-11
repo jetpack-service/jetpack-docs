@@ -1,0 +1,529 @@
+# Hoe JetPack Tokens Werk
+
+Die JetPack-tokenstelsel bestaan uit **aktiwiteitsgebaseerde tokenuitreiking en -verspreiding**, 'n **diensvlakstelsel**, **gebruikersbelonings en tokenbenuttingsmetodes**, en 'n **meganisme vir die aankoop en herverdeling van tokens**. Hierdie struktuur bied 'n **regverdige en doeltreffende beloningstelsel** vir beide gebruikers en diensverskaffers.
+
+## Tokenverspreidingsmeganisme (Drop)
+
+### Totale Tokenvoorraad en Verspreidingsperiode
+
+- **Totale Voorraad**: JetPack sal 'n totaal van **1 miljard Jet** tokens uitreik.
+- **Verspreidingsperiode**: Tokens sal oor **38 jaar** versprei word, met 'n totaal van **2,776 verspreidings** wat plaasvind op dieselfde intervalle as die **Cardano Epoch** (1 epoch = 5 dae).
+
+### Tokenverspreidingsbedrag per Epoch
+
+#### Berekening van Verspreidingsbedrag Gebaseer op 'n Logaritmiese Funksie
+
+Die hoeveelheid tokens wat per epoch versprei word, is ontwerp om oor tyd te verminder. 'n **Logaritmiese funksie** word gebruik om die verspreidingsbedrag vir elke epoch te bereken. **1 Jet is gelyk aan 1,000,000 Pack**, so die verspreidingsbedrae word tot die **sesde desimale plek** bereken en dienooreenkomstig betaal.
+
+1. **Definisie van die Logaritmiese Funksie $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Waar:
+
+    - $ t $ is die epoch-nommer, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ is die natuurlike logaritme-funksie.
+
+2. **Berekening van die Som van die Log Funksie $ f(t) $ Oor Alle Epochs**:
+
+   Die totale som van die funksiewaardes oor die hele verspreidingsperiode $ S $ is:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Berekening van die Skalering Konstante $ A $**:
+
+   Die totale tokenvoorraad van **1 miljard Jet** word gedeel deur die som $ S $ om die verspreidingsbedrag vir elke epoch aan te pas:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Berekening van die Tokenverspreidingsbedrag per Epoch**:
+
+   Die verspreidingsbedrag vir elke epoch is:
+
+   $$
+   \text{Verspreidingsbedrag}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Voorbeelde van Verspreidingsbedrae**:
+
+   Berekening van die verspreidingsbedrae vir die aanvanklike epochs:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Verspreidingsbedrag}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Verspreidingsbedrag}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Verspreidingsbedrag}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Die verspreidingsbedrag vir elke epoch word bepaal deur die waarde van die logfunksie wat ooreenstem met die epoch-nommer.
+
+**Verspreidingskenmerke**
+
+- Aangesien $ \ln(t + 1) $ toeneem soos $ t $ toeneem, word die noemer groter, wat veroorsaak dat die algehele verspreidingsbedrag geleidelik afneem.
+- Die verspreidingsbedrag per epoch neem oor tyd af en nader nul.
+- Hierdie ontwerp motiveer vroeë deelnemers en verhoog die skaarsheid van die token.
+
+### Algehele Verspreidingskedule
+
+Hieronder is 'n gedeeltelike tabel wat die verspreidingsbedrae en datums per epoch opsom.
+Vir gedetailleerde inligting oor alle epochs, verwys asseblief na die aparte [dokument](/attach/token_allocation_per_epoch.csv) en [kode](/attach/token_allocation_per_epoch.py).
+
+| Epoch Nommer | Datum          | Verspreidingsbedrag (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Tokenverspreidingskriteria per Diens
+
+#### Berekening van Verhoudings Onder Dienste
+
+Die verspreidingsverhouding vir elke diens word bereken op grond van sy prestasietelling $ P_n $ relatief tot die totale prestasietelling $ P $:
+
+$$
+\text{Verhouding vir Diens } n = \frac{P_n}{P}
+$$
+
+Waar:
+
+- $ P_n $: Prestasietelling van diens $ n $.
+- $ P $: Som van prestasietellings van alle dienste.
+
+#### Berekening van Verspreidingsbedrag per Diens
+
+Die hoeveelheid tokens wat diens $ n $ in elke epoch $ S_n $ ontvang, is:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimum Tokenverspreiding vir Diens } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Aangepaste totale verspreidingsbedrag vir die epoch.
+- $ \text{Maksimum Tokenverspreiding vir Diens } n $: Maksimum tokenbedrag toegeken op grond van die diens se vlak (sien vlakgebaseerde maksimum tokenverspreiding hieronder).
+
+#### Hantering van Onverspreide Tokens
+
+##### Oordra van Onverspreide Tokens
+
+- Onverspreide tokens van elke epoch word **bygevoeg** by die totale verspreidingsbedrag vir die volgende epoch.
+- Dit verseker effektiewe tokenverspreiding selfs wanneer aanvanklike diensdeelname laag is.
+
+##### Berekening van Aangepaste Totale Verspreidingsbedrag per Epoch
+
+Die totale verspreidingsbedrag vir die volgende epoch is:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Onverspreide Tokens van Vorige Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Aangepaste totale verspreidingsbedrag vir epoch $ t+1 $.
+- $ f(t+1) $: Verspreidingsbedrag gebaseer op die basiese verspreidingsfunksie.
+- **Oorgedra Onverspreide Tokens**: Aantal tokens wat nie in epoch $ t $ versprei is nie.
+
+#### Berekening van Prestasietelling ($ P_n $) per Diens
+
+Elke diens se prestasietelling word bereken op grond van die volgende maatstawwe. Die gewig van elke maatstaf kan deur middel van bestuur aangepas word.
+
+1. **JetPack Tokenverbruik ($ M_{1n} $)**
+    - **Gewig**: $ w_1 = 50\% $
+    - **Beskrywing**: Totale hoeveelheid JetPack tokens wat deur gebruikers binne die diens verbruik is.
+
+2. **Degen Bunny Stemgetal ($ M_{2n} $)**
+    - **Gewig**: $ w_2 = 30\% $
+    - **Beskrywing**: Aantal stemme ontvang van OG Degen Bunnies.
+
+3. **Aktiewe Gebruikersgetal ($ M_{3n} $)**
+    - **Gewig**: $ w_3 = 20\% $
+    - **Beskrywing**: Aantal unieke gebruikers wat toegang tot die diens gehad het en aktief was gedurende die epoch.
+
+Elke diens se prestasietelling $ P_n $ word bereken as:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Waar:
+
+- $ M_{1n} $: JetPack tokenverbruik van diens $ n $.
+- $ M_{1\text{total}} $: Totale JetPack tokenverbruik oor alle dienste.
+- $ M_{2n} $: Degen Bunny stemgetal vir diens $ n $.
+- $ M_{2\text{total}} $: Totale Degen Bunny stemme oor alle dienste.
+- $ M_{3n} $: Aktiewe gebruikersgetal van diens $ n $.
+- $ M_{3\text{total}} $: Totale aktiewe gebruikers oor alle dienste.
+
+**Voorbeeld**:
+
+- **Diens A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Diens B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Diens C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totale**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Gewigte**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Berekening van Prestasietelling vir Diens A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Berekening van Prestasietelling vir Diens B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Berekening van Prestasietelling vir Diens C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Dus, die prestasietellings is:
+
+- **Diens A**: $ P_A = 0.38 $
+- **Diens B**: $ P_B = 0.29 $
+- **Diens C**: $ P_C = 0.33 $
+
+#### Vlakbepalingskriteria en Maksimum Tokenverspreidingsbedrag
+
+Op grond van die prestasietelling $ P_n $, word elke diens geklassifiseer in **Vlakke 1 tot 9**. Hierdie klassifikasie gebruik die **kumulatiewe top persentiel** van alle dienste se prestasietellings.
+
+##### Kumulatiewe Top Persentiele en Maksimum Tokenverspreidingsbedrae per Vlak
+
+| **Vlak** | **Kumulatiewe Top Persentiel** | **Maksimum Tokenverspreiding (Jet)** |
+|----------|--------------------------------|--------------------------------------|
+| Vlak 1   | Top 4%                         | 30,000                               |
+| Vlak 2   | Top 11%                        | 25,000                               |
+| Vlak 3   | Top 23%                        | 20,000                               |
+| Vlak 4   | Top 40%                        | 15,000                               |
+| Vlak 5   | Top 60%                        | 10,000                               |
+| Vlak 6   | Top 77%                        | 7,000                                |
+| Vlak 7   | Top 89%                        | 5,000                                |
+| Vlak 8   | Top 96%                        | 3,000                                |
+| Vlak 9   | Top 100%                       | 1,000                                |
+
+##### Vlakbepalingsmetode
+
+1. **Bereken Prestasietellings**
+
+   Gebruik die voorheen gedefinieerde metode om elke diens se prestasietelling $ P_n $ te bereken.
+
+2. **Bepaal Diensranglys**
+
+   Rangskik alle dienste in **dalende volgorde** gebaseer op hul prestasietellings.
+
+3. **Bereken Kumulatiewe Top Persentiele**
+
+   Vir elke diens, bereken die kumulatiewe top persentiel:
+
+   $$
+   \text{Kumulatiewe Top Persentiel (\%)} = \left(1 - \frac{\text{Rang} - 1}{N} \right) \times 100\%
+   $$
+
+   Waar:
+
+    - $ \text{Rang} $: Die diens se rang (begin vanaf 1).
+    - $ N $: Totale aantal dienste.
+
+4. **Ken Vlakke Toe**
+
+   Ken vlakke toe gebaseer op die kumulatiewe top persentiele:
+
+    - **Vlak 1**: Kumulatiewe top persentiel > 96%
+    - **Vlak 2**: 89% < Kumulatiewe top persentiel ≤ 96%
+    - **Vlak 3**: 77% < Kumulatiewe top persentiel ≤ 89%
+    - **Vlak 4**: 60% < Kumulatiewe top persentiel ≤ 77%
+    - **Vlak 5**: 40% < Kumulatiewe top persentiel ≤ 60%
+    - **Vlak 6**: 23% < Kumulatiewe top persentiel ≤ 40%
+    - **Vlak 7**: 11% < Kumulatiewe top persentiel ≤ 23%
+    - **Vlak 8**: 4% < Kumulatiewe top persentiel ≤ 11%
+    - **Vlak 9**: Kumulatiewe top persentiel ≤ 4%
+
+**Voorbeeld**:
+
+Met 'n totaal van **3** dienste:
+
+1. **Bereken Ranglys en Kumulatiewe Top Persentiele**
+
+    - **Diens A**:
+
+        - Prestasietelling: $ P_A = 0.38 $
+        - Rang: 1
+        - Kumulatiewe Top Persentiel:
+
+          $$
+          \text{Kumulatiewe Top Persentiel} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Diens C**:
+
+        - Prestasietelling: $ P_C = 0.33 $
+        - Rang: 2
+        - Kumulatiewe Top Persentiel:
+
+          $$
+          \text{Kumulatiewe Top Persentiel} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Diens B**:
+
+        - Prestasietelling: $ P_B = 0.29 $
+        - Rang: 3
+        - Kumulatiewe Top Persentiel:
+
+          $$
+          \text{Kumulatiewe Top Persentiel} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Ken Vlakke Toe**
+
+    - **Diens A**:
+
+        - Kumulatiewe Top Persentiel: 100%
+        - **Vlak**: **Vlak 1** (Kumulatiewe Top Persentiel > 96%)
+        - **Maksimum Tokenverspreiding**: 30,000 Jet
+
+    - **Diens C**:
+
+        - Kumulatiewe Top Persentiel: 66.67%
+        - **Vlak**: **Vlak 4** (60% < Kumulatiewe Top Persentiel ≤ 77%)
+        - **Maksimum Tokenverspreiding**: 15,000 Jet
+
+    - **Diens B**:
+
+        - Kumulatiewe Top Persentiel: 33.33%
+        - **Vlak**: **Vlak 6** (23% < Kumulatiewe Top Persentiel ≤ 40%)
+        - **Maksimum Tokenverspreiding**: 7,000 Jet
+
+**Notas**:
+
+- **Gelykop Tellings**: Dienste met identiese prestasietellings ontvang dieselfde rang. In die berekening van kumulatiewe top persentiele word die gemiddelde rang gebruik.
+- **Maksimum Tokenverspreiding** verwys na die maksimum tokenbedrag wat 'n diens kan ontvang gebaseer op sy vlak.
+
+### Voorbeeld Scenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basiese Verspreidingsbedrag**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Aangepaste Totale Verspreidingsbedrag**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Berekening van Verspreidingsbedrag per Diens**
+
+Gebaseer op die prestasietellings en vlakke:
+
+- **Totale Prestasietelling $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Diens A**:
+
+    - Verhouding: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Verspreidingsbedrag:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Diens C**:
+
+    - Verhouding: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Verspreidingsbedrag:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Diens B**:
+
+    - Verhouding: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Verspreidingsbedrag:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Verspreidingsresultate**
+
+- **Totale Tokens Versprei**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Onverspreide Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basiese Verspreidingsbedrag**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Oorgedra Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Aangepaste Totale Verspreidingsbedrag**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Opgedateerde Prestasietellings en Vlakke**
+
+Aangesien daar veranderinge in prestasietellings is:
+
+- **Diens A**:
+
+    - Prestasietelling: $ P_A = 0.40 $
+    - Rang: 1
+    - Kumulatiewe Top Persentiel: 100%
+    - **Vlak**: Vlak 1
+    - **Maksimum Tokenverspreiding**: 30,000 Jet
+
+- **Diens C**:
+
+    - Prestasietelling: $ P_C = 0.35 $
+    - Rang: 2
+    - Kumulatiewe Top Persentiel: 66.67%
+    - **Vlak**: Vlak 4
+    - **Maksimum Tokenverspreiding**: 15,000 Jet
+
+- **Diens B**:
+
+    - Prestasietelling: $ P_B = 0.25 $
+    - Rang: 3
+    - Kumulatiewe Top Persentiel: 33.33%
+    - **Vlak**: Vlak 6
+    - **Maksimum Tokenverspreiding**: 7,000 Jet
+
+**Totale Prestasietelling $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Berekening van Verspreidingsbedrag per Diens**
+
+1. **Diens A**:
+
+    - Verhouding: $ \frac{P_A}{P} = 0.40 $
+    - Verspreidingsbedrag:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Diens C**:
+
+    - Verhouding: $ \frac{P_C}{P} = 0.35 $
+    - Verspreidingsbedrag:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Diens B**:
+
+    - Verhouding: $ \frac{P_B}{P} = 0.25 $
+    - Verspreidingsbedrag:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Verspreidingsresultate**
+
+- **Totale Tokens Versprei**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Onverspreide Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impak van Opgehoopte Onverspreide Tokens
+
+- **Verhoogde Diensdeelname en Verbeterde Prestasie** sal geleidelik die hoeveelheid onverspreide tokens verminder.
+- **Aanvanklike dienste kan die maksimum verspreidingsbedrag gebruik** om groei te bevorder.
+- Oordrag van tokens help om **waarde stabiliteit te handhaaf** en sirkulasie te reguleer.
+
+## Gebruikersbelonings en Tokengebruik
+
+### **Gebruikersbeloningsmeganisme**
+
+- **Aktiwiiteitsgebaseerde Belonings**: Gebruikers ontvang JetPack tokens wanneer hulle **vooraf ooreengekome aktiwiteite** (bv. inhoudskepping, spel) binne 'n diens uitvoer.
+- **Tokenbeloningskriteria**: Die hoeveelheid tokens wat vir elke aktiwiteit beloon word, word **deur konsultasie bepaal** tussen die diens en die JetPack-ekosisteemoperateur.
+
+### **Tokengebruikmetodes**
+
+1. **Binne die Diens**:
+    - **Toegang tot Premium Kenmerke**: Gebruik tokens om toegang tot betaalde kenmerke of inhoud binne die diens te verkry.
+    - **Koop Goedere**: Koop digitale goedere of items binne die diens met tokens.
+
+2. **Gebruik die JetPack Wallet Diensuitruil**:
+    - **Tokenverkope**: Gebruikers kan hul tokens vir **ADA** (die geldeenheid van **Cardano**) verruil.
+    - **Walletbestuur**: Die JetPack-wallet laat veilige bestuur van tokens en oordragte na ander dienste toe.
+
+### **Verwagte Voordele van Tokenwaarde Waardering**
+
+- **Tokenlikiditeit**: Handel in tokens op beurse verhoog hul **likiditeit**.
+- **Ekonomiese Winste**: Gebruikers kan **addisionele ekonomiese voordele** behaal deur tokens te verkoop as hul waarde styg.
+
+## Token Aankoop en Herverdeling
+
+### **Addisionele Token Aankope deur Dienste**
+
+- **Wanneer Verspreide Tokens Opgebruik is**: As 'n diens al sy toegewyde tokens gebruik, kan dit addisionele tokens koop van die **JetPack Wallet Diensuitruil**.
+- **Aankoopgeldeenheid**: Tokens word gekoop met **ADA**.
+- **Benutting van Gekoopte Tokens**: Gekoopte tokens kan gebruik word om **gebruikers te beloon** of **binne die diens**.
+
+### **Herverkoopbare vs. Nie-Herverkoopbare Tokens**
+
+- **Verspreide Tokens** (**Nie-Herverkoopbaar**): Tokens wat aan dienste toegeken is, **kan nie herverkoop word nie** en is slegs vir **gebruikersbelonings**.
+- **Gekoopte Tokens en Tokens Verkry van Gebruikers** (**Herverkoopbaar**): Tokens wat met ADA gekoop is en tokens wat van gebruikers ontvang is, **kan herverkoop word**, wat help met **likiditeitsverkryging**.
+
+### **Token Herverdeling en Ekosisteem Aktivering**
+
+1. **Token Sirkulasiestruktuur**:
+    - Dienste beloon gebruikers met tokens; gebruikers gebruik hulle binne dienste of verkoop hulle op beurse.
+    - Dienste verkry tokens van gebruikers of koop hulle om 'n **volhoubare beloningstelsel** te handhaaf.
+
+2. **Ekosisteem Aktiveringseffekte**:
+    - Token sirkulasie bevorder **gebruikersbetrokkenheid** en **diensaktivering**.
+    - Dit dra by tot **tokenwaarde stabilisering** en die **volhoubare groei** van die ekosisteem.

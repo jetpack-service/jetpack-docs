@@ -1,0 +1,529 @@
+# Com funcionen els tokens de JetPack
+
+El sistema de tokens de JetPack comprèn **l'emissió i distribució de tokens basada en l'activitat**, un **sistema de nivell de servei**, **recompenses per als usuaris i mètodes d'utilització de tokens**, i un **mecanisme per a la compra i redistribució de tokens**. Aquesta estructura proporciona un **sistema de recompenses just i eficient** tant per als usuaris com per als proveïdors de serveis.
+
+## Mecanisme de distribució de tokens (Drop)
+
+### Subministrament total de tokens i període de distribució
+
+- **Subministrament total**: JetPack emetrà un total de **1 mil milions de Jet** tokens.
+- **Període de distribució**: Els tokens es distribuiran al llarg de **38 anys**, amb un total de **2.776 distribucions** que es produiran als mateixos intervals que l'**època de Cardano** (1 època = 5 dies).
+
+### Quantitat de distribució de tokens per època
+
+#### Càlcul de la quantitat de distribució basada en una funció logarítmica
+
+La quantitat de tokens distribuïts per època està dissenyada per disminuir amb el temps. S'utilitza una **funció logarítmica** per calcular la quantitat de distribució per a cada època. **1 Jet equival a 1.000.000 Pack**, de manera que les quantitats de distribució es calculen fins a la **sisena posició decimal** i es paguen en conseqüència.
+
+1. **Definició de la funció logarítmica $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   On:
+
+    - $ t $ és el número d'època, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ és la funció logarítmica natural.
+
+2. **Càlcul de la suma de la funció logarítmica $ f(t) $ durant totes les èpoques**:
+
+   La suma total dels valors de la funció durant tot el període de distribució $ S $ és:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Càlcul de la constant d'escalat $ A $**:
+
+   El subministrament total de tokens de **1 mil milions de Jet** es divideix per la suma $ S $ per ajustar la quantitat de distribució per a cada època:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Càlcul de la quantitat de distribució de tokens per època**:
+
+   La quantitat de distribució per a cada època és:
+
+   $$
+   \text{Quantitat de Distribució}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Exemples de quantitats de distribució**:
+
+   Càlcul de les quantitats de distribució per a les èpoques inicials:
+
+    - **Època 1**:
+
+      $$
+      \text{Quantitat de Distribució}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Època 2**:
+
+      $$
+      \text{Quantitat de Distribució}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Època 3**:
+
+      $$
+      \text{Quantitat de Distribució}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   La quantitat de distribució per a cada època es determina pel valor de la funció logarítmica corresponent al número d'època.
+
+**Característiques de la distribució**
+
+- Com que $ \ln(t + 1) $ augmenta a mesura que $ t $ augmenta, el denominador es fa més gran, fent que la quantitat total de distribució disminueixi gradualment.
+- La quantitat de distribució per època disminueix amb el temps, acostant-se a zero.
+- Aquest disseny incentiva els participants inicials i augmenta l'escassetat del token.
+
+### Calendari general de distribució
+
+A continuació es mostra una taula parcial que resumeix les quantitats de distribució i les dates per època.
+Per obtenir informació detallada sobre totes les èpoques, consulteu el document separat [document](/attach/token_allocation_per_epoch.csv) i el [codi](/attach/token_allocation_per_epoch.py).
+
+| Número d'època | Data           | Quantitat de Distribució (Jet) |
+|----------------|----------------|--------------------------------|
+| 1              | 2025-01-01     | 3,479,788.70                   |
+| 2              | 2025-01-06     | 2,195,502.227                  |
+| 3              | 2025-01-11     | 1,739,894.35                   |
+| ...            | ...            | ...                            |
+| 2774           | 2062-12-18     | 304,223.285                    |
+| 2775           | 2062-12-23     | 304,209.4607                   |
+| 2776           | 2062-12-28     | 304,195.6425                   |
+
+### Criteris de distribució de tokens per servei
+
+#### Càlcul de les proporcions entre serveis
+
+La proporció de distribució per a cada servei es calcula en funció del seu índex de rendiment $ P_n $ en relació amb l'índex de rendiment total $ P $:
+
+$$
+\text{Proporció per al Servei } n = \frac{P_n}{P}
+$$
+
+On:
+
+- $ P_n $: Índex de rendiment del servei $ n $.
+- $ P $: Suma dels índexs de rendiment de tots els serveis.
+
+#### Càlcul de la quantitat de distribució per servei
+
+La quantitat de tokens que el servei $ n $ rep en cada època $ S_n $ és:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Distribució màxima de tokens per al Servei } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Quantitat total de distribució ajustada per a l'època.
+- $ \text{Distribució màxima de tokens per al Servei } n $: Quantitat màxima de tokens assignada en funció del nivell del servei (vegeu la distribució màxima de tokens basada en el nivell a continuació).
+
+#### Gestió de tokens no distribuïts
+
+##### Transport de tokens no distribuïts
+
+- Els tokens no distribuïts de cada època s'**afegeixen** a la quantitat total de distribució per a l'època següent.
+- Això assegura una distribució efectiva de tokens fins i tot quan la participació inicial del servei és baixa.
+
+##### Càlcul de la quantitat total de distribució ajustada per època
+
+La quantitat total de distribució per a l'època següent és:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Tokens no distribuïts de l'època anterior}
+$$
+
+- $ f_{\text{total}}(t+1) $: Quantitat total de distribució ajustada per a l'època $ t+1 $.
+- $ f(t+1) $: Quantitat de distribució basada en la funció de distribució bàsica.
+- **Tokens no distribuïts transportats**: Nombre de tokens no distribuïts en l'època $ t $.
+
+#### Càlcul de l'índex de rendiment ($ P_n $) per servei
+
+L'índex de rendiment de cada servei es calcula en funció dels següents mètrics. El pes de cada mètric es pot ajustar mitjançant governança.
+
+1. **Consum de tokens de JetPack ($ M_{1n} $)**
+    - **Pes**: $ w_1 = 50\% $
+    - **Descripció**: Quantitat total de tokens de JetPack consumits pels usuaris dins del servei.
+
+2. **Nombre de vots de Degen Bunny ($ M_{2n} $)**
+    - **Pes**: $ w_2 = 30\% $
+    - **Descripció**: Nombre de vots rebuts dels OG Degen Bunnies.
+
+3. **Nombre d'usuaris actius ($ M_{3n} $)**
+    - **Pes**: $ w_3 = 20\% $
+    - **Descripció**: Nombre d'usuaris únics que van accedir i van estar actius en el servei durant l'època.
+
+L'índex de rendiment de cada servei $ P_n $ es calcula com:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+On:
+
+- $ M_{1n} $: Consum de tokens de JetPack del servei $ n $.
+- $ M_{1\text{total}} $: Consum total de tokens de JetPack a tots els serveis.
+- $ M_{2n} $: Nombre de vots de Degen Bunny per al servei $ n $.
+- $ M_{2\text{total}} $: Total de vots de Degen Bunny a tots els serveis.
+- $ M_{3n} $: Nombre d'usuaris actius del servei $ n $.
+- $ M_{3\text{total}} $: Total d'usuaris actius a tots els serveis.
+
+**Exemple**:
+
+- **Servei A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Servei B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Servei C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totals**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Pesos**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Càlcul de l'índex de rendiment per al Servei A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Càlcul de l'índex de rendiment per al Servei B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Càlcul de l'índex de rendiment per al Servei C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Així, els índexs de rendiment són:
+
+- **Servei A**: $ P_A = 0.38 $
+- **Servei B**: $ P_B = 0.29 $
+- **Servei C**: $ P_C = 0.33 $
+
+#### Criteris de determinació de nivell i quantitat màxima de distribució de tokens
+
+Basat en l'índex de rendiment $ P_n $, cada servei es classifica en **Nivells 1 a 9**. Aquesta classificació utilitza el **percentil superior acumulat** de tots els índexs de rendiment dels serveis.
+
+##### Percentils superiors acumulats i quantitats màximes de distribució de tokens per nivell
+
+| **Nivell** | **Percentil superior acumulat** | **Distribució màxima de tokens (Jet)** |
+|------------|---------------------------------|----------------------------------------|
+| Nivell 1   | Top 4%                          | 30,000                                 |
+| Nivell 2   | Top 11%                         | 25,000                                 |
+| Nivell 3   | Top 23%                         | 20,000                                 |
+| Nivell 4   | Top 40%                         | 15,000                                 |
+| Nivell 5   | Top 60%                         | 10,000                                 |
+| Nivell 6   | Top 77%                         | 7,000                                  |
+| Nivell 7   | Top 89%                         | 5,000                                  |
+| Nivell 8   | Top 96%                         | 3,000                                  |
+| Nivell 9   | Top 100%                        | 1,000                                  |
+
+##### Mètode de determinació de nivell
+
+1. **Calcular els índexs de rendiment**
+
+   Utilitzeu el mètode definit anteriorment per calcular l'índex de rendiment de cada servei $ P_n $.
+
+2. **Determinar les classificacions dels serveis**
+
+   Classifiqueu tots els serveis en **ordre descendent** basat en els seus índexs de rendiment.
+
+3. **Calcular els percentils superiors acumulats**
+
+   Per a cada servei, calculeu el percentil superior acumulat:
+
+   $$
+   \text{Percentil superior acumulat (\%)} = \left(1 - \frac{\text{Classificació} - 1}{N} \right) \times 100\%
+   $$
+
+   On:
+
+    - $ \text{Classificació} $: La classificació del servei (començant per 1).
+    - $ N $: Nombre total de serveis.
+
+4. **Assignar nivells**
+
+   Assigneu nivells basats en els percentils superiors acumulats:
+
+    - **Nivell 1**: Percentil superior acumulat > 96%
+    - **Nivell 2**: 89% < Percentil superior acumulat ≤ 96%
+    - **Nivell 3**: 77% < Percentil superior acumulat ≤ 89%
+    - **Nivell 4**: 60% < Percentil superior acumulat ≤ 77%
+    - **Nivell 5**: 40% < Percentil superior acumulat ≤ 60%
+    - **Nivell 6**: 23% < Percentil superior acumulat ≤ 40%
+    - **Nivell 7**: 11% < Percentil superior acumulat ≤ 23%
+    - **Nivell 8**: 4% < Percentil superior acumulat ≤ 11%
+    - **Nivell 9**: Percentil superior acumulat ≤ 4%
+
+**Exemple**:
+
+Amb un total de **3** serveis:
+
+1. **Calcular classificacions i percentils superiors acumulats**
+
+    - **Servei A**:
+
+        - Índex de rendiment: $ P_A = 0.38 $
+        - Classificació: 1
+        - Percentil superior acumulat:
+
+          $$
+          \text{Percentil superior acumulat} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Servei C**:
+
+        - Índex de rendiment: $ P_C = 0.33 $
+        - Classificació: 2
+        - Percentil superior acumulat:
+
+          $$
+          \text{Percentil superior acumulat} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Servei B**:
+
+        - Índex de rendiment: $ P_B = 0.29 $
+        - Classificació: 3
+        - Percentil superior acumulat:
+
+          $$
+          \text{Percentil superior acumulat} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Assignar nivells**
+
+    - **Servei A**:
+
+        - Percentil superior acumulat: 100%
+        - **Nivell**: **Nivell 1** (Percentil superior acumulat > 96%)
+        - **Distribució màxima de tokens**: 30,000 Jet
+
+    - **Servei C**:
+
+        - Percentil superior acumulat: 66.67%
+        - **Nivell**: **Nivell 4** (60% < Percentil superior acumulat ≤ 77%)
+        - **Distribució màxima de tokens**: 15,000 Jet
+
+    - **Servei B**:
+
+        - Percentil superior acumulat: 33.33%
+        - **Nivell**: **Nivell 6** (23% < Percentil superior acumulat ≤ 40%)
+        - **Distribució màxima de tokens**: 7,000 Jet
+
+**Notes**:
+
+- **Puntuacions empatades**: Els serveis amb índexs de rendiment idèntics reben la mateixa classificació. En calcular els percentils superiors acumulats, s'utilitza la classificació mitjana.
+- **Distribució màxima de tokens** es refereix a la quantitat màxima de tokens que un servei pot rebre basat en el seu nivell.
+
+### Escenari d'exemple
+
+#### Època 1 ($ t = 1 $)
+
+- **Quantitat bàsica de distribució**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Quantitat total de distribució ajustada**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Càlcul de la quantitat de distribució per servei**
+
+Basat en els índexs de rendiment i nivells:
+
+- **Índex de rendiment total $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Servei A**:
+
+    - Proporció: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Quantitat de distribució:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servei C**:
+
+    - Proporció: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Quantitat de distribució:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servei B**:
+
+    - Proporció: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Quantitat de distribució:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Resultats de la distribució**
+
+- **Total de tokens distribuïts**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens no distribuïts**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Època 2 ($ t = 2 $)
+
+- **Quantitat bàsica de distribució**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokens transportats**: $ 3,427,788.70 \text{ Jet} $
+- **Quantitat total de distribució ajustada**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Índexs de rendiment i nivells actualitzats**
+
+Suposant canvis en els índexs de rendiment:
+
+- **Servei A**:
+
+    - Índex de rendiment: $ P_A = 0.40 $
+    - Classificació: 1
+    - Percentil superior acumulat: 100%
+    - **Nivell**: Nivell 1
+    - **Distribució màxima de tokens**: 30,000 Jet
+
+- **Servei C**:
+
+    - Índex de rendiment: $ P_C = 0.35 $
+    - Classificació: 2
+    - Percentil superior acumulat: 66.67%
+    - **Nivell**: Nivell 4
+    - **Distribució màxima de tokens**: 15,000 Jet
+
+- **Servei B**:
+
+    - Índex de rendiment: $ P_B = 0.25 $
+    - Classificació: 3
+    - Percentil superior acumulat: 33.33%
+    - **Nivell**: Nivell 6
+    - **Distribució màxima de tokens**: 7,000 Jet
+
+**Índex de rendiment total $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Càlcul de la quantitat de distribució per servei**
+
+1. **Servei A**:
+
+    - Proporció: $ \frac{P_A}{P} = 0.40 $
+    - Quantitat de distribució:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servei C**:
+
+    - Proporció: $ \frac{P_C}{P} = 0.35 $
+    - Quantitat de distribució:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servei B**:
+
+    - Proporció: $ \frac{P_B}{P} = 0.25 $
+    - Quantitat de distribució:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Resultats de la distribució**
+
+- **Total de tokens distribuïts**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens no distribuïts**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impacte dels tokens no distribuïts acumulats
+
+- **Augment de la participació dels serveis i millora del rendiment** reduirà gradualment la quantitat de tokens no distribuïts.
+- **Els serveis inicials poden utilitzar la quantitat màxima de distribució** per fomentar el creixement.
+- El transport de tokens ajuda a **mantenir l'estabilitat del valor** i regular la circulació.
+
+## Recompenses per als usuaris i ús de tokens
+
+### **Mecanisme de recompenses per als usuaris**
+
+- **Recompenses basades en l'activitat**: Els usuaris reben tokens de JetPack quan realitzen **activitats prèviament acordades** (per exemple, creació de contingut, joc) dins d'un servei.
+- **Criteris de recompensa de tokens**: La quantitat de tokens recompensats per cada activitat es **determina mitjançant consulta** entre el servei i l'operador de l'ecosistema de JetPack.
+
+### **Mètodes d'ús de tokens**
+
+1. **Dins del servei**:
+    - **Accés a funcions premium**: Utilitzeu tokens per accedir a funcions o continguts de pagament dins del servei.
+    - **Compra de béns**: Compreu béns digitals o articles dins del servei utilitzant tokens.
+
+2. **Utilitzant l'intercanvi de serveis de cartera de JetPack**:
+    - **Venda de tokens**: Els usuaris poden intercanviar els seus tokens per **ADA** (la moneda de **Cardano**).
+    - **Gestió de carteres**: La cartera de JetPack permet una gestió segura dels tokens i transferències a altres serveis.
+
+### **Beneficis esperats de l'apreciació del valor dels tokens**
+
+- **Liquiditat de tokens**: El comerç de tokens en intercanvis augmenta la seva **liquiditat**.
+- **Guanys econòmics**: Els usuaris poden aconseguir **beneficis econòmics addicionals** venent tokens si el seu valor augmenta.
+
+## Compra i redistribució de tokens
+
+### **Compres addicionals de tokens per serveis**
+
+- **Quan els tokens distribuïts s'esgoten**: Si un servei utilitza tots els seus tokens assignats, pot comprar tokens addicionals a l'**intercanvi de serveis de cartera de JetPack**.
+- **Moneda de compra**: Els tokens es compren utilitzant **ADA**.
+- **Utilització de tokens comprats**: Els tokens comprats es poden utilitzar per **recompensar usuaris** o **dins del servei**.
+
+### **Tokens revendes vs. no revendes**
+
+- **Tokens distribuïts** (**No revendes**): Els tokens assignats als serveis **no es poden revendre** i són només per a **recompenses d'usuaris**.
+- **Tokens comprats i tokens adquirits dels usuaris** (**Revendes**): Els tokens comprats amb ADA i els tokens rebuts dels usuaris **es poden revendre**, ajudant a l'**adquisició de liquiditat**.
+
+### **Redistribució de tokens i activació de l'ecosistema**
+
+1. **Estructura de circulació de tokens**:
+    - Els serveis recompensen els usuaris amb tokens; els usuaris els utilitzen dins dels serveis o els venen en intercanvis.
+    - Els serveis adquireixen tokens dels usuaris o els compren per mantenir un **sistema de recompenses sostenible**.
+
+2. **Efectes d'activació de l'ecosistema**:
+    - La circulació de tokens promou la **participació dels usuaris** i l'**activació del servei**.
+    - Això contribueix a l'**estabilització del valor dels tokens** i al **creixement sostenible** de l'ecosistema.

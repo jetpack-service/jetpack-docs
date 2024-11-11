@@ -1,0 +1,529 @@
+# Cách Hoạt Động của Token JetPack
+
+Hệ thống token JetPack bao gồm **phát hành và phân phối token dựa trên hoạt động**, một **hệ thống cấp độ dịch vụ**, **phần thưởng người dùng và phương pháp sử dụng token**, và một **cơ chế mua và phân phối lại token**. Cấu trúc này cung cấp một **hệ thống thưởng công bằng và hiệu quả** cho cả người dùng và nhà cung cấp dịch vụ.
+
+## Cơ Chế Phân Phối Token (Drop)
+
+### Tổng Cung Token và Thời Gian Phân Phối
+
+- **Tổng Cung**: JetPack sẽ phát hành tổng cộng **1 tỷ Jet** token.
+- **Thời Gian Phân Phối**: Token sẽ được phân phối trong vòng **38 năm**, với tổng cộng **2,776 lần phân phối** diễn ra cùng khoảng thời gian với **Cardano Epoch** (1 epoch = 5 ngày).
+
+### Số Lượng Phân Phối Token Mỗi Epoch
+
+#### Tính Toán Số Lượng Phân Phối Dựa Trên Hàm Logarit
+
+Số lượng token phân phối mỗi epoch được thiết kế để giảm dần theo thời gian. Một **hàm logarit** được sử dụng để tính toán số lượng phân phối cho mỗi epoch. **1 Jet bằng 1,000,000 Pack**, vì vậy số lượng phân phối được tính đến **sáu chữ số thập phân** và được trả tương ứng.
+
+1. **Định Nghĩa Hàm Logarit $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Trong đó:
+
+    - $ t $ là số thứ tự epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ là hàm logarit tự nhiên.
+
+2. **Tính Tổng Hàm Log $ f(t) $ Qua Tất Cả Các Epoch**:
+
+   Tổng giá trị của hàm qua toàn bộ thời gian phân phối $ S $ là:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Tính Hằng Số Tỷ Lệ $ A $**:
+
+   Tổng cung token **1 tỷ Jet** được chia cho tổng $ S $ để điều chỉnh số lượng phân phối cho mỗi epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Tính Số Lượng Phân Phối Token Mỗi Epoch**:
+
+   Số lượng phân phối cho mỗi epoch là:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Ví Dụ Về Số Lượng Phân Phối**:
+
+   Tính toán số lượng phân phối cho các epoch đầu tiên:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Số lượng phân phối cho mỗi epoch được xác định bởi giá trị của hàm log tương ứng với số thứ tự epoch.
+
+**Đặc Điểm Phân Phối**
+
+- Vì $ \ln(t + 1) $ tăng khi $ t $ tăng, mẫu số trở nên lớn hơn, làm cho tổng số lượng phân phối giảm dần.
+- Số lượng phân phối mỗi epoch giảm dần theo thời gian, tiến gần đến không.
+- Thiết kế này khuyến khích những người tham gia sớm và tăng độ khan hiếm của token.
+
+### Lịch Trình Phân Phối Tổng Thể
+
+Dưới đây là bảng tóm tắt một phần về số lượng phân phối và ngày tháng cho mỗi epoch.
+Để biết thông tin chi tiết về tất cả các epoch, vui lòng tham khảo tài liệu [riêng](/attach/token_allocation_per_epoch.csv) và [mã](/attach/token_allocation_per_epoch.py).
+
+| Số Thứ Tự Epoch | Ngày Tháng     | Số Lượng Phân Phối (Jet) |
+|-----------------|----------------|--------------------------|
+| 1               | 2025-01-01     | 3,479,788.70             |
+| 2               | 2025-01-06     | 2,195,502.227            |
+| 3               | 2025-01-11     | 1,739,894.35             |
+| ...             | ...            | ...                      |
+| 2774            | 2062-12-18     | 304,223.285              |
+| 2775            | 2062-12-23     | 304,209.4607             |
+| 2776            | 2062-12-28     | 304,195.6425             |
+
+### Tiêu Chí Phân Phối Token Theo Dịch Vụ
+
+#### Tính Toán Tỷ Lệ Giữa Các Dịch Vụ
+
+Tỷ lệ phân phối cho mỗi dịch vụ được tính dựa trên điểm hiệu suất $ P_n $ của nó so với tổng điểm hiệu suất $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Trong đó:
+
+- $ P_n $: Điểm hiệu suất của dịch vụ $ n $.
+- $ P $: Tổng điểm hiệu suất của tất cả các dịch vụ.
+
+#### Tính Toán Số Lượng Phân Phối Theo Dịch Vụ
+
+Số lượng token mà dịch vụ $ n $ nhận được trong mỗi epoch $ S_n $ là:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Số lượng phân phối tổng đã điều chỉnh cho epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Số lượng token tối đa được phân bổ dựa trên cấp độ của dịch vụ (xem phân phối token tối đa dựa trên cấp độ dưới đây).
+
+#### Xử Lý Token Chưa Phân Phối
+
+##### Chuyển Tiếp Token Chưa Phân Phối
+
+- Token chưa phân phối từ mỗi epoch được **cộng thêm** vào số lượng phân phối tổng cho epoch tiếp theo.
+- Điều này đảm bảo phân phối token hiệu quả ngay cả khi sự tham gia dịch vụ ban đầu thấp.
+
+##### Tính Toán Số Lượng Phân Phối Tổng Đã Điều Chỉnh Mỗi Epoch
+
+Số lượng phân phối tổng cho epoch tiếp theo là:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Số lượng phân phối tổng đã điều chỉnh cho epoch $ t+1 $.
+- $ f(t+1) $: Số lượng phân phối dựa trên hàm phân phối cơ bản.
+- **Token Chưa Phân Phối Chuyển Tiếp**: Số lượng token không được phân phối trong epoch $ t $.
+
+#### Tính Toán Điểm Hiệu Suất ($ P_n $) Theo Dịch Vụ
+
+Điểm hiệu suất của mỗi dịch vụ được tính dựa trên các chỉ số sau. Trọng số của mỗi chỉ số có thể được điều chỉnh thông qua quản trị.
+
+1. **Tiêu Thụ Token JetPack ($ M_{1n} $)**
+    - **Trọng Số**: $ w_1 = 50\% $
+    - **Mô Tả**: Tổng số lượng token JetPack tiêu thụ bởi người dùng trong dịch vụ.
+
+2. **Số Lượng Phiếu Bầu Degen Bunny ($ M_{2n} $)**
+    - **Trọng Số**: $ w_2 = 30\% $
+    - **Mô Tả**: Số lượng phiếu bầu nhận được từ OG Degen Bunnies.
+
+3. **Số Lượng Người Dùng Hoạt Động ($ M_{3n} $)**
+    - **Trọng Số**: $ w_3 = 20\% $
+    - **Mô Tả**: Số lượng người dùng duy nhất đã truy cập và hoạt động trong dịch vụ trong epoch.
+
+Điểm hiệu suất của mỗi dịch vụ $ P_n $ được tính như sau:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Trong đó:
+
+- $ M_{1n} $: Tiêu thụ token JetPack của dịch vụ $ n $.
+- $ M_{1\text{total}} $: Tổng tiêu thụ token JetPack của tất cả các dịch vụ.
+- $ M_{2n} $: Số lượng phiếu bầu Degen Bunny cho dịch vụ $ n $.
+- $ M_{2\text{total}} $: Tổng số phiếu bầu Degen Bunny của tất cả các dịch vụ.
+- $ M_{3n} $: Số lượng người dùng hoạt động của dịch vụ $ n $.
+- $ M_{3\text{total}} $: Tổng số người dùng hoạt động của tất cả các dịch vụ.
+
+**Ví Dụ**:
+
+- **Dịch Vụ A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Dịch Vụ B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Dịch Vụ C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Tổng Cộng**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Trọng Số**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Tính Toán Điểm Hiệu Suất Cho Dịch Vụ A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Tính Toán Điểm Hiệu Suất Cho Dịch Vụ B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Tính Toán Điểm Hiệu Suất Cho Dịch Vụ C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Vì vậy, điểm hiệu suất là:
+
+- **Dịch Vụ A**: $ P_A = 0.38 $
+- **Dịch Vụ B**: $ P_B = 0.29 $
+- **Dịch Vụ C**: $ P_C = 0.33 $
+
+#### Tiêu Chí Xác Định Cấp Độ và Số Lượng Phân Phối Token Tối Đa
+
+Dựa trên điểm hiệu suất $ P_n $, mỗi dịch vụ được phân loại vào **Cấp Độ 1 đến 9**. Phân loại này sử dụng **phần trăm tích lũy hàng đầu** của tất cả các điểm hiệu suất dịch vụ.
+
+##### Phần Trăm Tích Lũy Hàng Đầu và Số Lượng Phân Phối Token Tối Đa Theo Cấp Độ
+
+| **Cấp Độ** | **Phần Trăm Tích Lũy Hàng Đầu** | **Số Lượng Phân Phối Tối Đa (Jet)** |
+|------------|---------------------------------|-------------------------------------|
+| Cấp Độ 1   | Top 4%                          | 30,000                              |
+| Cấp Độ 2   | Top 11%                         | 25,000                              |
+| Cấp Độ 3   | Top 23%                         | 20,000                              |
+| Cấp Độ 4   | Top 40%                         | 15,000                              |
+| Cấp Độ 5   | Top 60%                         | 10,000                              |
+| Cấp Độ 6   | Top 77%                         | 7,000                               |
+| Cấp Độ 7   | Top 89%                         | 5,000                               |
+| Cấp Độ 8   | Top 96%                         | 3,000                               |
+| Cấp Độ 9   | Top 100%                        | 1,000                               |
+
+##### Phương Pháp Xác Định Cấp Độ
+
+1. **Tính Toán Điểm Hiệu Suất**
+
+   Sử dụng phương pháp đã định nghĩa trước đó để tính toán điểm hiệu suất của mỗi dịch vụ $ P_n $.
+
+2. **Xác Định Xếp Hạng Dịch Vụ**
+
+   Xếp hạng tất cả các dịch vụ theo **thứ tự giảm dần** dựa trên điểm hiệu suất của họ.
+
+3. **Tính Toán Phần Trăm Tích Lũy Hàng Đầu**
+
+   Đối với mỗi dịch vụ, tính toán phần trăm tích lũy hàng đầu:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Trong đó:
+
+    - $ \text{Rank} $: Xếp hạng của dịch vụ (bắt đầu từ 1).
+    - $ N $: Tổng số dịch vụ.
+
+4. **Phân Cấp Độ**
+
+   Phân cấp độ dựa trên phần trăm tích lũy hàng đầu:
+
+    - **Cấp Độ 1**: Phần trăm tích lũy hàng đầu > 96%
+    - **Cấp Độ 2**: 89% < Phần trăm tích lũy hàng đầu ≤ 96%
+    - **Cấp Độ 3**: 77% < Phần trăm tích lũy hàng đầu ≤ 89%
+    - **Cấp Độ 4**: 60% < Phần trăm tích lũy hàng đầu ≤ 77%
+    - **Cấp Độ 5**: 40% < Phần trăm tích lũy hàng đầu ≤ 60%
+    - **Cấp Độ 6**: 23% < Phần trăm tích lũy hàng đầu ≤ 40%
+    - **Cấp Độ 7**: 11% < Phần trăm tích lũy hàng đầu ≤ 23%
+    - **Cấp Độ 8**: 4% < Phần trăm tích lũy hàng đầu ≤ 11%
+    - **Cấp Độ 9**: Phần trăm tích lũy hàng đầu ≤ 4%
+
+**Ví Dụ**:
+
+Với tổng số **3** dịch vụ:
+
+1. **Tính Toán Xếp Hạng và Phần Trăm Tích Lũy Hàng Đầu**
+
+    - **Dịch Vụ A**:
+
+        - Điểm Hiệu Suất: $ P_A = 0.38 $
+        - Xếp Hạng: 1
+        - Phần Trăm Tích Lũy Hàng Đầu:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Dịch Vụ C**:
+
+        - Điểm Hiệu Suất: $ P_C = 0.33 $
+        - Xếp Hạng: 2
+        - Phần Trăm Tích Lũy Hàng Đầu:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Dịch Vụ B**:
+
+        - Điểm Hiệu Suất: $ P_B = 0.29 $
+        - Xếp Hạng: 3
+        - Phần Trăm Tích Lũy Hàng Đầu:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Phân Cấp Độ**
+
+    - **Dịch Vụ A**:
+
+        - Phần Trăm Tích Lũy Hàng Đầu: 100%
+        - **Cấp Độ**: **Cấp Độ 1** (Phần Trăm Tích Lũy Hàng Đầu > 96%)
+        - **Số Lượng Phân Phối Tối Đa**: 30,000 Jet
+
+    - **Dịch Vụ C**:
+
+        - Phần Trăm Tích Lũy Hàng Đầu: 66.67%
+        - **Cấp Độ**: **Cấp Độ 4** (60% < Phần Trăm Tích Lũy Hàng Đầu ≤ 77%)
+        - **Số Lượng Phân Phối Tối Đa**: 15,000 Jet
+
+    - **Dịch Vụ B**:
+
+        - Phần Trăm Tích Lũy Hàng Đầu: 33.33%
+        - **Cấp Độ**: **Cấp Độ 6** (23% < Phần Trăm Tích Lũy Hàng Đầu ≤ 40%)
+        - **Số Lượng Phân Phối Tối Đa**: 7,000 Jet
+
+**Ghi Chú**:
+
+- **Điểm Số Bằng Nhau**: Các dịch vụ có điểm hiệu suất giống nhau nhận cùng một xếp hạng. Trong việc tính toán phần trăm tích lũy hàng đầu, xếp hạng trung bình được sử dụng.
+- **Số Lượng Phân Phối Tối Đa** đề cập đến số lượng token tối đa mà một dịch vụ có thể nhận dựa trên cấp độ của nó.
+
+### Kịch Bản Ví Dụ
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Số Lượng Phân Phối Cơ Bản**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Số Lượng Phân Phối Tổng Đã Điều Chỉnh**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Tính Toán Số Lượng Phân Phối Theo Dịch Vụ**
+
+Dựa trên điểm hiệu suất và cấp độ:
+
+- **Tổng Điểm Hiệu Suất $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Dịch Vụ A**:
+
+    - Tỷ Lệ: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Số Lượng Phân Phối:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Dịch Vụ C**:
+
+    - Tỷ Lệ: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Số Lượng Phân Phối:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Dịch Vụ B**:
+
+    - Tỷ Lệ: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Số Lượng Phân Phối:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Kết Quả Phân Phối**
+
+- **Tổng Số Token Đã Phân Phối**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token Chưa Phân Phối**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Số Lượng Phân Phối Cơ Bản**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Token Chuyển Tiếp**: $ 3,427,788.70 \text{ Jet} $
+- **Số Lượng Phân Phối Tổng Đã Điều Chỉnh**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Điểm Hiệu Suất và Cấp Độ Cập Nhật**
+
+Giả sử có sự thay đổi trong điểm hiệu suất:
+
+- **Dịch Vụ A**:
+
+    - Điểm Hiệu Suất: $ P_A = 0.40 $
+    - Xếp Hạng: 1
+    - Phần Trăm Tích Lũy Hàng Đầu: 100%
+    - **Cấp Độ**: Cấp Độ 1
+    - **Số Lượng Phân Phối Tối Đa**: 30,000 Jet
+
+- **Dịch Vụ C**:
+
+    - Điểm Hiệu Suất: $ P_C = 0.35 $
+    - Xếp Hạng: 2
+    - Phần Trăm Tích Lũy Hàng Đầu: 66.67%
+    - **Cấp Độ**: Cấp Độ 4
+    - **Số Lượng Phân Phối Tối Đa**: 15,000 Jet
+
+- **Dịch Vụ B**:
+
+    - Điểm Hiệu Suất: $ P_B = 0.25 $
+    - Xếp Hạng: 3
+    - Phần Trăm Tích Lũy Hàng Đầu: 33.33%
+    - **Cấp Độ**: Cấp Độ 6
+    - **Số Lượng Phân Phối Tối Đa**: 7,000 Jet
+
+**Tổng Điểm Hiệu Suất $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Tính Toán Số Lượng Phân Phối Theo Dịch Vụ**
+
+1. **Dịch Vụ A**:
+
+    - Tỷ Lệ: $ \frac{P_A}{P} = 0.40 $
+    - Số Lượng Phân Phối:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Dịch Vụ C**:
+
+    - Tỷ Lệ: $ \frac{P_C}{P} = 0.35 $
+    - Số Lượng Phân Phối:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Dịch Vụ B**:
+
+    - Tỷ Lệ: $ \frac{P_B}{P} = 0.25 $
+    - Số Lượng Phân Phối:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Kết Quả Phân Phối**
+
+- **Tổng Số Token Đã Phân Phối**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token Chưa Phân Phối**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Tác Động của Token Chưa Phân Phối Tích Lũy
+
+- **Tăng Cường Sự Tham Gia Dịch Vụ và Cải Thiện Hiệu Suất** sẽ dần dần giảm số lượng token chưa phân phối.
+- **Các dịch vụ ban đầu có thể sử dụng số lượng phân phối tối đa** để thúc đẩy tăng trưởng.
+- Chuyển tiếp token giúp **duy trì sự ổn định giá trị** và điều tiết lưu thông.
+
+## Phần Thưởng Người Dùng và Sử Dụng Token
+
+### **Cơ Chế Phần Thưởng Người Dùng**
+
+- **Phần Thưởng Dựa Trên Hoạt Động**: Người dùng nhận được token JetPack khi họ thực hiện **các hoạt động đã thỏa thuận trước** (ví dụ: tạo nội dung, chơi game) trong một dịch vụ.
+- **Tiêu Chí Phần Thưởng Token**: Số lượng token được thưởng cho mỗi hoạt động được **xác định thông qua tham vấn** giữa dịch vụ và nhà điều hành hệ sinh thái JetPack.
+
+### **Phương Pháp Sử Dụng Token**
+
+1. **Trong Dịch Vụ**:
+    - **Truy Cập Tính Năng Cao Cấp**: Sử dụng token để truy cập các tính năng hoặc nội dung trả phí trong dịch vụ.
+    - **Mua Hàng Hóa**: Mua hàng hóa kỹ thuật số hoặc các vật phẩm trong dịch vụ bằng token.
+
+2. **Sử Dụng Dịch Vụ Trao Đổi Ví JetPack**:
+    - **Bán Token**: Người dùng có thể trao đổi token của họ lấy **ADA** (đơn vị tiền tệ của **Cardano**).
+    - **Quản Lý Ví**: Ví JetPack cho phép quản lý token an toàn và chuyển giao đến các dịch vụ khác.
+
+### **Lợi Ích Dự Kiến Từ Sự Tăng Giá Trị Token**
+
+- **Thanh Khoản Token**: Giao dịch token trên các sàn giao dịch tăng cường **tính thanh khoản** của chúng.
+- **Lợi Ích Kinh Tế**: Người dùng có thể đạt được **lợi ích kinh tế bổ sung** bằng cách bán token nếu giá trị của chúng tăng lên.
+
+## Mua và Phân Phối Lại Token
+
+### **Mua Thêm Token Bởi Các Dịch Vụ**
+
+- **Khi Token Phân Phối Đã Cạn Kiệt**: Nếu một dịch vụ sử dụng hết số token được phân bổ, nó có thể mua thêm token từ **Dịch Vụ Trao Đổi Ví JetPack**.
+- **Đơn Vị Tiền Tệ Mua**: Token được mua bằng **ADA**.
+- **Sử Dụng Token Đã Mua**: Token đã mua có thể được sử dụng để **thưởng cho người dùng** hoặc **trong dịch vụ**.
+
+### **Token Có Thể Bán Lại và Không Thể Bán Lại**
+
+- **Token Phân Phối** (**Không Thể Bán Lại**): Token được phân bổ cho các dịch vụ **không thể bán lại** và chỉ dành cho **phần thưởng người dùng**.
+- **Token Đã Mua và Token Nhận Từ Người Dùng** (**Có Thể Bán Lại**): Token mua bằng ADA và token nhận từ người dùng **có thể bán lại**, hỗ trợ **thu nhận thanh khoản**.
+
+### **Phân Phối Lại Token và Kích Hoạt Hệ Sinh Thái**
+
+1. **Cấu Trúc Lưu Thông Token**:
+    - Các dịch vụ thưởng cho người dùng bằng token; người dùng sử dụng chúng trong dịch vụ hoặc bán chúng trên các sàn giao dịch.
+    - Các dịch vụ thu nhận token từ người dùng hoặc mua chúng để duy trì một **hệ thống thưởng bền vững**.
+
+2. **Hiệu Ứng Kích Hoạt Hệ Sinh Thái**:
+    - Lưu thông token thúc đẩy **sự tham gia của người dùng** và **kích hoạt dịch vụ**.
+    - Điều này đóng góp vào **sự ổn định giá trị token** và **tăng trưởng bền vững** của hệ sinh thái.

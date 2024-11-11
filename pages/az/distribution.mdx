@@ -1,0 +1,529 @@
+# JetPack Tokenlərinin İşləmə Qaydası
+
+JetPack token sistemi **fəaliyyətə əsaslanan token buraxılışı və paylanması**, **xidmət səviyyəsi sistemi**, **istifadəçi mükafatları və token istifadəsi metodları** və **tokenlərin alınması və yenidən paylanması mexanizmi**ndən ibarətdir. Bu struktur həm istifadəçilər, həm də xidmət təminatçıları üçün **ədalətli və səmərəli mükafat sistemi** təmin edir.
+
+## Token Paylanma (Drop) Mexanizmi
+
+### Ümumi Token Təchizatı və Paylanma Dövrü
+
+- **Ümumi Təchizat**: JetPack ümumilikdə **1 milyard Jet** token buraxacaq.
+- **Paylanma Dövrü**: Tokenlər **38 il** ərzində paylanacaq və **2,776 paylanma** baş verəcək, **Cardano Epoch** ilə eyni intervallarda (1 epoch = 5 gün).
+
+### Epoch Başına Token Paylanma Miqdarı
+
+#### Logaritmik Funksiyaya Əsaslanan Paylanma Miqdarının Hesablanması
+
+Epoch başına paylanan token miqdarı zamanla azalmaq üçün nəzərdə tutulmuşdur. Hər epoch üçün paylanma miqdarını hesablamaq üçün **logaritmik funksiya** istifadə olunur. **1 Jet 1,000,000 Pack**-ə bərabərdir, buna görə də paylanma miqdarları **altıncı onluq yerə** qədər hesablanır və müvafiq olaraq ödənilir.
+
+1. **Logaritmik Funksiya $ f(t) $-nin Tərifi**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Burada:
+
+    - $ t $ epoch nömrəsidir, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ təbii logaritm funksiyasıdır.
+
+2. **Bütün Epochlar Üzrə Log Funksiyasının $ f(t) $ Cəminin Hesablanması**:
+
+   Bütün paylanma dövrü üzrə funksiyanın ümumi cəmi $ S $:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Ölçmə Sabiti $ A $-nın Hesablanması**:
+
+   **1 milyard Jet** ümumi token təchizatı $ S $-ə bölünərək hər epoch üçün paylanma miqdarını tənzimləmək üçün istifadə olunur:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Epoch Başına Token Paylanma Miqdarının Hesablanması**:
+
+   Hər epoch üçün paylanma miqdarı:
+
+   $$
+   \text{Paylanma Miqdarı}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Paylanma Miqdarlarının Nümunələri**:
+
+   İlk epochlar üçün paylanma miqdarlarının hesablanması:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Paylanma Miqdarı}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Paylanma Miqdarı}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Paylanma Miqdarı}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Hər epoch üçün paylanma miqdarı epoch nömrəsinə uyğun log funksiyasının dəyəri ilə müəyyən edilir.
+
+**Paylanma Xüsusiyyətləri**
+
+- $ \ln(t + 1) $ artdıqca, məxrəc böyüyür, bu da ümumi paylanma miqdarının tədricən azalmasına səbəb olur.
+- Epoch başına paylanma miqdarı zamanla azalır və sıfıra yaxınlaşır.
+- Bu dizayn erkən iştirakçıları təşviq edir və tokenin nadirliyini artırır.
+
+### Ümumi Paylanma Cədvəli
+
+Aşağıda epoch başına paylanma miqdarlarını və tarixlərini əks etdirən qismən cədvəl verilmişdir.
+Bütün epochlar haqqında ətraflı məlumat üçün ayrıca [sənədə](/attach/token_allocation_per_epoch.csv) və [koda](/attach/token_allocation_per_epoch.py) baxın.
+
+| Epoch Nömrəsi | Tarix          | Paylanma Miqdarı (Jet) |
+|---------------|----------------|------------------------|
+| 1             | 2025-01-01     | 3,479,788.70           |
+| 2             | 2025-01-06     | 2,195,502.227          |
+| 3             | 2025-01-11     | 1,739,894.35           |
+| ...           | ...            | ...                    |
+| 2774          | 2062-12-18     | 304,223.285            |
+| 2775          | 2062-12-23     | 304,209.4607           |
+| 2776          | 2062-12-28     | 304,195.6425           |
+
+### Xidmət Başına Token Paylanma Kriteriyaları
+
+#### Xidmətlər Arasında Nisbətlərin Hesablanması
+
+Hər bir xidmət üçün paylanma nisbəti onun performans balı $ P_n $-nin ümumi performans balına $ P $ nisbəti əsasında hesablanır:
+
+$$
+\text{Xidmət üçün Nisbət } n = \frac{P_n}{P}
+$$
+
+Burada:
+
+- $ P_n $: Xidmət $ n $-in performans balı.
+- $ P $: Bütün xidmətlərin performans ballarının cəmi.
+
+#### Xidmət Başına Paylanma Miqdarının Hesablanması
+
+Hər epochda xidmət $ n $-in aldığı token miqdarı $ S_n $:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Xidmət üçün Maksimum Token Paylanması } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Epoch üçün tənzimlənmiş ümumi paylanma miqdarı.
+- $ \text{Xidmət üçün Maksimum Token Paylanması } n $: Xidmətin səviyyəsinə əsaslanan maksimum token miqdarı (aşağıda səviyyə əsaslı maksimum token paylanmasına baxın).
+
+#### Paylanmamış Tokenlərin İdarə Edilməsi
+
+##### Paylanmamış Tokenlərin Daşınması
+
+- Hər epochdan paylanmamış tokenlər növbəti epoch üçün ümumi paylanma miqdarına **əlavə edilir**.
+- Bu, ilkin xidmət iştirakının az olduğu hallarda belə effektiv token paylanmasını təmin edir.
+
+##### Epoch Başına Tənzimlənmiş Ümumi Paylanma Miqdarının Hesablanması
+
+Növbəti epoch üçün ümumi paylanma miqdarı:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Əvvəlki Epochdan Paylanmamış Tokenlər}
+$$
+
+- $ f_{\text{total}}(t+1) $: Epoch $ t+1 $ üçün tənzimlənmiş ümumi paylanma miqdarı.
+- $ f(t+1) $: Əsas paylanma funksiyasına əsaslanan paylanma miqdarı.
+- **Daşınmış Paylanmamış Tokenlər**: Epoch $ t $-də paylanmamış tokenlərin sayı.
+
+#### Xidmət Başına Performans Balının ($ P_n $) Hesablanması
+
+Hər bir xidmətin performans balı aşağıdakı metriklər əsasında hesablanır. Hər bir metrikin çəkisi idarəetmə vasitəsilə tənzimlənə bilər.
+
+1. **JetPack Token İstifadəsi ($ M_{1n} $)**
+    - **Çəki**: $ w_1 = 50\% $
+    - **Təsvir**: Xidmət daxilində istifadəçilər tərəfindən istifadə olunan JetPack tokenlərinin ümumi miqdarı.
+
+2. **Degen Bunny Səs Sayı ($ M_{2n} $)**
+    - **Çəki**: $ w_2 = 30\% $
+    - **Təsvir**: OG Degen Bunnies-dən alınan səslərin sayı.
+
+3. **Aktiv İstifadəçi Sayı ($ M_{3n} $)**
+    - **Çəki**: $ w_3 = 20\% $
+    - **Təsvir**: Epoch ərzində xidmətə daxil olan və aktiv olan unikal istifadəçilərin sayı.
+
+Hər bir xidmətin performans balı $ P_n $ belə hesablanır:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Burada:
+
+- $ M_{1n} $: Xidmət $ n $-in JetPack token istifadəsi.
+- $ M_{1\text{total}} $: Bütün xidmətlər üzrə JetPack token istifadəsinin cəmi.
+- $ M_{2n} $: Xidmət $ n $ üçün Degen Bunny səs sayı.
+- $ M_{2\text{total}} $: Bütün xidmətlər üzrə Degen Bunny səslərinin cəmi.
+- $ M_{3n} $: Xidmət $ n $-in aktiv istifadəçi sayı.
+- $ M_{3\text{total}} $: Bütün xidmətlər üzrə aktiv istifadəçilərin cəmi.
+
+**Nümunə**:
+
+- **Xidmət A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Xidmət B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Xidmət C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Cəmlər**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Çəkilər**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Xidmət A üçün Performans Balının Hesablanması**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Xidmət B üçün Performans Balının Hesablanması**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Xidmət C üçün Performans Balının Hesablanması**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Beləliklə, performans balları:
+
+- **Xidmət A**: $ P_A = 0.38 $
+- **Xidmət B**: $ P_B = 0.29 $
+- **Xidmət C**: $ P_C = 0.33 $
+
+#### Səviyyə Müəyyənləşdirmə Kriteriyaları və Maksimum Token Paylanma Miqdarı
+
+Performans balı $ P_n $-ə əsasən, hər bir xidmət **1-dən 9-a qədər Səviyyələrə** təsnif edilir. Bu təsnifat bütün xidmətlərin performans ballarının **kumulativ top faizini** istifadə edir.
+
+##### Kumulativ Top Faizlər və Səviyyə Başına Maksimum Token Paylanma Miqdarları
+
+| **Səviyyə** | **Kumulativ Top Faiz** | **Maksimum Token Paylanması (Jet)** |
+|-------------|------------------------|-------------------------------------|
+| Səviyyə 1   | Top 4%                 | 30,000                              |
+| Səviyyə 2   | Top 11%                | 25,000                              |
+| Səviyyə 3   | Top 23%                | 20,000                              |
+| Səviyyə 4   | Top 40%                | 15,000                              |
+| Səviyyə 5   | Top 60%                | 10,000                              |
+| Səviyyə 6   | Top 77%                | 7,000                               |
+| Səviyyə 7   | Top 89%                | 5,000                               |
+| Səviyyə 8   | Top 96%                | 3,000                               |
+| Səviyyə 9   | Top 100%               | 1,000                               |
+
+##### Səviyyə Müəyyənləşdirmə Metodu
+
+1. **Performans Ballarını Hesablayın**
+
+   Hər bir xidmətin performans balı $ P_n $-ni hesablamaq üçün əvvəlcədən müəyyən edilmiş metodu istifadə edin.
+
+2. **Xidmət Reytinqlərini Müəyyənləşdirin**
+
+   Bütün xidmətləri performans ballarına əsasən **azalan sırada** sıralayın.
+
+3. **Kumulativ Top Faizləri Hesablayın**
+
+   Hər bir xidmət üçün kumulativ top faizini hesablayın:
+
+   $$
+   \text{Kumulativ Top Faiz (\%)} = \left(1 - \frac{\text{Reytinq} - 1}{N} \right) \times 100\%
+   $$
+
+   Burada:
+
+    - $ \text{Reytinq} $: Xidmətin reytinqi (1-dən başlayaraq).
+    - $ N $: Xidmətlərin ümumi sayı.
+
+4. **Səviyyələri Təyin Edin**
+
+   Kumulativ top faizlərə əsasən səviyyələri təyin edin:
+
+    - **Səviyyə 1**: Kumulativ top faiz > 96%
+    - **Səviyyə 2**: 89% < Kumulativ top faiz ≤ 96%
+    - **Səviyyə 3**: 77% < Kumulativ top faiz ≤ 89%
+    - **Səviyyə 4**: 60% < Kumulativ top faiz ≤ 77%
+    - **Səviyyə 5**: 40% < Kumulativ top faiz ≤ 60%
+    - **Səviyyə 6**: 23% < Kumulativ top faiz ≤ 40%
+    - **Səviyyə 7**: 11% < Kumulativ top faiz ≤ 23%
+    - **Səviyyə 8**: 4% < Kumulativ top faiz ≤ 11%
+    - **Səviyyə 9**: Kumulativ top faiz ≤ 4%
+
+**Nümunə**:
+
+Ümumilikdə **3** xidmətlə:
+
+1. **Reytinqləri və Kumulativ Top Faizləri Hesablayın**
+
+    - **Xidmət A**:
+
+        - Performans Balı: $ P_A = 0.38 $
+        - Reytinq: 1
+        - Kumulativ Top Faiz:
+
+          $$
+          \text{Kumulativ Top Faiz} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Xidmət C**:
+
+        - Performans Balı: $ P_C = 0.33 $
+        - Reytinq: 2
+        - Kumulativ Top Faiz:
+
+          $$
+          \text{Kumulativ Top Faiz} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Xidmət B**:
+
+        - Performans Balı: $ P_B = 0.29 $
+        - Reytinq: 3
+        - Kumulativ Top Faiz:
+
+          $$
+          \text{Kumulativ Top Faiz} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Səviyyələri Təyin Edin**
+
+    - **Xidmət A**:
+
+        - Kumulativ Top Faiz: 100%
+        - **Səviyyə**: **Səviyyə 1** (Kumulativ Top Faiz > 96%)
+        - **Maksimum Token Paylanması**: 30,000 Jet
+
+    - **Xidmət C**:
+
+        - Kumulativ Top Faiz: 66.67%
+        - **Səviyyə**: **Səviyyə 4** (60% < Kumulativ Top Faiz ≤ 77%)
+        - **Maksimum Token Paylanması**: 15,000 Jet
+
+    - **Xidmət B**:
+
+        - Kumulativ Top Faiz: 33.33%
+        - **Səviyyə**: **Səviyyə 6** (23% < Kumulativ Top Faiz ≤ 40%)
+        - **Maksimum Token Paylanması**: 7,000 Jet
+
+**Qeydlər**:
+
+- **Eyni Ballar**: Eyni performans balına malik xidmətlər eyni reytinqi alır. Kumulativ top faizlərin hesablanmasında orta reytinq istifadə olunur.
+- **Maksimum Token Paylanması** xidmətin səviyyəsinə əsasən ala biləcəyi maksimum token miqdarını ifadə edir.
+
+### Nümunə Ssenari
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Əsas Paylanma Miqdarı**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Tənzimlənmiş Ümumi Paylanma Miqdarı**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Xidmət Başına Paylanma Miqdarının Hesablanması**
+
+Performans balları və səviyyələrə əsasən:
+
+- **Ümumi Performans Balı $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Xidmət A**:
+
+    - Nisbət: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Paylanma Miqdarı:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Xidmət C**:
+
+    - Nisbət: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Paylanma Miqdarı:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Xidmət B**:
+
+    - Nisbət: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Paylanma Miqdarı:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Paylanma Nəticələri**
+
+- **Ümumi Paylanmış Tokenlər**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Paylanmamış Tokenlər**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Əsas Paylanma Miqdarı**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Daşınmış Tokenlər**: $ 3,427,788.70 \text{ Jet} $
+- **Tənzimlənmiş Ümumi Paylanma Miqdarı**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Yenilənmiş Performans Balları və Səviyyələr**
+
+Performans ballarında dəyişikliklər olduğunu fərz edərək:
+
+- **Xidmət A**:
+
+    - Performans Balı: $ P_A = 0.40 $
+    - Reytinq: 1
+    - Kumulativ Top Faiz: 100%
+    - **Səviyyə**: Səviyyə 1
+    - **Maksimum Token Paylanması**: 30,000 Jet
+
+- **Xidmət C**:
+
+    - Performans Balı: $ P_C = 0.35 $
+    - Reytinq: 2
+    - Kumulativ Top Faiz: 66.67%
+    - **Səviyyə**: Səviyyə 4
+    - **Maksimum Token Paylanması**: 15,000 Jet
+
+- **Xidmət B**:
+
+    - Performans Balı: $ P_B = 0.25 $
+    - Reytinq: 3
+    - Kumulativ Top Faiz: 33.33%
+    - **Səviyyə**: Səviyyə 6
+    - **Maksimum Token Paylanması**: 7,000 Jet
+
+**Ümumi Performans Balı $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Xidmət Başına Paylanma Miqdarının Hesablanması**
+
+1. **Xidmət A**:
+
+    - Nisbət: $ \frac{P_A}{P} = 0.40 $
+    - Paylanma Miqdarı:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Xidmət C**:
+
+    - Nisbət: $ \frac{P_C}{P} = 0.35 $
+    - Paylanma Miqdarı:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Xidmət B**:
+
+    - Nisbət: $ \frac{P_B}{P} = 0.25 $
+    - Paylanma Miqdarı:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Paylanma Nəticələri**
+
+- **Ümumi Paylanmış Tokenlər**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Paylanmamış Tokenlər**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Yığılmış Paylanmamış Tokenlərin Təsiri
+
+- **Artan Xidmət İştirakı və Təkmilləşdirilmiş Performans** paylanmamış tokenlərin miqdarını tədricən azaldacaq.
+- **İlkin xidmətlər maksimum paylanma miqdarından istifadə edə bilər** ki, bu da inkişafı təşviq edir.
+- Tokenlərin daşınması **dəyər sabitliyini qorumağa** və dövriyyəni tənzimləməyə kömək edir.
+
+## İstifadəçi Mükafatları və Token İstifadəsi
+
+### **İstifadəçi Mükafat Mexanizmi**
+
+- **Fəaliyyətə Əsaslanan Mükafatlar**: İstifadəçilər xidmət daxilində **əvvəlcədən razılaşdırılmış fəaliyyətlər** (məsələn, məzmun yaradılması, oyun) həyata keçirdikdə JetPack tokenləri alırlar.
+- **Token Mükafat Kriteriyaları**: Hər bir fəaliyyət üçün mükafatlandırılan token miqdarı xidmət və JetPack ekosistem operatoru arasında **məsləhətləşmə yolu ilə müəyyən edilir**.
+
+### **Token İstifadə Metodları**
+
+1. **Xidmət Daxilində**:
+    - **Premium Xüsusiyyətlərə Giriş**: Tokenlərdən istifadə edərək xidmət daxilində ödənişli xüsusiyyətlərə və ya məzmuna giriş əldə edin.
+    - **Malların Alınması**: Tokenlərdən istifadə edərək rəqəmsal mallar və ya xidmət daxilindəki əşyalar alın.
+
+2. **JetPack Cüzdan Xidməti Mübadiləsi İlə**:
+    - **Token Satışı**: İstifadəçilər tokenlərini **ADA** (Cardano valyutası) ilə dəyişdirə bilərlər.
+    - **Cüzdan İdarəetməsi**: JetPack cüzdanı tokenlərin təhlükəsiz idarə olunmasına və digər xidmətlərə köçürülməsinə imkan verir.
+
+### **Token Dəyərinin Artmasından Gözlənilən Faydalar**
+
+- **Token Likvidliyi**: Tokenlərin mübadilə platformalarında ticarəti onların **likvidliyini** artırır.
+- **İqtisadi Qazanc**: İstifadəçilər tokenlərin dəyəri artarsa, onları sataraq **əlavə iqtisadi faydalar** əldə edə bilərlər.
+
+## Token Alışı və Yenidən Paylanması
+
+### **Xidmətlər Tərəfindən Əlavə Token Alışları**
+
+- **Paylanmış Tokenlər Tükəndikdə**: Xidmət öz ayrılmış tokenlərini tam istifadə edərsə, **JetPack Cüzdan Xidməti Mübadiləsi**ndən əlavə tokenlər ala bilər.
+- **Alış Valyutası**: Tokenlər **ADA** ilə alınır.
+- **Alınmış Tokenlərin İstifadəsi**: Alınmış tokenlər istifadəçiləri **mükafatlandırmaq** və ya **xidmət daxilində** istifadə etmək üçün istifadə edilə bilər.
+
+### **Yenidən Satıla Bilən və Satıla Bilməyən Tokenlər**
+
+- **Paylanmış Tokenlər** (**Satıla Bilməyən**): Xidmətlərə ayrılmış tokenlər **satıla bilməz** və yalnız **istifadəçi mükafatları** üçün nəzərdə tutulub.
+- **Alınmış Tokenlər və İstifadəçilərdən Alınan Tokenlər** (**Yenidən Satıla Bilən**): ADA ilə alınmış və istifadəçilərdən alınmış tokenlər **yenidən satıla bilər**, bu da **likvidlik əldə etməyə** kömək edir.
+
+### **Token Yenidən Paylanması və Ekosistem Aktivləşdirilməsi**
+
+1. **Token Dövriyyə Strukturu**:
+    - Xidmətlər istifadəçiləri tokenlərlə mükafatlandırır; istifadəçilər onları xidmətlər daxilində istifadə edir və ya mübadilə platformalarında satır.
+    - Xidmətlər istifadəçilərdən tokenlər alır və ya davamlı mükafat sistemi saxlamaq üçün onları alır.
+
+2. **Ekosistem Aktivləşdirilməsi Təsirləri**:
+    - Token dövriyyəsi **istifadəçi iştirakını** və **xidmət aktivləşdirilməsini** təşviq edir.
+    - Bu, **token dəyərinin sabitləşməsinə** və ekosistemin **davamlı inkişafına** töhfə verir.

@@ -1,0 +1,529 @@
+# Maitiro eJetPack Tokens
+
+Sisitimu yeJetPack token inosanganisira **kuburitswa uye kugoverwa kwetoken kunoenderana nemabasa**, **sisitimu yehuwandu hwemasevhisi**, **mibairo yevashandisi uye nzira dzekushandisa token**, uye **mekanizimu yekutenga nekugovera zvakare token**. Chimiro ichi chinopa **hurongwa hwakaringana uye hunoshanda hwemibairo** kune vashandisi nevapi vemasevhisi.
+
+## Mechanism yeKugoverwa kweToken (Drop)
+
+### Huwandu Hwetoken Hwakazara uye Nguva Yekugovera
+
+- **Huwandu Hwakazara**: JetPack ichaburitsa huwandu hwakazara hwe **1 bhiriyoni Jet** tokens.
+- **Nguva Yekugovera**: Tokens ichagoverwa kwe **38 makore**, ne **2,776 kugoverwa** kuchiitika panguva dzakafanana ne **Cardano Epoch** (1 epoch = 5 mazuva).
+
+### Huwandu HweKugoverwa kweToken paEpoch
+
+#### Kuverenga Huwandu HweKugoverwa Kubva paLogarithmic Function
+
+Huwandu hwetokens hunogoverwa paepoch hwakagadzirirwa kudzikira nekufamba kwenguva. **Logarithmic function** inoshandiswa kuverenga huwandu hwekugoverwa kweepoch imwe neimwe. **1 Jet yakaenzana ne1,000,000 Pack**, saka huwandu hwekugoverwa hunoverengwa kusvika **panzvimbo yechitanhatu yedesimari** uye kubhadharwa zvinoenderana.
+
+1. **Tsananguro yeLogarithmic Function $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Apo:
+
+    - $ t $ inoverengwa seepoch nhamba, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ ibasa re logarithm rechisikigo.
+
+2. **Kuverenga Huwandu HweSum yeLog Function $ f(t) $ Pamusoro peEpoch Dzese**:
+
+   Huwandu hwese hwebasa pamusoro penguva yese yekugovera $ S $ ndeye:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Kuverenga Scaling Constant $ A $**:
+
+   Huwandu hwese hwetoken hwe **1 bhiriyoni Jet** hunopatsanurwa ne $ S $ kuti kugadzirise huwandu hwekugovera kweepoch imwe neimwe:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Kuverenga Huwandu HweKugoverwa kweToken paEpoch**:
+
+   Huwandu hwekugoverwa kweepoch imwe neimwe ndeye:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Mienzaniso yeHuwandu HweKugoverwa**:
+
+   Kuverenga huwandu hwekugoverwa kweepoch dzekutanga:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Huwandu hwekugoverwa kweepoch imwe neimwe hunotsanangurwa neukoshi hwebasa relog rinowirirana nenhamba yeepoch.
+
+**Zvimiro zveKugoverwa**
+
+- Sezvo $ \ln(t + 1) $ ichiwedzera sezvo $ t $ ichiwedzera, denominator inova huru, zvichikonzera kuti huwandu hwekugoverwa huderere zvishoma nezvishoma.
+- Huwandu hwekugoverwa kweepoch imwe neimwe hunoderera nekufamba kwenguva, huchiswedera kuzero.
+- Dhizaini iyi inokurudzira vatori vechikamu vekutanga uye inowedzera kushomeka kwetoken.
+
+### Chirongwa Chekugovera Kwese
+
+Pazasi pane tafura isina kukwana inopfupikisa huwandu hwekugoverwa uye mazuva paepoch.
+Kuti uwane ruzivo rwakadzama pane epoch dzese, ndapota tarisa gwaro rakaparadzana [document](/attach/token_allocation_per_epoch.csv) uye [code](/attach/token_allocation_per_epoch.py).
+
+| Nhamba yeEpoch | Zuva           | Huwandu HweKugoverwa (Jet) |
+|----------------|----------------|----------------------------|
+| 1              | 2025-01-01     | 3,479,788.70               |
+| 2              | 2025-01-06     | 2,195,502.227              |
+| 3              | 2025-01-11     | 1,739,894.35               |
+| ...            | ...            | ...                        |
+| 2774           | 2062-12-18     | 304,223.285                |
+| 2775           | 2062-12-23     | 304,209.4607               |
+| 2776           | 2062-12-28     | 304,195.6425               |
+
+### Zvinodiwa Zvekugoverwa kweToken paSevhisi
+
+#### Kuverenga Ratios Pakati peMasevhisi
+
+Chiyero chekugoverwa kweimwe neimwe sevhisi chinoverengwa zvichibva pachiyero chebasa rayo $ P_n $ zvichienzaniswa nehuwandu hwechiyero chebasa $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Apo:
+
+- $ P_n $: Chiyero chebasa chesevhisi $ n $.
+- $ P $: Huwandu hwezviyero zvemabasa emasevhisi ese.
+
+#### Kuverenga Huwandu HweKugoverwa kweSevhisi
+
+Huwandu hwetokens hunogamuchirwa nesevhisi $ n $ muepoch imwe neimwe $ S_n $ ndeye:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Huwandu hwakagadziriswa hwekugoverwa kweepoch.
+- $ \text{Maximum Token Distribution for Service } n $: Huwandu hwetoken hwakanyanya hwakagoverwa zvichienderana nelevel yesevhisi (ona kugoverwa kwelevel-based maximum token pazasi).
+
+#### Kubata kweTokens Dzisina Kugoverwa
+
+##### Kutakura Tokens Dzisina Kugoverwa
+
+- Tokens dzisina kugoverwa kubva kuepoch imwe neimwe **dzinoverengerwa** kuhuwandu hwekugoverwa kweepoch inotevera.
+- Izvi zvinovimbisa kugoverwa kwetoken kunoshanda kunyangwe kana kutora chikamu kwekutanga kwevashandisi kuchiri kushoma.
+
+##### Kuverenga Huwandu Hwese Hwakagadziriswa Hwekugoverwa kweEpoch
+
+Huwandu hwese hwekugoverwa kweepoch inotevera ndeye:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Huwandu hwakagadziriswa hwekugoverwa kweepoch $ t+1 $.
+- $ f(t+1) $: Huwandu hwekugoverwa zvichienderana nebasa rekutanga rekugovera.
+- **Tokens Dzisina Kugoverwa Dzakatakurwa**: Huwandu hwetokens dzisina kugoverwa muepoch $ t $.
+
+#### Kuverenga Chiyero cheBasa ($ P_n $) paSevhisi
+
+Chiyero chebasa chesevhisi imwe neimwe chinoverengwa zvichibva pamametric anotevera. Kurema kwemetric imwe neimwe kunogona kugadziriswa kuburikidza nehutungamiri.
+
+1. **JetPack Token Consumption ($ M_{1n} $)**
+    - **Kurema**: $ w_1 = 50\% $
+    - **Tsananguro**: Huwandu hwese hwetokens dzeJetPack dzinoshandiswa nevashandisi mukati mesevhisi.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Kurema**: $ w_2 = 30\% $
+    - **Tsananguro**: Huwandu hwevhoti dzakagamuchirwa kubva kuOG Degen Bunnies.
+
+3. **Active User Count ($ M_{3n} $)**
+    - **Kurema**: $ w_3 = 20\% $
+    - **Tsananguro**: Huwandu hwevashandisi vakasiyana vakawana uye vakashanda mukati mesevhisi panguva yeepoch.
+
+Chiyero chebasa chesevhisi imwe neimwe $ P_n $ chinoverengwa se:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Apo:
+
+- $ M_{1n} $: Kushandiswa kwetoken dzeJetPack kwesevhisi $ n $.
+- $ M_{1\text{total}} $: Kushandiswa kwetoken dzeJetPack kwese kumasevhisi ese.
+- $ M_{2n} $: Huwandu hwevhoti dzeDegen Bunny kwesevhisi $ n $.
+- $ M_{2\text{total}} $: Huwandu hwevhoti dzeDegen Bunny kumasevhisi ese.
+- $ M_{3n} $: Huwandu hwevashandisi vakasiyana kwesevhisi $ n $.
+- $ M_{3\text{total}} $: Huwandu hwevashandisi vakasiyana kumasevhisi ese.
+
+**Muenzaniso**:
+
+- **Sevhisi A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Sevhisi B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Sevhisi C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Huwandu**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Kurema**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Kuverenga Chiyero cheBasa cheSevhisi A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Kuverenga Chiyero cheBasa cheSevhisi B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Kuverenga Chiyero cheBasa cheSevhisi C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Saka, zviyero zvemabasa ndezvi:
+
+- **Sevhisi A**: $ P_A = 0.38 $
+- **Sevhisi B**: $ P_B = 0.29 $
+- **Sevhisi C**: $ P_C = 0.33 $
+
+#### Zvinodiwa zveLevel uye Huwandu HweKugoverwa kweToken
+
+Zvichienderana nechiyero chebasa $ P_n $, sevhisi imwe neimwe inopatsanurwa kuita **Levels 1 kusvika 9**. Iyi kupatsanurwa inoshandisa **cumulative top percentile** yezviyero zvemabasa emasevhisi ese.
+
+##### Cumulative Top Percentiles uye Huwandu HweKugoverwa kweToken paLevel
+
+| **Level** | **Cumulative Top Percentile** | **Maximum Token Distribution (Jet)** |
+|-----------|-------------------------------|--------------------------------------|
+| Level 1   | Top 4%                        | 30,000                               |
+| Level 2   | Top 11%                       | 25,000                               |
+| Level 3   | Top 23%                       | 20,000                               |
+| Level 4   | Top 40%                       | 15,000                               |
+| Level 5   | Top 60%                       | 10,000                               |
+| Level 6   | Top 77%                       | 7,000                                |
+| Level 7   | Top 89%                       | 5,000                                |
+| Level 8   | Top 96%                       | 3,000                                |
+| Level 9   | Top 100%                      | 1,000                                |
+
+##### Nzira Yekutsanangura Level
+
+1. **Verenga Zviyero zveBasa**
+
+   Shandisa nzira yakatsanangurwa kare kuverenga chiyero chebasa chesevhisi imwe neimwe $ P_n $.
+
+2. **Tsanangura Zvibodzwa zveSevhisi**
+
+   Rangarira masevhisi ese mu **kudzikira kwekurongeka** zvichienderana nezviyero zvemabasa avo.
+
+3. **Verenga Cumulative Top Percentiles**
+
+   Kune sevhisi imwe neimwe, verenga cumulative top percentile:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Apo:
+
+    - $ \text{Rank} $: Chinzvimbo chesevhisi (kutanga kubva pa1).
+    - $ N $: Huwandu hwese hwemasevhisi.
+
+4. **Govera Levels**
+
+   Govera levels zvichienderana necumulative top percentiles:
+
+    - **Level 1**: Cumulative top percentile > 96%
+    - **Level 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Level 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Level 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Level 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Level 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Level 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Level 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Level 9**: Cumulative top percentile ≤ 4%
+
+**Muenzaniso**:
+
+Nehuwandu hwe **3** masevhisi:
+
+1. **Verenga Zvibodzwa uye Cumulative Top Percentiles**
+
+    - **Sevhisi A**:
+
+        - Chiyero cheBasa: $ P_A = 0.38 $
+        - Chinzvimbo: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Sevhisi C**:
+
+        - Chiyero cheBasa: $ P_C = 0.33 $
+        - Chinzvimbo: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Sevhisi B**:
+
+        - Chiyero cheBasa: $ P_B = 0.29 $
+        - Chinzvimbo: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Govera Levels**
+
+    - **Sevhisi A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Level**: **Level 1** (Cumulative Top Percentile > 96%)
+        - **Maximum Token Distribution**: 30,000 Jet
+
+    - **Sevhisi C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Level**: **Level 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum Token Distribution**: 15,000 Jet
+
+    - **Sevhisi B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Level**: **Level 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum Token Distribution**: 7,000 Jet
+
+**Zvakakosha**:
+
+- **Zvibodzwa Zvakafanana**: Masevhisi ane zviyero zvemabasa zvakafanana anogamuchira chinzvimbo chimwe chete. Mukuverenga cumulative top percentiles, avhareji yechinzvimbo inoshandiswa.
+- **Maximum Token Distribution** inoreva huwandu hwetoken hwakanyanya hunogona kugamuchirwa nesevhisi zvichienderana nelevel yayo.
+
+### Muenzaniso Wechiitiko
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Huwandu HweKugoverwa Hwakakosha**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Huwandu Hwese Hwakagadziriswa Hwekugoverwa**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Kuverenga Huwandu HweKugoverwa kweSevhisi**
+
+Zvichienderana nezviyero zvemabasa uye levels:
+
+- **Huwandu Hwechiyero cheBasa $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Sevhisi A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Huwandu HweKugoverwa:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Sevhisi C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Huwandu HweKugoverwa:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Sevhisi B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Huwandu HweKugoverwa:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Mhedzisiro yeKugoverwa**
+
+- **Huwandu Hwese Hwetokens Hwakagoverwa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens Dzisina Kugoverwa**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Huwandu HweKugoverwa Hwakakosha**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokens Dzakatakurwa**: $ 3,427,788.70 \text{ Jet} $
+- **Huwandu Hwese Hwakagadziriswa Hwekugoverwa**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Zviyero zveBasa uye Levels Zvitsva**
+
+Kufungidzira shanduko muzviyero zvemabasa:
+
+- **Sevhisi A**:
+
+    - Chiyero cheBasa: $ P_A = 0.40 $
+    - Chinzvimbo: 1
+    - Cumulative Top Percentile: 100%
+    - **Level**: Level 1
+    - **Maximum Token Distribution**: 30,000 Jet
+
+- **Sevhisi C**:
+
+    - Chiyero cheBasa: $ P_C = 0.35 $
+    - Chinzvimbo: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Level**: Level 4
+    - **Maximum Token Distribution**: 15,000 Jet
+
+- **Sevhisi B**:
+
+    - Chiyero cheBasa: $ P_B = 0.25 $
+    - Chinzvimbo: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Level**: Level 6
+    - **Maximum Token Distribution**: 7,000 Jet
+
+**Huwandu Hwechiyero cheBasa $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Kuverenga Huwandu HweKugoverwa kweSevhisi**
+
+1. **Sevhisi A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Huwandu HweKugoverwa:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Sevhisi C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Huwandu HweKugoverwa:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Sevhisi B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Huwandu HweKugoverwa:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Mhedzisiro yeKugoverwa**
+
+- **Huwandu Hwese Hwetokens Hwakagoverwa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens Dzisina Kugoverwa**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Mhedzisiro yeTokens Dzisina Kugoverwa Dzakatakurwa
+
+- **Kuwedzera Kwekutora Chikamu kweSevhisi uye Kuvandudzwa kweBasa** kuchadzikisa zvishoma nezvishoma huwandu hwetokens dzisina kugoverwa.
+- **Masevhisi ekutanga anogona kushandisa huwandu hwekugoverwa hwakanyanya** kukurudzira kukura.
+- Kutakura tokens kunobatsira **kuchengetedza kugadzikana kwekukosha** uye kugadzirisa kutenderera.
+
+## Mibairo yeVashandisi uye Kushandiswa kweToken
+
+### **Mechanism yeMibairo yeVashandisi**
+
+- **Mibairo Inoenderana neMabasa**: Vashandisi vanogamuchira tokens dzeJetPack kana vachiita **mabasa akabvumiranwa kare** (semuenzaniso, kugadzira zvemukati, kutamba mitambo) mukati mesevhisi.
+- **Zvinodiwa zveMibairo yeToken**: Huwandu hwetokens hunopihwa pamabasa ega ega **hunotsanangurwa kuburikidza nekubvumirana** pakati pesevhisi nemushandisi weJetPack ecosystem.
+
+### **Nzira dzekushandisa Token**
+
+1. **Mukati meSevhisi**:
+    - **Kuwana Zvimiro Zvekubhadhara**: Shandisa tokens kuwana zvimiro kana zvemukati zvinobhadharwa mukati mesevhisi.
+    - **Kutenga Zvinhu**: Tenga zvinhu zvedhijitari kana zvinhu mukati mesevhisi uchishandisa tokens.
+
+2. **Kushandisa JetPack Wallet Service Exchange**:
+    - **Kutengesa Tokens**: Vashandisi vanogona kuchinjanisa tokens dzavo ne **ADA** (mari ye **Cardano**).
+    - **Kugadzirisa Wallet**: JetPack wallet inobvumira kugadzirisa kwakachengeteka kwetokens uye kutumira kune mamwe masevhisi.
+
+### **Mabhenefiti Anotarisirwa kubva Mukukosheswa kweToken**
+
+- **Liquidity yeToken**: Kutengesa tokens pamisika kunowedzera **liquidity** yavo.
+- **Mabhenefiti Eehupfumi**: Vashandisi vanogona kuwana **mabhenefiti ehupfumi ekuwedzera** nekutengesa tokens kana kukosha kwavo kuchiwedzera.
+
+## Kutenga uye Kugovera Zvakare kweToken
+
+### **Kutenga Tokens Zvakawedzerwa neMasevhisi**
+
+- **Kana Tokens Dzagoverwa Dzapera**: Kana sevhisi yashandisa tokens dzese dzakagoverwa, inogona kutenga tokens dzakawedzerwa kubva ku **JetPack Wallet Service Exchange**.
+- **Mari Yekutenga**: Tokens dzinotengwa uchishandisa **ADA**.
+- **Kushandiswa kweTokens Dzakatengwa**: Tokens dzakatengwa dzinogona kushandiswa **kupa mibairo yevashandisi** kana **mukati mesevhisi**.
+
+### **Tokens Dzinotengeswa uye Dzisingatengeswi**
+
+- **Tokens Dzagoverwa** (**Dzisingatengeswi**): Tokens dzakagoverwa kumasevhisi **hadzigone kutengeswa** uye dzinongoshandiswa **kupa mibairo yevashandisi**.
+- **Tokens Dzakatengwa uye Tokens Dzakatambirwa kubva kuVashandisi** (**Dzinotengeswa**): Tokens dzakatengwa neADA uye tokens dzakagamuchirwa kubva kuvashandisi **dzinogona kutengeswa**, zvichibatsira mukuwana **liquidity**.
+
+### **Kugovera Zvakare kweToken uye Kusimudzira Ecosystem**
+
+1. **Chimiro Chekutenderera kweToken**:
+    - Masevhisi anopa vashandisi mibairo yetokens; vashandisi vanoshandisa mukati mesevhisi kana kutengesa pamisika.
+    - Masevhisi anowana tokens kubva kuvashandisi kana kutenga kuti achengetedze **hurongwa hwemibairo hunogara**.
+
+2. **Mhedzisiro yeKusimudzira Ecosystem**:
+    - Kutenderera kwetoken kunosimudzira **kutorwa kwevashandisi** uye **kusimudzira sevhisi**.
+    - Izvi zvinobatsira **kugadzikana kwekukosha kwetoken** uye **kukura kunogara kweecosystem**.

@@ -1,0 +1,529 @@
+# Kaip veikia JetPack žetonai
+
+JetPack žetonų sistema apima **veiklos pagrindu išduodamų ir paskirstomų žetonų** sistemą, **paslaugų lygio sistemą**, **vartotojų apdovanojimus ir žetonų naudojimo metodus** bei **žetonų pirkimo ir perskirstymo mechanizmą**. Ši struktūra užtikrina **sąžiningą ir efektyvią apdovanojimų sistemą** tiek vartotojams, tiek paslaugų teikėjams.
+
+## Žetonų paskirstymo (Drop) mechanizmas
+
+### Bendras žetonų kiekis ir paskirstymo laikotarpis
+
+- **Bendras kiekis**: JetPack išleis iš viso **1 milijardą Jet** žetonų.
+- **Paskirstymo laikotarpis**: Žetonai bus paskirstomi per **38 metus**, iš viso įvyks **2,776 paskirstymai**, vykstantys tuo pačiu intervalu kaip ir **Cardano Epoch** (1 epocha = 5 dienos).
+
+### Žetonų paskirstymo kiekis per epochą
+
+#### Paskirstymo kiekio skaičiavimas pagal logaritminę funkciją
+
+Žetonų kiekis, paskirstomas per epochą, yra suprojektuotas taip, kad laikui bėgant mažėtų. Naudojama **logaritminė funkcija**, kad būtų apskaičiuotas kiekvienos epochos paskirstymo kiekis. **1 Jet lygus 1,000,000 Pack**, todėl paskirstymo kiekiai apskaičiuojami iki **šeštojo dešimtainio skaičiaus** ir mokami atitinkamai.
+
+1. **Logaritminės funkcijos $ f(t) $ apibrėžimas**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kur:
+
+    - $ t $ yra epochos numeris, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ yra natūraliojo logaritmo funkcija.
+
+2. **Logaritminės funkcijos $ f(t) $ sumos skaičiavimas per visas epochas**:
+
+   Visos funkcijos reikšmių sumos per visą paskirstymo laikotarpį $ S $ yra:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Skalės konstantos $ A $ skaičiavimas**:
+
+   Bendras žetonų kiekis **1 milijardas Jet** yra padalijamas iš sumos $ S $, kad būtų pritaikytas paskirstymo kiekis kiekvienai epochai:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Žetonų paskirstymo kiekio skaičiavimas per epochą**:
+
+   Paskirstymo kiekis kiekvienai epochai yra:
+
+   $$
+   \text{Paskirstymo kiekis}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Paskirstymo kiekių pavyzdžiai**:
+
+   Paskirstymo kiekių skaičiavimas pradinėms epochoms:
+
+    - **Epocha 1**:
+
+      $$
+      \text{Paskirstymo kiekis}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epocha 2**:
+
+      $$
+      \text{Paskirstymo kiekis}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epocha 3**:
+
+      $$
+      \text{Paskirstymo kiekis}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Paskirstymo kiekis kiekvienai epochai nustatomas pagal logaritminės funkcijos reikšmę, atitinkančią epochos numerį.
+
+**Paskirstymo charakteristikos**
+
+- Kadangi $ \ln(t + 1) $ didėja, kai $ t $ didėja, vardiklis tampa didesnis, todėl bendras paskirstymo kiekis palaipsniui mažėja.
+- Paskirstymo kiekis per epochą laikui bėgant mažėja, artėdamas prie nulio.
+- Šis dizainas skatina ankstyvuosius dalyvius ir didina žetono retumą.
+
+### Bendras paskirstymo grafikas
+
+Žemiau pateikta dalinė lentelė, apibendrinanti paskirstymo kiekius ir datas per epochą.
+Išsamesnę informaciją apie visas epochas rasite atskirame [dokumente](/attach/token_allocation_per_epoch.csv) ir [kode](/attach/token_allocation_per_epoch.py).
+
+| Epochos numeris | Data           | Paskirstymo kiekis (Jet) |
+|-----------------|----------------|--------------------------|
+| 1               | 2025-01-01     | 3,479,788.70             |
+| 2               | 2025-01-06     | 2,195,502.227            |
+| 3               | 2025-01-11     | 1,739,894.35             |
+| ...             | ...            | ...                      |
+| 2774            | 2062-12-18     | 304,223.285              |
+| 2775            | 2062-12-23     | 304,209.4607             |
+| 2776            | 2062-12-28     | 304,195.6425             |
+
+### Žetonų paskirstymo kriterijai pagal paslaugą
+
+#### Santykių tarp paslaugų skaičiavimas
+
+Paskirstymo santykis kiekvienai paslaugai apskaičiuojamas pagal jos veiklos rezultatų balą $ P_n $ santykyje su bendru veiklos rezultatų balu $ P $:
+
+$$
+\text{Santykis paslaugai } n = \frac{P_n}{P}
+$$
+
+Kur:
+
+- $ P_n $: Paslaugos $ n $ veiklos rezultatų balas.
+- $ P $: Visų paslaugų veiklos rezultatų balų suma.
+
+#### Paskirstymo kiekio skaičiavimas pagal paslaugą
+
+Žetonų kiekis, kurį paslauga $ n $ gauna kiekvienoje epochoje $ S_n $, yra:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimalus žetonų paskirstymas paslaugai } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Pritaikytas bendras paskirstymo kiekis epochai.
+- $ \text{Maksimalus žetonų paskirstymas paslaugai } n $: Maksimalus žetonų kiekis, paskirtas pagal paslaugos lygį (žr. lygio pagrindu maksimalų žetonų paskirstymą žemiau).
+
+#### Nepaskirstytų žetonų tvarkymas
+
+##### Nepaskirstytų žetonų perkėlimas
+
+- Nepaskirstyti žetonai iš kiekvienos epochos yra **pridedami** prie bendro paskirstymo kiekio kitai epochai.
+- Tai užtikrina efektyvų žetonų paskirstymą net ir esant mažam pradiniam paslaugų dalyvavimui.
+
+##### Pritaikyto bendro paskirstymo kiekio skaičiavimas per epochą
+
+Bendras paskirstymo kiekis kitai epochai yra:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Nepaskirstyti žetonai iš ankstesnės epochos}
+$$
+
+- $ f_{\text{total}}(t+1) $: Pritaikytas bendras paskirstymo kiekis epochai $ t+1 $.
+- $ f(t+1) $: Paskirstymo kiekis pagal pagrindinę paskirstymo funkciją.
+- **Perkelti nepaskirstyti žetonai**: Žetonų skaičius, nepaskirstytas epochoje $ t $.
+
+#### Veiklos rezultatų balo ($ P_n $) skaičiavimas pagal paslaugą
+
+Kiekvienos paslaugos veiklos rezultatų balas apskaičiuojamas pagal šiuos rodiklius. Kiekvieno rodiklio svoris gali būti koreguojamas per valdymą.
+
+1. **JetPack žetonų sunaudojimas ($ M_{1n} $)**
+    - **Svoris**: $ w_1 = 50\% $
+    - **Aprašymas**: Bendras JetPack žetonų kiekis, sunaudotas vartotojų paslaugoje.
+
+2. **Degen Bunny balsų skaičius ($ M_{2n} $)**
+    - **Svoris**: $ w_2 = 30\% $
+    - **Aprašymas**: Balsų skaičius, gautas iš OG Degen Bunnies.
+
+3. **Aktyvių vartotojų skaičius ($ M_{3n} $)**
+    - **Svoris**: $ w_3 = 20\% $
+    - **Aprašymas**: Unikalių vartotojų, kurie pasiekė ir buvo aktyvūs paslaugoje per epochą, skaičius.
+
+Kiekvienos paslaugos veiklos rezultatų balas $ P_n $ apskaičiuojamas taip:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kur:
+
+- $ M_{1n} $: JetPack žetonų sunaudojimas paslaugoje $ n $.
+- $ M_{1\text{total}} $: Bendras JetPack žetonų sunaudojimas visose paslaugose.
+- $ M_{2n} $: Degen Bunny balsų skaičius paslaugai $ n $.
+- $ M_{2\text{total}} $: Bendras Degen Bunny balsų skaičius visose paslaugose.
+- $ M_{3n} $: Aktyvių vartotojų skaičius paslaugoje $ n $.
+- $ M_{3\text{total}} $: Bendras aktyvių vartotojų skaičius visose paslaugose.
+
+**Pavyzdys**:
+
+- **Paslauga A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Paslauga B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Paslauga C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Iš viso**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Svoris**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Veiklos rezultatų balo skaičiavimas paslaugai A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Veiklos rezultatų balo skaičiavimas paslaugai B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Veiklos rezultatų balo skaičiavimas paslaugai C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Taigi, veiklos rezultatų balai yra:
+
+- **Paslauga A**: $ P_A = 0.38 $
+- **Paslauga B**: $ P_B = 0.29 $
+- **Paslauga C**: $ P_C = 0.33 $
+
+#### Lygio nustatymo kriterijai ir maksimalus žetonų paskirstymo kiekis
+
+Remiantis veiklos rezultatų balu $ P_n $, kiekviena paslauga klasifikuojama į **1–9 lygius**. Ši klasifikacija naudoja **kaupiamąjį aukščiausią procentilį** visų paslaugų veiklos rezultatų balų.
+
+##### Kaupiamieji aukščiausi procentiliai ir maksimalūs žetonų paskirstymo kiekiai pagal lygį
+
+| **Lygis** | **Kaupiamasis aukščiausias procentilis** | **Maksimalus žetonų paskirstymas (Jet)** |
+|-----------|-----------------------------------------|------------------------------------------|
+| Lygis 1   | Aukščiausi 4%                            | 30,000                                   |
+| Lygis 2   | Aukščiausi 11%                           | 25,000                                   |
+| Lygis 3   | Aukščiausi 23%                           | 20,000                                   |
+| Lygis 4   | Aukščiausi 40%                           | 15,000                                   |
+| Lygis 5   | Aukščiausi 60%                           | 10,000                                   |
+| Lygis 6   | Aukščiausi 77%                           | 7,000                                    |
+| Lygis 7   | Aukščiausi 89%                           | 5,000                                    |
+| Lygis 8   | Aukščiausi 96%                           | 3,000                                    |
+| Lygis 9   | Aukščiausi 100%                          | 1,000                                    |
+
+##### Lygio nustatymo metodas
+
+1. **Veiklos rezultatų balų skaičiavimas**
+
+   Naudokite anksčiau apibrėžtą metodą, kad apskaičiuotumėte kiekvienos paslaugos veiklos rezultatų balą $ P_n $.
+
+2. **Paslaugų reitingų nustatymas**
+
+   Surikiuokite visas paslaugas **mažėjančia tvarka** pagal jų veiklos rezultatų balus.
+
+3. **Kaupiamųjų aukščiausių procentilių skaičiavimas**
+
+   Kiekvienai paslaugai apskaičiuokite kaupiamąjį aukščiausią procentilį:
+
+   $$
+   \text{Kaupiamasis aukščiausias procentilis (\%)} = \left(1 - \frac{\text{Reitingas} - 1}{N} \right) \times 100\%
+   $$
+
+   Kur:
+
+    - $ \text{Reitingas} $: Paslaugos reitingas (pradedant nuo 1).
+    - $ N $: Bendras paslaugų skaičius.
+
+4. **Lygio priskyrimas**
+
+   Priskirkite lygius pagal kaupiamuosius aukščiausius procentilius:
+
+    - **Lygis 1**: Kaupiamasis aukščiausias procentilis > 96%
+    - **Lygis 2**: 89% < Kaupiamasis aukščiausias procentilis ≤ 96%
+    - **Lygis 3**: 77% < Kaupiamasis aukščiausias procentilis ≤ 89%
+    - **Lygis 4**: 60% < Kaupiamasis aukščiausias procentilis ≤ 77%
+    - **Lygis 5**: 40% < Kaupiamasis aukščiausias procentilis ≤ 60%
+    - **Lygis 6**: 23% < Kaupiamasis aukščiausias procentilis ≤ 40%
+    - **Lygis 7**: 11% < Kaupiamasis aukščiausias procentilis ≤ 23%
+    - **Lygis 8**: 4% < Kaupiamasis aukščiausias procentilis ≤ 11%
+    - **Lygis 9**: Kaupiamasis aukščiausias procentilis ≤ 4%
+
+**Pavyzdys**:
+
+Su iš viso **3** paslaugomis:
+
+1. **Reitingų ir kaupiamųjų aukščiausių procentilių skaičiavimas**
+
+    - **Paslauga A**:
+
+        - Veiklos rezultatų balas: $ P_A = 0.38 $
+        - Reitingas: 1
+        - Kaupiamasis aukščiausias procentilis:
+
+          $$
+          \text{Kaupiamasis aukščiausias procentilis} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Paslauga C**:
+
+        - Veiklos rezultatų balas: $ P_C = 0.33 $
+        - Reitingas: 2
+        - Kaupiamasis aukščiausias procentilis:
+
+          $$
+          \text{Kaupiamasis aukščiausias procentilis} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Paslauga B**:
+
+        - Veiklos rezultatų balas: $ P_B = 0.29 $
+        - Reitingas: 3
+        - Kaupiamasis aukščiausias procentilis:
+
+          $$
+          \text{Kaupiamasis aukščiausias procentilis} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Lygio priskyrimas**
+
+    - **Paslauga A**:
+
+        - Kaupiamasis aukščiausias procentilis: 100%
+        - **Lygis**: **Lygis 1** (Kaupiamasis aukščiausias procentilis > 96%)
+        - **Maksimalus žetonų paskirstymas**: 30,000 Jet
+
+    - **Paslauga C**:
+
+        - Kaupiamasis aukščiausias procentilis: 66.67%
+        - **Lygis**: **Lygis 4** (60% < Kaupiamasis aukščiausias procentilis ≤ 77%)
+        - **Maksimalus žetonų paskirstymas**: 15,000 Jet
+
+    - **Paslauga B**:
+
+        - Kaupiamasis aukščiausias procentilis: 33.33%
+        - **Lygis**: **Lygis 6** (23% < Kaupiamasis aukščiausias procentilis ≤ 40%)
+        - **Maksimalus žetonų paskirstymas**: 7,000 Jet
+
+**Pastabos**:
+
+- **Vienodi balai**: Paslaugos su vienodais veiklos rezultatų balais gauna tą patį reitingą. Kaupiamųjų aukščiausių procentilių skaičiavime naudojamas vidutinis reitingas.
+- **Maksimalus žetonų paskirstymas** reiškia maksimalų žetonų kiekį, kurį paslauga gali gauti pagal savo lygį.
+
+### Pavyzdinė situacija
+
+#### Epocha 1 ($ t = 1 $)
+
+- **Pagrindinis paskirstymo kiekis**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Pritaikytas bendras paskirstymo kiekis**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Paskirstymo kiekio skaičiavimas pagal paslaugą**
+
+Remiantis veiklos rezultatų balais ir lygiais:
+
+- **Bendras veiklos rezultatų balas $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Paslauga A**:
+
+    - Santykis: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Paskirstymo kiekis:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Paslauga C**:
+
+    - Santykis: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Paskirstymo kiekis:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Paslauga B**:
+
+    - Santykis: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Paskirstymo kiekis:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Paskirstymo rezultatai**
+
+- **Iš viso paskirstyta žetonų**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nepaskirstyti žetonai**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epocha 2 ($ t = 2 $)
+
+- **Pagrindinis paskirstymo kiekis**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Perkelti žetonai**: $ 3,427,788.70 \text{ Jet} $
+- **Pritaikytas bendras paskirstymo kiekis**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Atnaujinti veiklos rezultatų balai ir lygiai**
+
+Daroma prielaida, kad veiklos rezultatų balai pasikeitė:
+
+- **Paslauga A**:
+
+    - Veiklos rezultatų balas: $ P_A = 0.40 $
+    - Reitingas: 1
+    - Kaupiamasis aukščiausias procentilis: 100%
+    - **Lygis**: Lygis 1
+    - **Maksimalus žetonų paskirstymas**: 30,000 Jet
+
+- **Paslauga C**:
+
+    - Veiklos rezultatų balas: $ P_C = 0.35 $
+    - Reitingas: 2
+    - Kaupiamasis aukščiausias procentilis: 66.67%
+    - **Lygis**: Lygis 4
+    - **Maksimalus žetonų paskirstymas**: 15,000 Jet
+
+- **Paslauga B**:
+
+    - Veiklos rezultatų balas: $ P_B = 0.25 $
+    - Reitingas: 3
+    - Kaupiamasis aukščiausias procentilis: 33.33%
+    - **Lygis**: Lygis 6
+    - **Maksimalus žetonų paskirstymas**: 7,000 Jet
+
+**Bendras veiklos rezultatų balas $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Paskirstymo kiekio skaičiavimas pagal paslaugą**
+
+1. **Paslauga A**:
+
+    - Santykis: $ \frac{P_A}{P} = 0.40 $
+    - Paskirstymo kiekis:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Paslauga C**:
+
+    - Santykis: $ \frac{P_C}{P} = 0.35 $
+    - Paskirstymo kiekis:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Paslauga B**:
+
+    - Santykis: $ \frac{P_B}{P} = 0.25 $
+    - Paskirstymo kiekis:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Paskirstymo rezultatai**
+
+- **Iš viso paskirstyta žetonų**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nepaskirstyti žetonai**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Nepaskirstytų žetonų kaupimo poveikis
+
+- **Padidėjęs paslaugų dalyvavimas ir pagerėję veiklos rezultatai** palaipsniui sumažins nepaskirstytų žetonų kiekį.
+- **Pradinės paslaugos gali naudoti maksimalų paskirstymo kiekį**, kad skatintų augimą.
+- Žetonų perkėlimas padeda **išlaikyti vertės stabilumą** ir reguliuoti cirkuliaciją.
+
+## Vartotojų apdovanojimai ir žetonų naudojimas
+
+### **Vartotojų apdovanojimų mechanizmas**
+
+- **Veiklos pagrindu apdovanojimai**: Vartotojai gauna JetPack žetonus, kai atlieka **iš anksto sutartas veiklas** (pvz., turinio kūrimas, žaidimas) paslaugoje.
+- **Žetonų apdovanojimų kriterijai**: Žetonų kiekis, skiriamas už kiekvieną veiklą, yra **nustatomas konsultuojantis** tarp paslaugos ir JetPack ekosistemos operatoriaus.
+
+### **Žetonų naudojimo metodai**
+
+1. **Paslaugoje**:
+    - **Prieiga prie premium funkcijų**: Naudokite žetonus, kad gautumėte prieigą prie mokamų funkcijų ar turinio paslaugoje.
+    - **Prekių pirkimas**: Pirkite skaitmenines prekes ar paslaugos elementus naudodami žetonus.
+
+2. **Naudojant JetPack piniginės paslaugų mainus**:
+    - **Žetonų pardavimas**: Vartotojai gali keisti savo žetonus į **ADA** (Cardano valiutą).
+    - **Piniginės valdymas**: JetPack piniginė leidžia saugiai valdyti žetonus ir pervesti juos į kitas paslaugas.
+
+### **Tikėtina nauda iš žetonų vertės padidėjimo**
+
+- **Žetonų likvidumas**: Prekyba žetonais biržose padidina jų **likvidumą**.
+- **Ekonominė nauda**: Vartotojai gali pasiekti **papildomą ekonominę naudą**, parduodami žetonus, jei jų vertė padidėja.
+
+## Žetonų pirkimas ir perskirstymas
+
+### **Papildomas žetonų pirkimas paslaugų teikėjų**
+
+- **Kai paskirstyti žetonai išnaudoti**: Jei paslauga išnaudoja visus jai skirtus žetonus, ji gali įsigyti papildomų žetonų iš **JetPack piniginės paslaugų mainų**.
+- **Pirkimo valiuta**: Žetonai perkami naudojant **ADA**.
+- **Įsigytų žetonų naudojimas**: Įsigyti žetonai gali būti naudojami **vartotojų apdovanojimams** arba **paslaugoje**.
+
+### **Perpardavimo ir neperpardavimo žetonai**
+
+- **Paskirstyti žetonai** (**Neperpardavimo**): Paslaugoms skirti žetonai **negali būti perparduoti** ir yra skirti tik **vartotojų apdovanojimams**.
+- **Įsigyti žetonai ir žetonai, gauti iš vartotojų** (**Perpardavimo**): Žetonai, įsigyti su ADA, ir žetonai, gauti iš vartotojų, **gali būti perparduoti**, padedant **įgyti likvidumą**.
+
+### **Žetonų perskirstymas ir ekosistemos aktyvavimas**
+
+1. **Žetonų cirkuliacijos struktūra**:
+    - Paslaugos apdovanoja vartotojus žetonais; vartotojai juos naudoja paslaugose arba parduoda biržose.
+    - Paslaugos įsigyja žetonus iš vartotojų arba perka juos, kad išlaikytų **tvarią apdovanojimų sistemą**.
+
+2. **Ekosistemos aktyvavimo poveikis**:
+    - Žetonų cirkuliacija skatina **vartotojų įsitraukimą** ir **paslaugų aktyvavimą**.
+    - Tai prisideda prie **žetonų vertės stabilizavimo** ir **tvaraus ekosistemos augimo**.

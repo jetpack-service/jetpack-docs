@@ -1,0 +1,528 @@
+# Sɛnea JetPack Tokens Yɛ Adwuma
+
+JetPack token nhyehyɛ no fa **nsɛm a wɔyɛ no so na wɔde token ma ne sɛnea wɔbɔ no ho ban**, **asomdwoeɛ ahorow a wɔde yɛ adwuma**, **wɔde mafoɔ akatua ne sɛnea wɔde token yɛ adwuma**, ne **kwan a wɔfa so tɔ ne sɛnea wɔde token kyɛ**. Saa nhyehyɛ yi ma **akatua a ɛyɛ nokware ne a ɛyɛ adwuma** ma wɔn a wɔde yɛ adwuma ne wɔn a wɔyɛ adwuma no.
+
+## Token Kyɛ (Drop) Kwan
+
+### Token a Wɔde Bɛma ne Bere a Wɔde Bɛkyɛ
+
+- **Token a Wɔde Bɛma**: JetPack bɛma **1 billion Jet** tokens nyinaa.
+- **Bere a Wɔde Bɛkyɛ**: Wɔbɛkyɛ tokens no wɔ mfe **38** mu, a wɔbɛyɛ **2,776 kyɛ** wɔ bere a ɛyɛ pɔtee sɛ **Cardano Epoch** (1 epoch = nna 5).
+
+### Token Kyɛ Dodow a Wɔde Bɛma Wɔ Epoch Biara Mu
+
+#### Sɛnea Wɔbɔ Kyɛ Dodow No Firi Logarithmic Function So
+
+Token dodow a wɔde bɛkyɛ wɔ epoch biara mu yɛ sɛ ɛbɛyɛ kakra kakra wɔ bere a ɛrekɔ so. **Logarithmic function** na wɔde bɔ kyɛ dodow no wɔ epoch biara mu. **1 Jet yɛ 1,000,000 Pack**, enti kyɛ dodow no wɔbɔ no kɔ **decimal a ɛto so nsia** na wɔde ma.
+
+1. **Logarithmic Function $ f(t) $ Nkyerɛmu**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Ɛhefa:
+
+    - $ t $ yɛ epoch nɔma, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ yɛ natural logarithm function.
+
+2. **Sɛnea Wɔbɔ Log Function $ f(t) $ Sum Wɔ Epoch Biara Mu**:
+
+   Sum a ɛyɛ nyinaa wɔ bere a wɔde bɛkyɛ no mu $ S $ yɛ:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Sɛnea Wɔbɔ Scaling Constant $ A $**:
+
+   Token a wɔde bɛma a ɛyɛ **1 billion Jet** no wɔkyɛ sum $ S $ mu de yɛ epoch biara mu kyɛ dodow no:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Sɛnea Wɔbɔ Token Kyɛ Dodow Wɔ Epoch Biara Mu**:
+
+   Kyɛ dodow a wɔde bɛma wɔ epoch biara mu yɛ:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Kyɛ Dodow a Wɔde Bɛma No Nkyerɛmu**:
+
+   Sɛnea wɔbɔ kyɛ dodow no wɔ epoch a edi kan no mu:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Kyɛ dodow a wɔde bɛma wɔ epoch biara mu yɛ log function a ɛfa epoch nɔma no ho.
+
+**Kyɛ Nkyerɛmu**
+
+- Esiane sɛ $ \ln(t + 1) $ kɔ soro wɔ bere a $ t $ kɔ soro nti, denominator no bɛyɛ kɛse, na ɛma kyɛ dodow no bɛyɛ kakra kakra.
+- Kyɛ dodow a wɔde bɛma wɔ epoch biara mu bɛyɛ kakra kakra wɔ bere a ɛrekɔ so, na ɛbɛyɛ sɛ ɛrenyɛ hwee.
+- Saa nhyehyɛ yi ma wɔn a wɔde yɛ adwuma a wɔyɛ kan no nya akatua na ɛma token no yɛ kakra.
+
+### Kyɛ Nhyehyɛ Nyinaa
+
+Ɛha na ɛyɛ kyɛ dodow ne nna a wɔde bɛma wɔ epoch biara mu. Sɛ wopɛ nsɛm a ɛyɛ nyansa wɔ epoch nyinaa ho a, kɔ separate [document](/attach/token_allocation_per_epoch.csv) ne [code](/attach/token_allocation_per_epoch.py).
+
+| Epoch Number | Date           | Distribution Amount (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Token Kyɛ Ahyɛde Wɔ Asomdwoeɛ Biara Mu
+
+#### Sɛnea Wɔbɔ Ahotoɔ Wɔ Asomdwoeɛ Mu
+
+Ahotoɔ a wɔde bɛma wɔ asomdwoeɛ biara mu wɔbɔ no wɔ sɛnea ɛyɛ adwuma a ɛyɛ $ P_n $ fa ho sɛnea ɛfa adwuma a ɛyɛ nyinaa ho $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Ɛhefa:
+
+- $ P_n $: Adwuma a ɛyɛ a ɛyɛ asomdwoeɛ $ n $.
+- $ P $: Adwuma a ɛyɛ a ɛyɛ nyinaa sum.
+
+#### Sɛnea Wɔbɔ Kyɛ Dodow Wɔ Asomdwoeɛ Biara Mu
+
+Token dodow a asomdwoeɛ $ n $ bɛnya wɔ epoch biara mu $ S_n $ yɛ:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Kyɛ dodow a wɔde bɔ wɔ epoch no mu.
+- $ \text{Maximum Token Distribution for Service } n $: Token dodow a wɔde bɛma a ɛyɛ kɛse wɔ asomdwoeɛ no so (hwɛ level-based maximum token distribution a ɛda so wɔ nkyɛn).
+
+#### Sɛnea Wɔyɛ Tokens a Wɔanfa Nkyɛ No Ho
+
+##### Sɛnea Wɔde Tokens a Wɔanfa Nkyɛ No Kɔ So
+
+- Tokens a wɔanfa nkyɛ wɔ epoch biara mu wɔde **ka** kyɛ dodow a wɔde bɛma wɔ epoch a ɛdi hɔ no ho.
+- Eyi ma token kyɛ no yɛ adwuma sɛnea ɛbɛyɛ a asomdwoeɛ a wɔyɛ kan no bɛyɛ kakra.
+
+##### Sɛnea Wɔbɔ Kyɛ Dodow a Wɔde Bɛma Wɔ Epoch a ɛdi Hɔ No Mu
+
+Kyɛ dodow a wɔde bɛma wɔ epoch a ɛdi hɔ no mu yɛ:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Kyɛ dodow a wɔde bɔ wɔ epoch $ t+1 $ mu.
+- $ f(t+1) $: Kyɛ dodow a wɔde bɔ wɔ distribution function a ɛyɛ pɔtee so.
+- **Tokens a Wɔanfa Nkyɛ No a Wɔde Kɔ So**: Tokens dodow a wɔanfa nkyɛ wɔ epoch $ t $ mu.
+
+#### Sɛnea Wɔbɔ Adwuma a ɛyɛ ($ P_n $) Wɔ Asomdwoeɛ Biara Mu
+
+Adwuma a ɛyɛ a ɛyɛ asomdwoeɛ biara mu wɔbɔ no wɔ nsɛm a ɛda so yi so. Wɔtumi sesa nsɛm a ɛyɛ biara wɔ governance so.
+
+1. **JetPack Token Consumption ($ M_{1n} $)**
+    - **Weight**: $ w_1 = 50\% $
+    - **Nkyerɛmu**: JetPack tokens dodow a wɔde yɛ adwuma wɔ asomdwoeɛ no mu.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Weight**: $ w_2 = 30\% $
+    - **Nkyerɛmu**: Nnɔma a wɔanya fi OG Degen Bunnies.
+
+3. **Active User Count ($ M_{3n} $)**
+    - **Weight**: $ w_3 = 20\% $
+    - **Nkyerɛmu**: Nnɔma a ɛyɛ unique a wɔde yɛ adwuma wɔ asomdwoeɛ no mu wɔ epoch no mu.
+
+Adwuma a ɛyɛ a ɛyɛ asomdwoeɛ biara mu $ P_n $ wɔbɔ no sɛ:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Ɛhefa:
+
+- $ M_{1n} $: JetPack token consumption a ɛyɛ asomdwoeɛ $ n $.
+- $ M_{1\text{total}} $: JetPack token consumption a ɛyɛ nyinaa wɔ asomdwoeɛ nyinaa mu.
+- $ M_{2n} $: Degen Bunny vote count a ɛyɛ asomdwoeɛ $ n $.
+- $ M_{2\text{total}} $: Degen Bunny votes a ɛyɛ nyinaa wɔ asomdwoeɛ nyinaa mu.
+- $ M_{3n} $: Active user count a ɛyɛ asomdwoeɛ $ n $.
+- $ M_{3\text{total}} $: Active users a ɛyɛ nyinaa wɔ asomdwoeɛ nyinaa mu.
+
+**Nkyerɛmu**:
+
+- **Asomdwoeɛ A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Asomdwoeɛ B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Asomdwoeɛ C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totals**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Weights**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Sɛnea Wɔbɔ Adwuma a ɛyɛ a ɛyɛ Asomdwoeɛ A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Sɛnea Wɔbɔ Adwuma a ɛyɛ a ɛyɛ Asomdwoeɛ B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Sɛnea Wɔbɔ Adwuma a ɛyɛ a ɛyɛ Asomdwoeɛ C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Enti, adwuma a ɛyɛ a ɛyɛ no yɛ:
+
+- **Asomdwoeɛ A**: $ P_A = 0.38 $
+- **Asomdwoeɛ B**: $ P_B = 0.29 $
+- **Asomdwoeɛ C**: $ P_C = 0.33 $
+
+#### Level Determination Criteria ne Maximum Token Distribution Amount
+
+Wɔde adwuma a ɛyɛ a ɛyɛ $ P_n $ no, asomdwoeɛ biara wɔde no yɛ **Levels 1 kɔ 9**. Wɔde **cumulative top percentile** a ɛyɛ asomdwoeɛ nyinaa adwuma a ɛyɛ a ɛyɛ no yɛ.
+
+##### Cumulative Top Percentiles ne Maximum Token Distribution Amounts wɔ Level Biara Mu
+
+| **Level** | **Cumulative Top Percentile** | **Maximum Token Distribution (Jet)** |
+|-----------|-------------------------------|--------------------------------------|
+| Level 1   | Top 4%                        | 30,000                               |
+| Level 2   | Top 11%                       | 25,000                               |
+| Level 3   | Top 23%                       | 20,000                               |
+| Level 4   | Top 40%                       | 15,000                               |
+| Level 5   | Top 60%                       | 10,000                               |
+| Level 6   | Top 77%                       | 7,000                                |
+| Level 7   | Top 89%                       | 5,000                                |
+| Level 8   | Top 96%                       | 3,000                                |
+| Level 9   | Top 100%                      | 1,000                                |
+
+##### Level Determination Method
+
+1. **Bɔ Adwuma a ɛyɛ a ɛyɛ Scores**
+
+   Fa ɔkwan a wɔde bɔ adwuma a ɛyɛ a ɛyɛ asomdwoeɛ biara mu $ P_n $ no yɛ.
+
+2. **Determine Service Rankings**
+
+   Fa asomdwoeɛ nyinaa yɛ **descending order** wɔ adwuma a ɛyɛ a ɛyɛ scores so.
+
+3. **Bɔ Cumulative Top Percentiles**
+
+   Wɔ asomdwoeɛ biara mu, bɔ cumulative top percentile:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Ɛhefa:
+
+    - $ \text{Rank} $: Asomdwoeɛ no rank (fi 1).
+    - $ N $: Asomdwoeɛ a ɛyɛ nyinaa dodow.
+
+4. **Assign Levels**
+
+   Fa levels yɛ wɔ cumulative top percentiles so:
+
+    - **Level 1**: Cumulative top percentile > 96%
+    - **Level 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Level 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Level 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Level 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Level 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Level 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Level 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Level 9**: Cumulative top percentile ≤ 4%
+
+**Nkyerɛmu**:
+
+Wɔ asomdwoeɛ a ɛyɛ **3**:
+
+1. **Bɔ Rankings ne Cumulative Top Percentiles**
+
+    - **Asomdwoeɛ A**:
+
+        - Adwuma a ɛyɛ a ɛyɛ Score: $ P_A = 0.38 $
+        - Rank: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Asomdwoeɛ C**:
+
+        - Adwuma a ɛyɛ a ɛyɛ Score: $ P_C = 0.33 $
+        - Rank: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Asomdwoeɛ B**:
+
+        - Adwuma a ɛyɛ a ɛyɛ Score: $ P_B = 0.29 $
+        - Rank: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Assign Levels**
+
+    - **Asomdwoeɛ A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Level**: **Level 1** (Cumulative Top Percentile > 96%)
+        - **Maximum Token Distribution**: 30,000 Jet
+
+    - **Asomdwoeɛ C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Level**: **Level 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum Token Distribution**: 15,000 Jet
+
+    - **Asomdwoeɛ B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Level**: **Level 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum Token Distribution**: 7,000 Jet
+
+**Notes**:
+
+- **Tied Scores**: Asomdwoeɛ a wɔanya adwuma a ɛyɛ a ɛyɛ scores a ɛyɛ pɔtee no nya rank a ɛyɛ pɔtee. Wɔ bɔ cumulative top percentiles no mu, wɔde average rank yɛ.
+- **Maximum Token Distribution** yɛ token dodow a ɛyɛ kɛse a asomdwoeɛ biara tumi nya wɔ level a ɛyɛ no so.
+
+### Nkyerɛmu a ɛyɛ Nwoma
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basic Distribution Amount**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Sɛnea Wɔbɔ Kyɛ Dodow Wɔ Asomdwoeɛ Biara Mu**
+
+Wɔ adwuma a ɛyɛ a ɛyɛ scores ne levels so:
+
+- **Total Performance Score $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Asomdwoeɛ A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Kyɛ Dodow:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Asomdwoeɛ C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Kyɛ Dodow:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Asomdwoeɛ B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Kyɛ Dodow:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Kyɛ Nkyerɛmu**
+
+- **Tokens a Wɔde Bɛkyɛ a ɛyɛ Nyinaa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens a Wɔanfa Nkyɛ**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basic Distribution Amount**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokens a Wɔde Kɔ So**: $ 3,427,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Adwuma a ɛyɛ a ɛyɛ Scores ne Levels a Wɔasesa**
+
+Sɛnea adwuma a ɛyɛ a ɛyɛ scores asesa no:
+
+- **Asomdwoeɛ A**:
+
+    - Adwuma a ɛyɛ a ɛyɛ Score: $ P_A = 0.40 $
+    - Rank: 1
+    - Cumulative Top Percentile: 100%
+    - **Level**: Level 1
+    - **Maximum Token Distribution**: 30,000 Jet
+
+- **Asomdwoeɛ C**:
+
+    - Adwuma a ɛyɛ a ɛyɛ Score: $ P_C = 0.35 $
+    - Rank: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Level**: Level 4
+    - **Maximum Token Distribution**: 15,000 Jet
+
+- **Asomdwoeɛ B**:
+
+    - Adwuma a ɛyɛ a ɛyɛ Score: $ P_B = 0.25 $
+    - Rank: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Level**: Level 6
+    - **Maximum Token Distribution**: 7,000 Jet
+
+**Total Performance Score $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Sɛnea Wɔbɔ Kyɛ Dodow Wɔ Asomdwoeɛ Biara Mu**
+
+1. **Asomdwoeɛ A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Kyɛ Dodow:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Asomdwoeɛ C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Kyɛ Dodow:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Asomdwoeɛ B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Kyɛ Dodow:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Kyɛ Nkyerɛmu**
+
+- **Tokens a Wɔde Bɛkyɛ a ɛyɛ Nyinaa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens a Wɔanfa Nkyɛ**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Sɛnea Tokens a Wɔanfa Nkyɛ No Bɛyɛ Adwuma
+
+- **Asomdwoeɛ a Wɔyɛ Kakra ne Adwuma a ɛyɛ a ɛyɛ a ɛyɛ Kakra** bɛma tokens a wɔanfa nkyɛ no yɛ kakra kakra.
+- **Asomdwoeɛ a wɔyɛ kan no tumi de kyɛ dodow a ɛyɛ kɛse no yɛ adwuma** de bɛma nkɔsoɔ.
+- Sɛnea wɔde tokens a wɔde kɔ so no yɛ adwuma bɛboa **ma token no yɛ dɛ** na ɛbɛma circulation yɛ adwuma.
+
+## Wɔde Mafoɔ Akatua ne Token Yɛ Adwuma
+
+### **Wɔde Mafoɔ Akatua Nhyehyɛ**
+
+- **Akatua a Wɔde Ma Wɔ Nsɛm a Wɔyɛ So**: Wɔde JetPack tokens ma wɔ nsɛm a wɔyɛ **a wɔapene so dedaw** (e.g., content creation, gameplay) wɔ asomdwoeɛ mu.
+- **Token Akatua Ahyɛde**: Token dodow a wɔde ma wɔ nsɛm biara mu wɔ **yɛ wɔ asɛm a wɔyɛ ne JetPack ecosystem operator ntam**.
+
+### **Token Yɛ Adwuma Kwan**
+
+1. **Wɔ Asomdwoeɛ Mu**:
+    - **Kɔ Premium Features**: Fa tokens yɛ adwuma kɔ features a wɔyɛ sika anaa nsɛm a wɔyɛ wɔ asomdwoeɛ mu.
+    - **Tɔ Nnwuma**: Tɔ digital goods anaa nsɛm a wɔyɛ wɔ asomdwoeɛ mu de tokens yɛ adwuma.
+
+2. **Fa JetPack Wallet Service Exchange Yɛ Adwuma**:
+    - **Token Tɔn**: Wɔtumi sesa wɔn tokens de yɛ **ADA** (sika a ɛyɛ **Cardano**).
+    - **Wallet Management**: JetPack wallet ma wɔtumi yɛ tokens ho ban na wɔtumi fa kɔ asomdwoeɛ foforɔ mu.
+
+### **Sika a Wɔnya fi Token Value a ɛyɛ Dɛ No Ho Mfasoɔ a Wɔhwɛ**
+
+- **Token Liquidity**: Sɛ wɔtɔn tokens wɔ exchanges a ɛma wɔn **liquidity**.
+- **Sika a Wɔnya**: Wɔtumi nya **sika foforɔ a ɛyɛ dɛ** sɛ wɔtɔn tokens no sɛ wɔn value yɛ dɛ.
+
+## Token Tɔ ne Kyɛ
+
+### **Asomdwoeɛ a Wɔtɔ Tokens Foforɔ**
+
+- **Sɛ Tokens a Wɔde Bɛkyɛ No Asa**: Sɛ asomdwoeɛ bi de tokens a wɔde bɛkyɛ no nyinaa yɛ adwuma a, wɔtumi tɔ tokens foforɔ fi **JetPack Wallet Service Exchange**.
+- **Tɔ Sika**: Wɔtɔ tokens de **ADA** yɛ adwuma.
+- **Tokens a Wɔtɔ No Yɛ Adwuma**: Tokens a wɔtɔ no wɔtumi de yɛ **wɔde mafoɔ akatua** anaa **wɔ asomdwoeɛ mu**.
+
+### **Tokens a Wɔtumi Tɔn ne Tokens a Wɔntumi Tɔn**
+
+- **Tokens a Wɔde Bɛkyɛ** (**Wɔntumi Tɔn**): Tokens a wɔde ma asomdwoeɛ **wɔntumi tɔn** na wɔde yɛ **wɔde mafoɔ akatua**.
+- **Tokens a Wɔtɔ ne Tokens a Wɔnya fi Wɔde Mafoɔ** (**Wɔtumi Tɔn**): Tokens a wɔtɔ de ADA ne tokens a wɔnya fi wɔde mafoɔ **wɔtumi tɔn**, a ɛboa wɔ **liquidity acquisition**.
+
+### **Token Kyɛ ne Ecosystem Activation**
+
+1. **Token Circulation Nhyehyɛ**:
+    - Asomdwoeɛ de tokens ma wɔde mafoɔ; wɔde mafoɔ de yɛ wɔ asomdwoeɛ mu anaa wɔtɔn wɔ exchanges.
+    - Asomdwoeɛ nya tokens fi wɔde mafoɔ anaa wɔtɔ de yɛ adwuma ma **akatua a ɛyɛ dɛ**.
+
+2. **Ecosystem Activation Mfasoɔ**:
+    - Token circulation ma **wɔde mafoɔ yɛ adwuma** ne **asomdwoeɛ activation**.
+    - Eyi ma **token value yɛ dɛ** na ɛboa **ecosystem nkɔsoɔ a ɛyɛ dɛ**.

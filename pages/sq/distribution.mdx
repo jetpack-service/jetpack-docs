@@ -1,0 +1,529 @@
+# Si Funksionojnë Tokenët JetPack
+
+Sistemi i tokenëve JetPack përbëhet nga **emisioni dhe shpërndarja e tokenëve bazuar në aktivitet**, një **sistem niveli shërbimi**, **shpërblime për përdoruesit dhe metoda të përdorimit të tokenëve**, dhe një **mekanizëm për blerjen dhe rishpërndarjen e tokenëve**. Kjo strukturë ofron një **sistem shpërblimi të drejtë dhe efikas** për përdoruesit dhe ofruesit e shërbimeve.
+
+## Mekanizmi i Shpërndarjes së Tokenëve (Drop)
+
+### Sasia Totale e Tokenëve dhe Periudha e Shpërndarjes
+
+- **Sasia Totale**: JetPack do të emetojë gjithsej **1 miliard Jet** tokenë.
+- **Periudha e Shpërndarjes**: Tokenët do të shpërndahen gjatë **38 viteve**, me gjithsej **2,776 shpërndarje** që ndodhin në të njëjtat intervale si **Epoka Cardano** (1 epokë = 5 ditë).
+
+### Sasia e Shpërndarjes së Tokenëve për Epokë
+
+#### Llogaritja e Sasisë së Shpërndarjes Bazuar në një Funksion Logaritmik
+
+Sasia e tokenëve të shpërndarë për epokë është projektuar të zvogëlohet me kalimin e kohës. Një **funksion logaritmik** përdoret për të llogaritur sasinë e shpërndarjes për çdo epokë. **1 Jet është i barabartë me 1,000,000 Pack**, kështu që sasitë e shpërndarjes llogariten deri në **vendin e gjashtë dhjetor** dhe paguhen në përputhje me rrethanat.
+
+1. **Përkufizimi i Funksionit Logaritmik $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Ku:
+
+    - $ t $ është numri i epokës, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ është funksioni i logaritmit natyror.
+
+2. **Llogaritja e Shumës së Funksionit Log $ f(t) $ Mbi të Gjitha Epokat**:
+
+   Shuma totale e vlerave të funksionit gjatë gjithë periudhës së shpërndarjes $ S $ është:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Llogaritja e Konstantes së Shkallëzimit $ A $**:
+
+   Sasia totale e tokenëve prej **1 miliard Jet** ndahet me shumën $ S $ për të rregulluar sasinë e shpërndarjes për çdo epokë:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Llogaritja e Sasisë së Shpërndarjes së Tokenëve për Epokë**:
+
+   Sasia e shpërndarjes për çdo epokë është:
+
+   $$
+   \text{Sasia e Shpërndarjes}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Shembuj të Sasive të Shpërndarjes**:
+
+   Llogaritja e sasive të shpërndarjes për epokat fillestare:
+
+    - **Epoka 1**:
+
+      $$
+      \text{Sasia e Shpërndarjes}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoka 2**:
+
+      $$
+      \text{Sasia e Shpërndarjes}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoka 3**:
+
+      $$
+      \text{Sasia e Shpërndarjes}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Sasia e shpërndarjes për çdo epokë përcaktohet nga vlera e funksionit logaritmik që korrespondon me numrin e epokës.
+
+**Karakteristikat e Shpërndarjes**
+
+- Meqenëse $ \ln(t + 1) $ rritet ndërsa $ t $ rritet, emëruesi bëhet më i madh, duke shkaktuar që sasia e përgjithshme e shpërndarjes të zvogëlohet gradualisht.
+- Sasia e shpërndarjes për epokë zvogëlohet me kalimin e kohës, duke iu afruar zeros.
+- Ky dizajn inkurajon pjesëmarrësit e hershëm dhe rrit mungesën e tokenit.
+
+### Orari i Përgjithshëm i Shpërndarjes
+
+Më poshtë është një tabelë e pjesshme që përmbledh sasitë e shpërndarjes dhe datat për epokë.
+Për informacion të detajuar mbi të gjitha epokat, ju lutemi referojuni dokumentit të veçantë [dokument](/attach/token_allocation_per_epoch.csv) dhe [kodit](/attach/token_allocation_per_epoch.py).
+
+| Numri i Epokës | Data           | Sasia e Shpërndarjes (Jet) |
+|----------------|----------------|----------------------------|
+| 1              | 2025-01-01     | 3,479,788.70               |
+| 2              | 2025-01-06     | 2,195,502.227              |
+| 3              | 2025-01-11     | 1,739,894.35               |
+| ...            | ...            | ...                        |
+| 2774           | 2062-12-18     | 304,223.285                |
+| 2775           | 2062-12-23     | 304,209.4607               |
+| 2776           | 2062-12-28     | 304,195.6425               |
+
+### Kriteret e Shpërndarjes së Tokenëve për Shërbim
+
+#### Llogaritja e Raporteve Ndërmjet Shërbimeve
+
+Raporti i shpërndarjes për çdo shërbim llogaritet bazuar në rezultatin e tij të performancës $ P_n $ në lidhje me rezultatin total të performancës $ P $:
+
+$$
+\text{Raporti për Shërbimin } n = \frac{P_n}{P}
+$$
+
+Ku:
+
+- $ P_n $: Rezultati i performancës së shërbimit $ n $.
+- $ P $: Shuma e rezultateve të performancës së të gjitha shërbimeve.
+
+#### Llogaritja e Sasisë së Shpërndarjes për Shërbim
+
+Sasia e tokenëve që shërbimi $ n $ merr në çdo epokë $ S_n $ është:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Shpërndarja Maksimale e Tokenëve për Shërbimin } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Sasia e rregulluar totale e shpërndarjes për epokën.
+- $ \text{Shpërndarja Maksimale e Tokenëve për Shërbimin } n $: Sasia maksimale e tokenëve e caktuar bazuar në nivelin e shërbimit (shih shpërndarjen maksimale të tokenëve bazuar në nivel më poshtë).
+
+#### Trajtimi i Tokenëve të Pashpërndarë
+
+##### Bartja e Tokenëve të Pashpërndarë
+
+- Tokenët e pashpërndarë nga çdo epokë **shtohen** në sasinë totale të shpërndarjes për epokën e ardhshme.
+- Kjo siguron shpërndarje efektive të tokenëve edhe kur pjesëmarrja fillestare e shërbimit është e ulët.
+
+##### Llogaritja e Sasisë së Rregulluar Totale të Shpërndarjes për Epokë
+
+Sasia totale e shpërndarjes për epokën e ardhshme është:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Tokenët e Pashpërndarë nga Epoka e Mëparshme}
+$$
+
+- $ f_{\text{total}}(t+1) $: Sasia e rregulluar totale e shpërndarjes për epokën $ t+1 $.
+- $ f(t+1) $: Sasia e shpërndarjes bazuar në funksionin bazë të shpërndarjes.
+- **Tokenët e Pashpërndarë të Bartur**: Numri i tokenëve të pashpërndarë në epokën $ t $.
+
+#### Llogaritja e Rezultatit të Performancës ($ P_n $) për Shërbim
+
+Rezultati i performancës së çdo shërbimi llogaritet bazuar në metrikat e mëposhtme. Pesha e çdo metrike mund të rregullohet përmes qeverisjes.
+
+1. **Konsumi i Tokenëve JetPack ($ M_{1n} $)**
+    - **Pesha**: $ w_1 = 50\% $
+    - **Përshkrimi**: Sasia totale e tokenëve JetPack të konsumuar nga përdoruesit brenda shërbimit.
+
+2. **Numri i Votave Degen Bunny ($ M_{2n} $)**
+    - **Pesha**: $ w_2 = 30\% $
+    - **Përshkrimi**: Numri i votave të marra nga OG Degen Bunnies.
+
+3. **Numri i Përdoruesve Aktivë ($ M_{3n} $)**
+    - **Pesha**: $ w_3 = 20\% $
+    - **Përshkrimi**: Numri i përdoruesve unikë që kanë aksesuar dhe kanë qenë aktivë në shërbim gjatë epokës.
+
+Rezultati i performancës së çdo shërbimi $ P_n $ llogaritet si:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Ku:
+
+- $ M_{1n} $: Konsumi i tokenëve JetPack i shërbimit $ n $.
+- $ M_{1\text{total}} $: Konsumi total i tokenëve JetPack në të gjitha shërbimet.
+- $ M_{2n} $: Numri i votave Degen Bunny për shërbimin $ n $.
+- $ M_{2\text{total}} $: Numri total i votave Degen Bunny në të gjitha shërbimet.
+- $ M_{3n} $: Numri i përdoruesve aktivë të shërbimit $ n $.
+- $ M_{3\text{total}} $: Numri total i përdoruesve aktivë në të gjitha shërbimet.
+
+**Shembull**:
+
+- **Shërbimi A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Shërbimi B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Shërbimi C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totale**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Pesha**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Llogaritja e Rezultatit të Performancës për Shërbimin A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Llogaritja e Rezultatit të Performancës për Shërbimin B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Llogaritja e Rezultatit të Performancës për Shërbimin C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Kështu, rezultatet e performancës janë:
+
+- **Shërbimi A**: $ P_A = 0.38 $
+- **Shërbimi B**: $ P_B = 0.29 $
+- **Shërbimi C**: $ P_C = 0.33 $
+
+#### Kriteret e Përcaktimit të Nivelit dhe Sasia Maksimale e Shpërndarjes së Tokenëve
+
+Bazuar në rezultatin e performancës $ P_n $, çdo shërbim klasifikohet në **Nivelet 1 deri në 9**. Kjo klasifikim përdor **percentilin e lartë kumulativ** të të gjitha rezultateve të performancës së shërbimeve.
+
+##### Percentilat e Lartë Kumulativ dhe Sasitë Maksimale të Shpërndarjes së Tokenëve për Nivel
+
+| **Niveli** | **Percentili i Lartë Kumulativ** | **Shpërndarja Maksimale e Tokenëve (Jet)** |
+|------------|----------------------------------|-------------------------------------------|
+| Niveli 1   | Top 4%                           | 30,000                                    |
+| Niveli 2   | Top 11%                          | 25,000                                    |
+| Niveli 3   | Top 23%                          | 20,000                                    |
+| Niveli 4   | Top 40%                          | 15,000                                    |
+| Niveli 5   | Top 60%                          | 10,000                                    |
+| Niveli 6   | Top 77%                          | 7,000                                     |
+| Niveli 7   | Top 89%                          | 5,000                                     |
+| Niveli 8   | Top 96%                          | 3,000                                     |
+| Niveli 9   | Top 100%                         | 1,000                                     |
+
+##### Metoda e Përcaktimit të Nivelit
+
+1. **Llogarit Rezultatet e Performancës**
+
+   Përdorni metodën e përcaktuar më parë për të llogaritur rezultatin e performancës së çdo shërbimi $ P_n $.
+
+2. **Përcaktoni Renditjen e Shërbimeve**
+
+   Renditni të gjitha shërbimet në **rend zbritës** bazuar në rezultatet e tyre të performancës.
+
+3. **Llogaritni Percentilat e Lartë Kumulativ**
+
+   Për çdo shërbim, llogaritni percentilin e lartë kumulativ:
+
+   $$
+   \text{Percentili i Lartë Kumulativ (\%)} = \left(1 - \frac{\text{Renditja} - 1}{N} \right) \times 100\%
+   $$
+
+   Ku:
+
+    - $ \text{Renditja} $: Renditja e shërbimit (duke filluar nga 1).
+    - $ N $: Numri total i shërbimeve.
+
+4. **Caktoni Nivelet**
+
+   Caktoni nivelet bazuar në percentilat e lartë kumulativ:
+
+    - **Niveli 1**: Percentili i lartë kumulativ > 96%
+    - **Niveli 2**: 89% < Percentili i lartë kumulativ ≤ 96%
+    - **Niveli 3**: 77% < Percentili i lartë kumulativ ≤ 89%
+    - **Niveli 4**: 60% < Percentili i lartë kumulativ ≤ 77%
+    - **Niveli 5**: 40% < Percentili i lartë kumulativ ≤ 60%
+    - **Niveli 6**: 23% < Percentili i lartë kumulativ ≤ 40%
+    - **Niveli 7**: 11% < Percentili i lartë kumulativ ≤ 23%
+    - **Niveli 8**: 4% < Percentili i lartë kumulativ ≤ 11%
+    - **Niveli 9**: Percentili i lartë kumulativ ≤ 4%
+
+**Shembull**:
+
+Me gjithsej **3** shërbime:
+
+1. **Llogaritni Renditjet dhe Percentilat e Lartë Kumulativ**
+
+    - **Shërbimi A**:
+
+        - Rezultati i Performancës: $ P_A = 0.38 $
+        - Renditja: 1
+        - Percentili i Lartë Kumulativ:
+
+          $$
+          \text{Percentili i Lartë Kumulativ} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Shërbimi C**:
+
+        - Rezultati i Performancës: $ P_C = 0.33 $
+        - Renditja: 2
+        - Percentili i Lartë Kumulativ:
+
+          $$
+          \text{Percentili i Lartë Kumulativ} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Shërbimi B**:
+
+        - Rezultati i Performancës: $ P_B = 0.29 $
+        - Renditja: 3
+        - Percentili i Lartë Kumulativ:
+
+          $$
+          \text{Percentili i Lartë Kumulativ} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Caktoni Nivelet**
+
+    - **Shërbimi A**:
+
+        - Percentili i Lartë Kumulativ: 100%
+        - **Niveli**: **Niveli 1** (Percentili i Lartë Kumulativ > 96%)
+        - **Shpërndarja Maksimale e Tokenëve**: 30,000 Jet
+
+    - **Shërbimi C**:
+
+        - Percentili i Lartë Kumulativ: 66.67%
+        - **Niveli**: **Niveli 4** (60% < Percentili i Lartë Kumulativ ≤ 77%)
+        - **Shpërndarja Maksimale e Tokenëve**: 15,000 Jet
+
+    - **Shërbimi B**:
+
+        - Percentili i Lartë Kumulativ: 33.33%
+        - **Niveli**: **Niveli 6** (23% < Percentili i Lartë Kumulativ ≤ 40%)
+        - **Shpërndarja Maksimale e Tokenëve**: 7,000 Jet
+
+**Shënime**:
+
+- **Rezultate të Barabarta**: Shërbimet me rezultate të njëjta të performancës marrin të njëjtën renditje. Në llogaritjen e percentilave të lartë kumulativ, përdoret renditja mesatare.
+- **Shpërndarja Maksimale e Tokenëve** i referohet sasisë maksimale të tokenëve që një shërbim mund të marrë bazuar në nivelin e tij.
+
+### Shembull Skenari
+
+#### Epoka 1 ($ t = 1 $)
+
+- **Sasia Bazë e Shpërndarjes**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Sasia e Rregulluar Totale e Shpërndarjes**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Llogaritja e Sasisë së Shpërndarjes për Shërbim**
+
+Bazuar në rezultatet e performancës dhe nivelet:
+
+- **Rezultati Total i Performancës $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Shërbimi A**:
+
+    - Raporti: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Sasia e Shpërndarjes:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Shërbimi C**:
+
+    - Raporti: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Sasia e Shpërndarjes:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Shërbimi B**:
+
+    - Raporti: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Sasia e Shpërndarjes:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultatet e Shpërndarjes**
+
+- **Tokenët Total të Shpërndarë**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokenët e Pashpërndarë**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoka 2 ($ t = 2 $)
+
+- **Sasia Bazë e Shpërndarjes**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokenët e Bartur**: $ 3,427,788.70 \text{ Jet} $
+- **Sasia e Rregulluar Totale e Shpërndarjes**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Rezultatet e Përditësuara të Performancës dhe Nivelet**
+
+Duke supozuar ndryshime në rezultatet e performancës:
+
+- **Shërbimi A**:
+
+    - Rezultati i Performancës: $ P_A = 0.40 $
+    - Renditja: 1
+    - Percentili i Lartë Kumulativ: 100%
+    - **Niveli**: Niveli 1
+    - **Shpërndarja Maksimale e Tokenëve**: 30,000 Jet
+
+- **Shërbimi C**:
+
+    - Rezultati i Performancës: $ P_C = 0.35 $
+    - Renditja: 2
+    - Percentili i Lartë Kumulativ: 66.67%
+    - **Niveli**: Niveli 4
+    - **Shpërndarja Maksimale e Tokenëve**: 15,000 Jet
+
+- **Shërbimi B**:
+
+    - Rezultati i Performancës: $ P_B = 0.25 $
+    - Renditja: 3
+    - Percentili i Lartë Kumulativ: 33.33%
+    - **Niveli**: Niveli 6
+    - **Shpërndarja Maksimale e Tokenëve**: 7,000 Jet
+
+**Rezultati Total i Performancës $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Llogaritja e Sasisë së Shpërndarjes për Shërbim**
+
+1. **Shërbimi A**:
+
+    - Raporti: $ \frac{P_A}{P} = 0.40 $
+    - Sasia e Shpërndarjes:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Shërbimi C**:
+
+    - Raporti: $ \frac{P_C}{P} = 0.35 $
+    - Sasia e Shpërndarjes:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Shërbimi B**:
+
+    - Raporti: $ \frac{P_B}{P} = 0.25 $
+    - Sasia e Shpërndarjes:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultatet e Shpërndarjes**
+
+- **Tokenët Total të Shpërndarë**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokenët e Pashpërndarë**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Ndikimi i Tokenëve të Pashpërndarë të Akumuluar
+
+- **Pjesëmarrja e Rritur e Shërbimeve dhe Përmirësimi i Performancës** do të zvogëlojë gradualisht sasinë e tokenëve të pashpërndarë.
+- **Shërbimet fillestare mund të përdorin sasinë maksimale të shpërndarjes** për të nxitur rritjen.
+- Bartja e tokenëve ndihmon në **ruajtjen e stabilitetit të vlerës** dhe rregullimin e qarkullimit.
+
+## Shpërblimet për Përdoruesit dhe Përdorimi i Tokenëve
+
+### **Mekanizmi i Shpërblimit për Përdoruesit**
+
+- **Shpërblime Bazuar në Aktivitet**: Përdoruesit marrin tokenë JetPack kur kryejnë **aktivitete të paracaktuara** (p.sh., krijimi i përmbajtjes, lojërat) brenda një shërbimi.
+- **Kriteret e Shpërblimit të Tokenëve**: Sasia e tokenëve të shpërblyer për çdo aktivitet **përcaktohet përmes konsultimit** midis shërbimit dhe operatorit të ekosistemit JetPack.
+
+### **Metodat e Përdorimit të Tokenëve**
+
+1. **Brenda Shërbimit**:
+    - **Akses në Karakteristika Premium**: Përdorni tokenët për të aksesuar karakteristika ose përmbajtje të paguara brenda shërbimit.
+    - **Blerja e Mallrave**: Blerja e mallrave dixhitale ose artikujve brenda shërbimit duke përdorur tokenët.
+
+2. **Duke Përdorur Shërbimin e Portofolit JetPack Exchange**:
+    - **Shitja e Tokenëve**: Përdoruesit mund të shkëmbejnë tokenët e tyre për **ADA** (monedha e **Cardano**).
+    - **Menaxhimi i Portofolit**: Portofoli JetPack lejon menaxhimin e sigurt të tokenëve dhe transferimet në shërbime të tjera.
+
+### **Përfitimet e Pritshme nga Vlerësimi i Vlerës së Tokenëve**
+
+- **Likuiditeti i Tokenëve**: Tregtimi i tokenëve në bursa rrit **likuiditetin** e tyre.
+- **Fitime Ekonomike**: Përdoruesit mund të arrijnë **përfitime ekonomike shtesë** duke shitur tokenët nëse vlera e tyre rritet.
+
+## Blerja dhe Rishpërndarja e Tokenëve
+
+### **Blerjet Shtesë të Tokenëve nga Shërbimet**
+
+- **Kur Tokenët e Shpërndarë Janë Shteruar**: Nëse një shërbim përdor të gjithë tokenët e caktuar, ai mund të blejë tokenë shtesë nga **Shërbimi i Portofolit JetPack Exchange**.
+- **Monedha e Blerjes**: Tokenët blihen duke përdorur **ADA**.
+- **Përdorimi i Tokenëve të Blerë**: Tokenët e blerë mund të përdoren për të **shpërblyer përdoruesit** ose **brenda shërbimit**.
+
+### **Tokenët e Rishitshëm kundrejt Tokenëve të Parishitshëm**
+
+- **Tokenët e Shpërndarë** (**Të Parishitshëm**): Tokenët e caktuar për shërbime **nuk mund të rishiten** dhe janë vetëm për **shpërblime për përdoruesit**.
+- **Tokenët e Blerë dhe Tokenët e Marrë nga Përdoruesit** (**Të Rishitshëm**): Tokenët e blerë me ADA dhe tokenët e marrë nga përdoruesit **mund të rishiten**, duke ndihmuar në **furnizimin me likuiditet**.
+
+### **Rishpërndarja e Tokenëve dhe Aktivizimi i Ekosistemit**
+
+1. **Struktura e Qarkullimit të Tokenëve**:
+    - Shërbimet shpërblejnë përdoruesit me tokenë; përdoruesit i përdorin ato brenda shërbimeve ose i shesin në bursa.
+    - Shërbimet marrin tokenë nga përdoruesit ose i blejnë ato për të mbajtur një **sistem shpërblimi të qëndrueshëm**.
+
+2. **Efektet e Aktivizimit të Ekosistemit**:
+    - Qarkullimi i tokenëve promovon **angazhimin e përdoruesve** dhe **aktivizimin e shërbimeve**.
+    - Kjo kontribuon në **stabilizimin e vlerës së tokenëve** dhe **rritjen e qëndrueshme** të ekosistemit.

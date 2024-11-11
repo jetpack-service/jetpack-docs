@@ -1,0 +1,529 @@
+# Paano Gumagana ang JetPack Tokens
+
+Ang sistema ng token ng JetPack ay binubuo ng **pag-isyu at pamamahagi ng token batay sa aktibidad**, isang **sistema ng antas ng serbisyo**, **mga gantimpala para sa mga gumagamit at mga pamamaraan ng paggamit ng token**, at isang **mekanismo para sa pagbili at muling pamamahagi ng mga token**. Ang estrukturang ito ay nagbibigay ng isang **makatarungan at mahusay na sistema ng gantimpala** para sa parehong mga gumagamit at mga tagapagbigay ng serbisyo.
+
+## Mekanismo ng Pamamahagi ng Token (Drop)
+
+### Kabuuang Suplay ng Token at Panahon ng Pamamahagi
+
+- **Kabuuang Suplay**: Maglalabas ang JetPack ng kabuuang **1 bilyong Jet** na mga token.
+- **Panahon ng Pamamahagi**: Ang mga token ay ipamamahagi sa loob ng **38 taon**, na may kabuuang **2,776 na pamamahagi** na magaganap sa parehong mga pagitan ng **Cardano Epoch** (1 epoch = 5 araw).
+
+### Halaga ng Pamamahagi ng Token bawat Epoch
+
+#### Pagkalkula ng Halaga ng Pamamahagi Batay sa Isang Logarithmic Function
+
+Ang halaga ng mga token na ipinamamahagi bawat epoch ay idinisenyo upang bumaba sa paglipas ng panahon. Isang **logarithmic function** ang ginagamit upang kalkulahin ang halaga ng pamamahagi para sa bawat epoch. **1 Jet ay katumbas ng 1,000,000 Pack**, kaya ang mga halaga ng pamamahagi ay kinakalkula hanggang sa **ikaanim na decimal na lugar** at binabayaran nang naaayon.
+
+1. **Kahulugan ng Logarithmic Function $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kung saan:
+
+    - $ t $ ay ang numero ng epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ ay ang natural logarithm function.
+
+2. **Pagkalkula ng Kabuuan ng Log Function $ f(t) $ sa Lahat ng Epochs**:
+
+   Ang kabuuang halaga ng mga halaga ng function sa buong panahon ng pamamahagi $ S $ ay:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Pagkalkula ng Scaling Constant $ A $**:
+
+   Ang kabuuang suplay ng token na **1 bilyong Jet** ay hinahati sa kabuuan $ S $ upang ayusin ang halaga ng pamamahagi para sa bawat epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Pagkalkula ng Halaga ng Pamamahagi ng Token bawat Epoch**:
+
+   Ang halaga ng pamamahagi para sa bawat epoch ay:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Mga Halimbawa ng Mga Halaga ng Pamamahagi**:
+
+   Pagkalkula ng mga halaga ng pamamahagi para sa mga unang epoch:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Ang halaga ng pamamahagi para sa bawat epoch ay tinutukoy ng halaga ng log function na tumutugma sa numero ng epoch.
+
+**Mga Katangian ng Pamamahagi**
+
+- Dahil ang $ \ln(t + 1) $ ay tumataas habang ang $ t $ ay tumataas, ang denominator ay nagiging mas malaki, na nagiging sanhi ng unti-unting pagbaba ng kabuuang halaga ng pamamahagi.
+- Ang halaga ng pamamahagi bawat epoch ay bumababa sa paglipas ng panahon, papalapit sa zero.
+- Ang disenyo na ito ay nagbibigay insentibo sa mga maagang kalahok at pinapataas ang kakulangan ng token.
+
+### Pangkalahatang Iskedyul ng Pamamahagi
+
+Nasa ibaba ang isang bahagyang talahanayan na nagbubuod ng mga halaga ng pamamahagi at mga petsa bawat epoch.
+Para sa detalyadong impormasyon sa lahat ng epoch, mangyaring sumangguni sa hiwalay na [dokumentong](/attach/token_allocation_per_epoch.csv) at [code](/attach/token_allocation_per_epoch.py).
+
+| Numero ng Epoch | Petsa         | Halaga ng Pamamahagi (Jet) |
+|-----------------|--------------|----------------------------|
+| 1               | 2025-01-01   | 3,479,788.70               |
+| 2               | 2025-01-06   | 2,195,502.227              |
+| 3               | 2025-01-11   | 1,739,894.35               |
+| ...             | ...          | ...                        |
+| 2774            | 2062-12-18   | 304,223.285                |
+| 2775            | 2062-12-23   | 304,209.4607               |
+| 2776            | 2062-12-28   | 304,195.6425               |
+
+### Pamantayan ng Pamamahagi ng Token bawat Serbisyo
+
+#### Pagkalkula ng Mga Ratio sa Pagitan ng mga Serbisyo
+
+Ang ratio ng pamamahagi para sa bawat serbisyo ay kinakalkula batay sa performance score nito $ P_n $ kaugnay sa kabuuang performance score $ P $:
+
+$$
+\text{Ratio para sa Serbisyo } n = \frac{P_n}{P}
+$$
+
+Kung saan:
+
+- $ P_n $: Performance score ng serbisyo $ n $.
+- $ P $: Kabuuan ng mga performance score ng lahat ng serbisyo.
+
+#### Pagkalkula ng Halaga ng Pamamahagi bawat Serbisyo
+
+Ang halaga ng mga token na natatanggap ng serbisyo $ n $ sa bawat epoch $ S_n $ ay:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution para sa Serbisyo } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Na-adjust na kabuuang halaga ng pamamahagi para sa epoch.
+- $ \text{Maximum Token Distribution para sa Serbisyo } n $: Maximum na halaga ng token na nakalaan batay sa antas ng serbisyo (tingnan ang level-based maximum token distribution sa ibaba).
+
+#### Paghawak ng Hindi Naipamahaging Mga Token
+
+##### Pagdadala ng Hindi Naipamahaging Mga Token
+
+- Ang hindi naipamahaging mga token mula sa bawat epoch ay **idinadagdag** sa kabuuang halaga ng pamamahagi para sa susunod na epoch.
+- Tinitiyak nito ang epektibong pamamahagi ng token kahit na mababa ang paunang partisipasyon ng serbisyo.
+
+##### Pagkalkula ng Na-adjust na Kabuuang Halaga ng Pamamahagi bawat Epoch
+
+Ang kabuuang halaga ng pamamahagi para sa susunod na epoch ay:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Hindi Naipamahaging Mga Token mula sa Nakaraang Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Na-adjust na kabuuang halaga ng pamamahagi para sa epoch $ t+1 $.
+- $ f(t+1) $: Halaga ng pamamahagi batay sa pangunahing function ng pamamahagi.
+- **Carried-over Undistributed Tokens**: Bilang ng mga token na hindi naipamahagi sa epoch $ t $.
+
+#### Pagkalkula ng Performance Score ($ P_n $) bawat Serbisyo
+
+Ang performance score ng bawat serbisyo ay kinakalkula batay sa mga sumusunod na sukatan. Ang timbang ng bawat sukatan ay maaaring i-adjust sa pamamagitan ng pamamahala.
+
+1. **JetPack Token Consumption ($ M_{1n} $)**
+    - **Timbang**: $ w_1 = 50\% $
+    - **Paglalarawan**: Kabuuang dami ng JetPack tokens na kinonsumo ng mga gumagamit sa loob ng serbisyo.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Timbang**: $ w_2 = 30\% $
+    - **Paglalarawan**: Bilang ng mga boto na natanggap mula sa OG Degen Bunnies.
+
+3. **Active User Count ($ M_{3n} $)**
+    - **Timbang**: $ w_3 = 20\% $
+    - **Paglalarawan**: Bilang ng mga natatanging gumagamit na nag-access at naging aktibo sa serbisyo sa panahon ng epoch.
+
+Ang performance score ng bawat serbisyo $ P_n $ ay kinakalkula bilang:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kung saan:
+
+- $ M_{1n} $: JetPack token consumption ng serbisyo $ n $.
+- $ M_{1\text{total}} $: Kabuuang JetPack token consumption sa lahat ng serbisyo.
+- $ M_{2n} $: Degen Bunny vote count para sa serbisyo $ n $.
+- $ M_{2\text{total}} $: Kabuuang Degen Bunny votes sa lahat ng serbisyo.
+- $ M_{3n} $: Active user count ng serbisyo $ n $.
+- $ M_{3\text{total}} $: Kabuuang aktibong gumagamit sa lahat ng serbisyo.
+
+**Halimbawa**:
+
+- **Serbisyo A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Serbisyo B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Serbisyo C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Kabuuan**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Mga Timbang**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Pagkalkula ng Performance Score para sa Serbisyo A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Pagkalkula ng Performance Score para sa Serbisyo B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Pagkalkula ng Performance Score para sa Serbisyo C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Kaya, ang mga performance scores ay:
+
+- **Serbisyo A**: $ P_A = 0.38 $
+- **Serbisyo B**: $ P_B = 0.29 $
+- **Serbisyo C**: $ P_C = 0.33 $
+
+#### Pamantayan sa Pagtukoy ng Antas at Maximum na Halaga ng Pamamahagi ng Token
+
+Batay sa performance score $ P_n $, ang bawat serbisyo ay ikinategorya sa **Antas 1 hanggang 9**. Ang klasipikasyong ito ay gumagamit ng **cumulative top percentile** ng lahat ng performance scores ng mga serbisyo.
+
+##### Cumulative Top Percentiles at Maximum na Halaga ng Pamamahagi ng Token bawat Antas
+
+| **Antas** | **Cumulative Top Percentile** | **Maximum na Pamamahagi ng Token (Jet)** |
+|-----------|-------------------------------|------------------------------------------|
+| Antas 1   | Top 4%                        | 30,000                                   |
+| Antas 2   | Top 11%                       | 25,000                                   |
+| Antas 3   | Top 23%                       | 20,000                                   |
+| Antas 4   | Top 40%                       | 15,000                                   |
+| Antas 5   | Top 60%                       | 10,000                                   |
+| Antas 6   | Top 77%                       | 7,000                                    |
+| Antas 7   | Top 89%                       | 5,000                                    |
+| Antas 8   | Top 96%                       | 3,000                                    |
+| Antas 9   | Top 100%                      | 1,000                                    |
+
+##### Paraan ng Pagtukoy ng Antas
+
+1. **Kalkulahin ang Performance Scores**
+
+   Gamitin ang naunang tinukoy na paraan upang kalkulahin ang performance score ng bawat serbisyo $ P_n $.
+
+2. **Tukuyin ang Ranggo ng mga Serbisyo**
+
+   I-ranggo ang lahat ng serbisyo sa **pababang pagkakasunod-sunod** batay sa kanilang performance scores.
+
+3. **Kalkulahin ang Cumulative Top Percentiles**
+
+   Para sa bawat serbisyo, kalkulahin ang cumulative top percentile:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Kung saan:
+
+    - $ \text{Rank} $: Ang ranggo ng serbisyo (nagsisimula sa 1).
+    - $ N $: Kabuuang bilang ng mga serbisyo.
+
+4. **Magtalaga ng Antas**
+
+   Magtalaga ng antas batay sa cumulative top percentiles:
+
+    - **Antas 1**: Cumulative top percentile > 96%
+    - **Antas 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Antas 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Antas 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Antas 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Antas 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Antas 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Antas 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Antas 9**: Cumulative top percentile ≤ 4%
+
+**Halimbawa**:
+
+Sa kabuuang **3** serbisyo:
+
+1. **Kalkulahin ang Ranggo at Cumulative Top Percentiles**
+
+    - **Serbisyo A**:
+
+        - Performance Score: $ P_A = 0.38 $
+        - Ranggo: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Serbisyo C**:
+
+        - Performance Score: $ P_C = 0.33 $
+        - Ranggo: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Serbisyo B**:
+
+        - Performance Score: $ P_B = 0.29 $
+        - Ranggo: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Magtalaga ng Antas**
+
+    - **Serbisyo A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Antas**: **Antas 1** (Cumulative Top Percentile > 96%)
+        - **Maximum na Pamamahagi ng Token**: 30,000 Jet
+
+    - **Serbisyo C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Antas**: **Antas 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum na Pamamahagi ng Token**: 15,000 Jet
+
+    - **Serbisyo B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Antas**: **Antas 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum na Pamamahagi ng Token**: 7,000 Jet
+
+**Mga Tala**:
+
+- **Tied Scores**: Ang mga serbisyo na may magkaparehong performance scores ay tumatanggap ng parehong ranggo. Sa pagkalkula ng cumulative top percentiles, ang average na ranggo ang ginagamit.
+- **Maximum na Pamamahagi ng Token** ay tumutukoy sa maximum na halaga ng token na maaaring matanggap ng isang serbisyo batay sa antas nito.
+
+### Halimbawang Senaryo
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Pangunahing Halaga ng Pamamahagi**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Na-adjust na Kabuuang Halaga ng Pamamahagi**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Pagkalkula ng Halaga ng Pamamahagi bawat Serbisyo**
+
+Batay sa mga performance scores at antas:
+
+- **Kabuuang Performance Score $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Serbisyo A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Halaga ng Pamamahagi:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Serbisyo C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Halaga ng Pamamahagi:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Serbisyo B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Halaga ng Pamamahagi:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Mga Resulta ng Pamamahagi**
+
+- **Kabuuang Mga Token na Naipamahagi**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Hindi Naipamahaging Mga Token**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Pangunahing Halaga ng Pamamahagi**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Carried-over Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Na-adjust na Kabuuang Halaga ng Pamamahagi**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Na-update na Performance Scores at Antas**
+
+Ipagpalagay na may mga pagbabago sa performance scores:
+
+- **Serbisyo A**:
+
+    - Performance Score: $ P_A = 0.40 $
+    - Ranggo: 1
+    - Cumulative Top Percentile: 100%
+    - **Antas**: Antas 1
+    - **Maximum na Pamamahagi ng Token**: 30,000 Jet
+
+- **Serbisyo C**:
+
+    - Performance Score: $ P_C = 0.35 $
+    - Ranggo: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Antas**: Antas 4
+    - **Maximum na Pamamahagi ng Token**: 15,000 Jet
+
+- **Serbisyo B**:
+
+    - Performance Score: $ P_B = 0.25 $
+    - Ranggo: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Antas**: Antas 6
+    - **Maximum na Pamamahagi ng Token**: 7,000 Jet
+
+**Kabuuang Performance Score $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Pagkalkula ng Halaga ng Pamamahagi bawat Serbisyo**
+
+1. **Serbisyo A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Halaga ng Pamamahagi:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Serbisyo C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Halaga ng Pamamahagi:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Serbisyo B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Halaga ng Pamamahagi:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Mga Resulta ng Pamamahagi**
+
+- **Kabuuang Mga Token na Naipamahagi**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Hindi Naipamahaging Mga Token**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Epekto ng Naipon na Hindi Naipamahaging Mga Token
+
+- **Tumaas na Partisipasyon ng Serbisyo at Pinahusay na Pagganap** ay unti-unting magbabawas ng dami ng hindi naipamahaging mga token.
+- **Ang mga paunang serbisyo ay maaaring gumamit ng maximum na halaga ng pamamahagi** upang mapalago ang kanilang paglago.
+- Ang pagdadala ng mga token ay tumutulong sa **pagpapanatili ng katatagan ng halaga** at pag-regulate ng sirkulasyon.
+
+## Mga Gantimpala para sa mga Gumagamit at Paggamit ng Token
+
+### **Mekanismo ng Gantimpala para sa mga Gumagamit**
+
+- **Mga Gantimpala Batay sa Aktibidad**: Ang mga gumagamit ay tumatanggap ng JetPack tokens kapag sila ay nagsasagawa ng **mga aktibidad na napagkasunduan** (hal., paglikha ng nilalaman, paglalaro) sa loob ng isang serbisyo.
+- **Pamantayan ng Gantimpala ng Token**: Ang dami ng mga token na ginagantimpalaan para sa bawat aktibidad ay **tinutukoy sa pamamagitan ng konsultasyon** sa pagitan ng serbisyo at ng operator ng ecosystem ng JetPack.
+
+### **Mga Paraan ng Paggamit ng Token**
+
+1. **Sa Loob ng Serbisyo**:
+    - **Pag-access sa Mga Premium na Tampok**: Gamitin ang mga token upang ma-access ang mga bayad na tampok o nilalaman sa loob ng serbisyo.
+    - **Pagbili ng Mga Produkto**: Bumili ng mga digital na produkto o mga item sa serbisyo gamit ang mga token.
+
+2. **Gamit ang JetPack Wallet Service Exchange**:
+    - **Pagbebenta ng Token**: Maaaring ipagpalit ng mga gumagamit ang kanilang mga token para sa **ADA** (ang pera ng **Cardano**).
+    - **Pamamahala ng Wallet**: Ang JetPack wallet ay nagbibigay-daan sa ligtas na pamamahala ng mga token at paglilipat sa ibang mga serbisyo.
+
+### **Inaasahang Benepisyo mula sa Pagtaas ng Halaga ng Token**
+
+- **Liquidity ng Token**: Ang pag-trade ng mga token sa mga palitan ay nagpapataas ng kanilang **liquidity**.
+- **Mga Pakinabang sa Ekonomiya**: Maaaring makamit ng mga gumagamit ang **karagdagang benepisyo sa ekonomiya** sa pamamagitan ng pagbebenta ng mga token kung tataas ang kanilang halaga.
+
+## Pagbili at Muling Pamamahagi ng Token
+
+### **Karagdagang Pagbili ng Token ng mga Serbisyo**
+
+- **Kapag Naubos na ang Naipamahaging Mga Token**: Kung ang isang serbisyo ay nagamit na ang lahat ng nakalaan nitong mga token, maaari itong bumili ng karagdagang mga token mula sa **JetPack Wallet Service Exchange**.
+- **Pera para sa Pagbili**: Ang mga token ay binibili gamit ang **ADA**.
+- **Paggamit ng Mga Biniling Token**: Ang mga biniling token ay maaaring gamitin upang **gantimpalaan ang mga gumagamit** o **sa loob ng serbisyo**.
+
+### **Mga Resellable vs. Non-Resellable Tokens**
+
+- **Naipamahaging Mga Token** (**Non-Resellable**): Ang mga token na nakalaan sa mga serbisyo ay **hindi maaaring ibenta muli** at para lamang sa **mga gantimpala ng gumagamit**.
+- **Mga Biniling Token at Mga Token na Nakuha mula sa mga Gumagamit** (**Resellable**): Ang mga token na binili gamit ang ADA at mga token na natanggap mula sa mga gumagamit ay **maaaring ibenta muli**, na tumutulong sa **pagkuha ng liquidity**.
+
+### **Muling Pamamahagi ng Token at Pag-activate ng Ecosystem**
+
+1. **Estruktura ng Sirkulasyon ng Token**:
+    - Ang mga serbisyo ay nagbibigay ng gantimpala sa mga gumagamit ng mga token; ginagamit ng mga gumagamit ang mga ito sa loob ng mga serbisyo o ibinebenta ang mga ito sa mga palitan.
+    - Ang mga serbisyo ay kumukuha ng mga token mula sa mga gumagamit o bumibili ng mga ito upang mapanatili ang isang **napapanatiling sistema ng gantimpala**.
+
+2. **Mga Epekto ng Pag-activate ng Ecosystem**:
+    - Ang sirkulasyon ng token ay nagtataguyod ng **pakikilahok ng gumagamit** at **pag-activate ng serbisyo**.
+    - Ito ay nag-aambag sa **pagpapanatili ng halaga ng token** at ang **napapanatiling paglago** ng ecosystem.

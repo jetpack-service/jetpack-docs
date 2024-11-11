@@ -1,0 +1,529 @@
+# Hur JetPack Tokens Fungerar
+
+JetPack-tokensystemet består av **aktivitetsbaserad tokenutgivning och distribution**, ett **servicenivåsystem**, **användarbelöningar och tokenanvändningsmetoder**, och en **mekanism för köp och omfördelning av tokens**. Denna struktur ger ett **rättvist och effektivt belöningssystem** för både användare och tjänsteleverantörer.
+
+## Token Distributionsmekanism (Drop)
+
+### Total Token Supply och Distributionsperiod
+
+- **Total Supply**: JetPack kommer att utfärda totalt **1 miljard Jet** tokens.
+- **Distributionsperiod**: Tokens kommer att distribueras över **38 år**, med totalt **2,776 distributioner** som sker med samma intervall som **Cardano Epoch** (1 epoch = 5 dagar).
+
+### Token Distributionsbelopp per Epoch
+
+#### Beräkning av Distributionsbelopp Baserat på en Logaritmisk Funktion
+
+Mängden tokens som distribueras per epoch är utformad för att minska över tid. En **logaritmisk funktion** används för att beräkna distributionsbeloppet för varje epoch. **1 Jet motsvarar 1,000,000 Pack**, så distributionsbeloppen beräknas till **sjätte decimalen** och betalas därefter.
+
+1. **Definition av den Logaritmiska Funktionen $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Där:
+
+    - $ t $ är epochnumret, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ är den naturliga logaritmfunktionen.
+
+2. **Beräkning av Summan av Logfunktionen $ f(t) $ Över Alla Epoker**:
+
+   Den totala summan av funktionsvärdena över hela distributionsperioden $ S $ är:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Beräkning av Skalningskonstanten $ A $**:
+
+   Den totala tokenmängden på **1 miljard Jet** delas med summan $ S $ för att justera distributionsbeloppet för varje epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Beräkning av Token Distributionsbelopp per Epoch**:
+
+   Distributionsbeloppet för varje epoch är:
+
+   $$
+   \text{Distributionsbelopp}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Exempel på Distributionsbelopp**:
+
+   Beräkning av distributionsbeloppen för de första epokerna:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distributionsbelopp}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distributionsbelopp}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distributionsbelopp}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Distributionsbeloppet för varje epoch bestäms av värdet av logfunktionen som motsvarar epochnumret.
+
+**Distributionskarakteristik**
+
+- Eftersom $ \ln(t + 1) $ ökar när $ t $ ökar, blir nämnaren större, vilket gör att det totala distributionsbeloppet gradvis minskar.
+- Distributionsbeloppet per epoch minskar över tid och närmar sig noll.
+- Denna design uppmuntrar tidiga deltagare och ökar tokenens knapphet.
+
+### Övergripande Distributionsschema
+
+Nedan är en delvis tabell som sammanfattar distributionsbeloppen och datumen per epoch.
+För detaljerad information om alla epoker, vänligen se det separata [dokumentet](/attach/token_allocation_per_epoch.csv) och [koden](/attach/token_allocation_per_epoch.py).
+
+| Epochnummer | Datum          | Distributionsbelopp (Jet) |
+|-------------|----------------|---------------------------|
+| 1           | 2025-01-01     | 3,479,788.70              |
+| 2           | 2025-01-06     | 2,195,502.227             |
+| 3           | 2025-01-11     | 1,739,894.35              |
+| ...         | ...            | ...                       |
+| 2774        | 2062-12-18     | 304,223.285               |
+| 2775        | 2062-12-23     | 304,209.4607              |
+| 2776        | 2062-12-28     | 304,195.6425              |
+
+### Token Distributionskriterier per Tjänst
+
+#### Beräkning av Kvoter Mellan Tjänster
+
+Distributionskvoten för varje tjänst beräknas baserat på dess prestationspoäng $ P_n $ i förhållande till den totala prestationspoängen $ P $:
+
+$$
+\text{Kvot för Tjänst } n = \frac{P_n}{P}
+$$
+
+Där:
+
+- $ P_n $: Prestationspoäng för tjänst $ n $.
+- $ P $: Summa av prestationspoäng för alla tjänster.
+
+#### Beräkning av Distributionsbelopp per Tjänst
+
+Mängden tokens som tjänst $ n $ får i varje epoch $ S_n $ är:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximal Token Distribution för Tjänst } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Justerat totalt distributionsbelopp för epoken.
+- $ \text{Maximal Token Distribution för Tjänst } n $: Maximal tokenmängd tilldelad baserat på tjänstens nivå (se nivåbaserad maximal token distribution nedan).
+
+#### Hantering av Odistribuerade Tokens
+
+##### Överföring av Odistribuerade Tokens
+
+- Odistribuerade tokens från varje epoch **läggs till** det totala distributionsbeloppet för nästa epoch.
+- Detta säkerställer effektiv token distribution även när initialt tjänstedeltagande är lågt.
+
+##### Beräkning av Justerat Totalt Distributionsbelopp per Epoch
+
+Det totala distributionsbeloppet för nästa epoch är:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Odistribuerade Tokens från Föregående Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Justerat totalt distributionsbelopp för epoch $ t+1 $.
+- $ f(t+1) $: Distributionsbelopp baserat på den grundläggande distributionsfunktionen.
+- **Överförda Odistribuerade Tokens**: Antal tokens som inte distribuerades i epoch $ t $.
+
+#### Beräkning av Prestationspoäng ($ P_n $) per Tjänst
+
+Varje tjänsts prestationspoäng beräknas baserat på följande mätvärden. Vikten av varje mätvärde kan justeras genom styrning.
+
+1. **JetPack Token Konsumtion ($ M_{1n} $)**
+    - **Vikt**: $ w_1 = 50\% $
+    - **Beskrivning**: Totalt antal JetPack tokens som konsumeras av användare inom tjänsten.
+
+2. **Degen Bunny Röstantal ($ M_{2n} $)**
+    - **Vikt**: $ w_2 = 30\% $
+    - **Beskrivning**: Antal röster mottagna från OG Degen Bunnies.
+
+3. **Aktivt Användarantal ($ M_{3n} $)**
+    - **Vikt**: $ w_3 = 20\% $
+    - **Beskrivning**: Antal unika användare som har tillgång till och varit aktiva i tjänsten under epoken.
+
+Varje tjänsts prestationspoäng $ P_n $ beräknas som:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Där:
+
+- $ M_{1n} $: JetPack token konsumtion för tjänst $ n $.
+- $ M_{1\text{total}} $: Total JetPack token konsumtion över alla tjänster.
+- $ M_{2n} $: Degen Bunny röstantal för tjänst $ n $.
+- $ M_{2\text{total}} $: Totalt antal Degen Bunny röster över alla tjänster.
+- $ M_{3n} $: Aktivt användarantal för tjänst $ n $.
+- $ M_{3\text{total}} $: Totalt antal aktiva användare över alla tjänster.
+
+**Exempel**:
+
+- **Tjänst A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Tjänst B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Tjänst C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totalt**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Vikter**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Beräkning av Prestationspoäng för Tjänst A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Beräkning av Prestationspoäng för Tjänst B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Beräkning av Prestationspoäng för Tjänst C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Således är prestationspoängen:
+
+- **Tjänst A**: $ P_A = 0.38 $
+- **Tjänst B**: $ P_B = 0.29 $
+- **Tjänst C**: $ P_C = 0.33 $
+
+#### Nivåbestämningskriterier och Maximal Token Distributionsbelopp
+
+Baserat på prestationspoängen $ P_n $, klassificeras varje tjänst i **Nivåer 1 till 9**. Denna klassificering använder den **kumulativa toppprocentilen** av alla tjänsters prestationspoäng.
+
+##### Kumulativa Topppercentiler och Maximala Token Distributionsbelopp per Nivå
+
+| **Nivå** | **Kumulativ Topppercentil** | **Maximal Token Distribution (Jet)** |
+|----------|-----------------------------|--------------------------------------|
+| Nivå 1   | Topp 4%                     | 30,000                               |
+| Nivå 2   | Topp 11%                    | 25,000                               |
+| Nivå 3   | Topp 23%                    | 20,000                               |
+| Nivå 4   | Topp 40%                    | 15,000                               |
+| Nivå 5   | Topp 60%                    | 10,000                               |
+| Nivå 6   | Topp 77%                    | 7,000                                |
+| Nivå 7   | Topp 89%                    | 5,000                                |
+| Nivå 8   | Topp 96%                    | 3,000                                |
+| Nivå 9   | Topp 100%                   | 1,000                                |
+
+##### Nivåbestämningsmetod
+
+1. **Beräkna Prestationspoäng**
+
+   Använd den tidigare definierade metoden för att beräkna varje tjänsts prestationspoäng $ P_n $.
+
+2. **Bestäm Tjänstrankningar**
+
+   Rangordna alla tjänster i **fallande ordning** baserat på deras prestationspoäng.
+
+3. **Beräkna Kumulativa Topppercentiler**
+
+   För varje tjänst, beräkna den kumulativa topppercentilen:
+
+   $$
+   \text{Kumulativ Topppercentil (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Där:
+
+    - $ \text{Rank} $: Tjänstens rank (börjar från 1).
+    - $ N $: Totalt antal tjänster.
+
+4. **Tilldela Nivåer**
+
+   Tilldela nivåer baserat på de kumulativa topppercentilerna:
+
+    - **Nivå 1**: Kumulativ topppercentil > 96%
+    - **Nivå 2**: 89% < Kumulativ topppercentil ≤ 96%
+    - **Nivå 3**: 77% < Kumulativ topppercentil ≤ 89%
+    - **Nivå 4**: 60% < Kumulativ topppercentil ≤ 77%
+    - **Nivå 5**: 40% < Kumulativ topppercentil ≤ 60%
+    - **Nivå 6**: 23% < Kumulativ topppercentil ≤ 40%
+    - **Nivå 7**: 11% < Kumulativ topppercentil ≤ 23%
+    - **Nivå 8**: 4% < Kumulativ topppercentil ≤ 11%
+    - **Nivå 9**: Kumulativ topppercentil ≤ 4%
+
+**Exempel**:
+
+Med totalt **3** tjänster:
+
+1. **Beräkna Rankningar och Kumulativa Topppercentiler**
+
+    - **Tjänst A**:
+
+        - Prestationspoäng: $ P_A = 0.38 $
+        - Rank: 1
+        - Kumulativ Topppercentil:
+
+          $$
+          \text{Kumulativ Topppercentil} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Tjänst C**:
+
+        - Prestationspoäng: $ P_C = 0.33 $
+        - Rank: 2
+        - Kumulativ Topppercentil:
+
+          $$
+          \text{Kumulativ Topppercentil} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Tjänst B**:
+
+        - Prestationspoäng: $ P_B = 0.29 $
+        - Rank: 3
+        - Kumulativ Topppercentil:
+
+          $$
+          \text{Kumulativ Topppercentil} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Tilldela Nivåer**
+
+    - **Tjänst A**:
+
+        - Kumulativ Topppercentil: 100%
+        - **Nivå**: **Nivå 1** (Kumulativ Topppercentil > 96%)
+        - **Maximal Token Distribution**: 30,000 Jet
+
+    - **Tjänst C**:
+
+        - Kumulativ Topppercentil: 66.67%
+        - **Nivå**: **Nivå 4** (60% < Kumulativ Topppercentil ≤ 77%)
+        - **Maximal Token Distribution**: 15,000 Jet
+
+    - **Tjänst B**:
+
+        - Kumulativ Topppercentil: 33.33%
+        - **Nivå**: **Nivå 6** (23% < Kumulativ Topppercentil ≤ 40%)
+        - **Maximal Token Distribution**: 7,000 Jet
+
+**Noteringar**:
+
+- **Lika Poäng**: Tjänster med identiska prestationspoäng får samma rank. Vid beräkning av kumulativa topppercentiler används genomsnittlig rank.
+- **Maximal Token Distribution** avser den maximala tokenmängd en tjänst kan få baserat på dess nivå.
+
+### Exempelscenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Grundläggande Distributionsbelopp**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Justerat Totalt Distributionsbelopp**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Beräkning av Distributionsbelopp per Tjänst**
+
+Baserat på prestationspoängen och nivåerna:
+
+- **Total Prestationspoäng $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Tjänst A**:
+
+    - Kvot: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Distributionsbelopp:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Tjänst C**:
+
+    - Kvot: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Distributionsbelopp:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Tjänst B**:
+
+    - Kvot: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Distributionsbelopp:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distributionsresultat**
+
+- **Totalt Distribuerade Tokens**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Odistribuerade Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Grundläggande Distributionsbelopp**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Överförda Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Justerat Totalt Distributionsbelopp**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Uppdaterade Prestationspoäng och Nivåer**
+
+Antag förändringar i prestationspoängen:
+
+- **Tjänst A**:
+
+    - Prestationspoäng: $ P_A = 0.40 $
+    - Rank: 1
+    - Kumulativ Topppercentil: 100%
+    - **Nivå**: Nivå 1
+    - **Maximal Token Distribution**: 30,000 Jet
+
+- **Tjänst C**:
+
+    - Prestationspoäng: $ P_C = 0.35 $
+    - Rank: 2
+    - Kumulativ Topppercentil: 66.67%
+    - **Nivå**: Nivå 4
+    - **Maximal Token Distribution**: 15,000 Jet
+
+- **Tjänst B**:
+
+    - Prestationspoäng: $ P_B = 0.25 $
+    - Rank: 3
+    - Kumulativ Topppercentil: 33.33%
+    - **Nivå**: Nivå 6
+    - **Maximal Token Distribution**: 7,000 Jet
+
+**Total Prestationspoäng $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Beräkning av Distributionsbelopp per Tjänst**
+
+1. **Tjänst A**:
+
+    - Kvot: $ \frac{P_A}{P} = 0.40 $
+    - Distributionsbelopp:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Tjänst C**:
+
+    - Kvot: $ \frac{P_C}{P} = 0.35 $
+    - Distributionsbelopp:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Tjänst B**:
+
+    - Kvot: $ \frac{P_B}{P} = 0.25 $
+    - Distributionsbelopp:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distributionsresultat**
+
+- **Totalt Distribuerade Tokens**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Odistribuerade Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Påverkan av Ackumulerade Odistribuerade Tokens
+
+- **Ökat Tjänstedeltagande och Förbättrad Prestanda** kommer gradvis att minska mängden odistribuerade tokens.
+- **Initiala tjänster kan utnyttja det maximala distributionsbeloppet** för att främja tillväxt.
+- Överföring av tokens hjälper till att **bibehålla värdestabilitet** och reglera cirkulationen.
+
+## Användarbelöningar och Tokenanvändning
+
+### **Användarbelöningsmekanism**
+
+- **Aktivitetsbaserade Belöningar**: Användare får JetPack tokens när de utför **förutbestämda aktiviteter** (t.ex. innehållsskapande, spel) inom en tjänst.
+- **Tokenbelöningskriterier**: Mängden tokens som belönas för varje aktivitet **bestäms genom samråd** mellan tjänsten och JetPack-ekosystemets operatör.
+
+### **Tokenanvändningsmetoder**
+
+1. **Inom Tjänsten**:
+    - **Tillgång till Premiumfunktioner**: Använd tokens för att få tillgång till betalda funktioner eller innehåll inom tjänsten.
+    - **Köp av Varor**: Köp digitala varor eller föremål inom tjänsten med tokens.
+
+2. **Användning av JetPack Wallet Service Exchange**:
+    - **Tokenförsäljning**: Användare kan byta sina tokens mot **ADA** (valutan för **Cardano**).
+    - **Plånbokshantering**: JetPack-plånboken möjliggör säker hantering av tokens och överföringar till andra tjänster.
+
+### **Förväntade Fördelar av Tokenvärdeökning**
+
+- **Tokenlikviditet**: Handel med tokens på börser ökar deras **likviditet**.
+- **Ekonomiska Vinster**: Användare kan uppnå **ytterligare ekonomiska fördelar** genom att sälja tokens om deras värde ökar.
+
+## Tokenköp och Omfördelning
+
+### **Ytterligare Tokenköp av Tjänster**
+
+- **När Distribuerade Tokens Är Slut**: Om en tjänst använder alla sina tilldelade tokens kan den köpa ytterligare tokens från **JetPack Wallet Service Exchange**.
+- **Köpsvaluta**: Tokens köps med **ADA**.
+- **Användning av Köpta Tokens**: Köpta tokens kan användas för att **belöna användare** eller **inom tjänsten**.
+
+### **Återförsäljningsbara vs. Icke-Återförsäljningsbara Tokens**
+
+- **Distribuerade Tokens** (**Icke-Återförsäljningsbara**): Tokens tilldelade till tjänster **kan inte återförsäljas** och är endast för **användarbelöningar**.
+- **Köpta Tokens och Tokens Förvärvade från Användare** (**Återförsäljningsbara**): Tokens köpta med ADA och tokens mottagna från användare **kan återförsäljas**, vilket hjälper till med **likviditetsförvärv**.
+
+### **Tokenomfördelning och Ekosystemaktivering**
+
+1. **Token Cirkulationsstruktur**:
+    - Tjänster belönar användare med tokens; användare använder dem inom tjänster eller säljer dem på börser.
+    - Tjänster förvärvar tokens från användare eller köper dem för att upprätthålla ett **hållbart belöningssystem**.
+
+2. **Ekosystemaktiveringseffekter**:
+    - Token cirkulation främjar **användarengagemang** och **tjänsteaktivering**.
+    - Detta bidrar till **tokenvärdestabilisering** och den **hållbara tillväxten** av ekosystemet.

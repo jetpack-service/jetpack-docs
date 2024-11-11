@@ -1,0 +1,529 @@
+# Kā darbojas JetPack žetoni
+
+JetPack žetonu sistēma sastāv no **aktivitātēs balstītas žetonu izsniegšanas un izplatīšanas**, **pakalpojumu līmeņa sistēmas**, **lietotāju atlīdzībām un žetonu izmantošanas metodēm**, un **mehānisma žetonu iegādei un pārdalei**. Šī struktūra nodrošina **taisnīgu un efektīvu atlīdzību sistēmu** gan lietotājiem, gan pakalpojumu sniedzējiem.
+
+## Žetonu izplatīšanas (Drop) mehānisms
+
+### Kopējais žetonu piedāvājums un izplatīšanas periods
+
+- **Kopējais piedāvājums**: JetPack izsniegs kopumā **1 miljardu Jet** žetonu.
+- **Izplatīšanas periods**: Žetoni tiks izplatīti **38 gadu** laikā, kopumā notiks **2,776 izplatīšanas**, kas notiks vienādos intervālos kā **Cardano Epoch** (1 epoha = 5 dienas).
+
+### Žetonu izplatīšanas apjoms uz epoha
+
+#### Izplatīšanas apjoma aprēķināšana, pamatojoties uz logaritmisko funkciju
+
+Žetonu izplatīšanas apjoms uz epoha ir paredzēts, lai laika gaitā samazinātos. **Logaritmiskā funkcija** tiek izmantota, lai aprēķinātu izplatīšanas apjomu katrai epohai. **1 Jet ir vienāds ar 1,000,000 Pack**, tāpēc izplatīšanas apjomi tiek aprēķināti līdz **sestajai decimāldaļai** un attiecīgi izmaksāti.
+
+1. **Logaritmiskās funkcijas $ f(t) $ definīcija**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kur:
+
+    - $ t $ ir epoha numurs, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ ir dabiskā logaritma funkcija.
+
+2. **Logaritmiskās funkcijas $ f(t) $ summas aprēķināšana visām epohām**:
+
+   Kopējā funkcijas vērtību summa visā izplatīšanas periodā $ S $ ir:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Mērogošanas konstantes $ A $ aprēķināšana**:
+
+   Kopējais žetonu piedāvājums **1 miljards Jet** tiek dalīts ar summu $ S $, lai pielāgotu izplatīšanas apjomu katrai epohai:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Žetonu izplatīšanas apjoma aprēķināšana uz epoha**:
+
+   Izplatīšanas apjoms katrai epohai ir:
+
+   $$
+   \text{Izplatīšanas apjoms}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Izplatīšanas apjomu piemēri**:
+
+   Izplatīšanas apjomu aprēķināšana sākotnējām epohām:
+
+    - **Epoha 1**:
+
+      $$
+      \text{Izplatīšanas apjoms}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoha 2**:
+
+      $$
+      \text{Izplatīšanas apjoms}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoha 3**:
+
+      $$
+      \text{Izplatīšanas apjoms}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Izplatīšanas apjoms katrai epohai tiek noteikts pēc logaritmiskās funkcijas vērtības, kas atbilst epoha numuram.
+
+**Izplatīšanas raksturojums**
+
+- Tā kā $ \ln(t + 1) $ palielinās, kad $ t $ palielinās, saucējs kļūst lielāks, izraisot kopējo izplatīšanas apjomu pakāpeniski samazināties.
+- Izplatīšanas apjoms uz epoha laika gaitā samazinās, tuvojoties nullei.
+- Šis dizains stimulē agrīnos dalībniekus un palielina žetona retumu.
+
+### Kopējais izplatīšanas grafiks
+
+Zemāk ir daļēja tabula, kas apkopo izplatīšanas apjomus un datumus uz epoha.
+Lai iegūtu detalizētu informāciju par visām epohām, lūdzu, skatiet atsevišķo [dokumentu](/attach/token_allocation_per_epoch.csv) un [kodu](/attach/token_allocation_per_epoch.py).
+
+| Epoha numurs | Datums         | Izplatīšanas apjoms (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Žetonu izplatīšanas kritēriji pēc pakalpojuma
+
+#### Attiecību aprēķināšana starp pakalpojumiem
+
+Izplatīšanas attiecība katram pakalpojumam tiek aprēķināta, pamatojoties uz tā veiktspējas rādītāju $ P_n $ attiecībā pret kopējo veiktspējas rādītāju $ P $:
+
+$$
+\text{Attiecība pakalpojumam } n = \frac{P_n}{P}
+$$
+
+Kur:
+
+- $ P_n $: Pakalpojuma $ n $ veiktspējas rādītājs.
+- $ P $: Visu pakalpojumu veiktspējas rādītāju summa.
+
+#### Izplatīšanas apjoma aprēķināšana pēc pakalpojuma
+
+Žetonu apjoms, ko pakalpojums $ n $ saņem katrā epohā $ S_n $, ir:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimālā žetonu izplatīšana pakalpojumam } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Pielāgotais kopējais izplatīšanas apjoms epohai.
+- $ \text{Maksimālā žetonu izplatīšana pakalpojumam } n $: Maksimālais žetonu apjoms, kas piešķirts, pamatojoties uz pakalpojuma līmeni (skatīt līmeņa balstītu maksimālo žetonu izplatīšanu zemāk).
+
+#### Neizplatīto žetonu apstrāde
+
+##### Neizplatīto žetonu pārnešana
+
+- Neizplatītie žetoni no katras epohas tiek **pievienoti** kopējam izplatīšanas apjomam nākamajai epohai.
+- Tas nodrošina efektīvu žetonu izplatīšanu pat tad, ja sākotnējā pakalpojumu dalība ir zema.
+
+##### Pielāgotā kopējā izplatīšanas apjoma aprēķināšana uz epoha
+
+Kopējais izplatīšanas apjoms nākamajai epohai ir:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Neizplatītie žetoni no iepriekšējās epohas}
+$$
+
+- $ f_{\text{total}}(t+1) $: Pielāgotais kopējais izplatīšanas apjoms epohai $ t+1 $.
+- $ f(t+1) $: Izplatīšanas apjoms, pamatojoties uz pamata izplatīšanas funkciju.
+- **Pārnestie neizplatītie žetoni**: Žetonu skaits, kas netika izplatīts epohā $ t $.
+
+#### Veiktspējas rādītāja ($ P_n $) aprēķināšana pēc pakalpojuma
+
+Katram pakalpojumam veiktspējas rādītājs tiek aprēķināts, pamatojoties uz šādiem rādītājiem. Katram rādītājam piešķirto svaru var pielāgot, izmantojot pārvaldību.
+
+1. **JetPack žetonu patēriņš ($ M_{1n} $)**
+    - **Svars**: $ w_1 = 50\% $
+    - **Apraksts**: Kopējais JetPack žetonu apjoms, ko lietotāji patērējuši pakalpojumā.
+
+2. **Degen Bunny balsu skaits ($ M_{2n} $)**
+    - **Svars**: $ w_2 = 30\% $
+    - **Apraksts**: Balsu skaits, ko saņēmuši OG Degen Bunnies.
+
+3. **Aktīvo lietotāju skaits ($ M_{3n} $)**
+    - **Svars**: $ w_3 = 20\% $
+    - **Apraksts**: Unikālo lietotāju skaits, kas piekļuva un bija aktīvi pakalpojumā epohas laikā.
+
+Katram pakalpojumam veiktspējas rādītājs $ P_n $ tiek aprēķināts kā:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kur:
+
+- $ M_{1n} $: Pakalpojuma $ n $ JetPack žetonu patēriņš.
+- $ M_{1\text{total}} $: Kopējais JetPack žetonu patēriņš visos pakalpojumos.
+- $ M_{2n} $: Degen Bunny balsu skaits pakalpojumam $ n $.
+- $ M_{2\text{total}} $: Kopējais Degen Bunny balsu skaits visos pakalpojumos.
+- $ M_{3n} $: Pakalpojuma $ n $ aktīvo lietotāju skaits.
+- $ M_{3\text{total}} $: Kopējais aktīvo lietotāju skaits visos pakalpojumos.
+
+**Piemērs**:
+
+- **Pakalpojums A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Pakalpojums B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Pakalpojums C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Kopējie**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Svari**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Veiktspējas rādītāja aprēķināšana pakalpojumam A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Veiktspējas rādītāja aprēķināšana pakalpojumam B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Veiktspējas rādītāja aprēķināšana pakalpojumam C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Tādējādi veiktspējas rādītāji ir:
+
+- **Pakalpojums A**: $ P_A = 0.38 $
+- **Pakalpojums B**: $ P_B = 0.29 $
+- **Pakalpojums C**: $ P_C = 0.33 $
+
+#### Līmeņa noteikšanas kritēriji un maksimālais žetonu izplatīšanas apjoms
+
+Pamatojoties uz veiktspējas rādītāju $ P_n $, katrs pakalpojums tiek klasificēts **1. līdz 9. līmenī**. Šī klasifikācija izmanto **kumulatīvo augšējo procentili** no visu pakalpojumu veiktspējas rādītājiem.
+
+##### Kumulatīvās augšējās procentiles un maksimālie žetonu izplatīšanas apjomi pēc līmeņa
+
+| **Līmenis** | **Kumulatīvā augšējā procentile** | **Maksimālā žetonu izplatīšana (Jet)** |
+|-------------|----------------------------------|----------------------------------------|
+| Līmenis 1   | Augšējie 4%                      | 30,000                                 |
+| Līmenis 2   | Augšējie 11%                     | 25,000                                 |
+| Līmenis 3   | Augšējie 23%                     | 20,000                                 |
+| Līmenis 4   | Augšējie 40%                     | 15,000                                 |
+| Līmenis 5   | Augšējie 60%                     | 10,000                                 |
+| Līmenis 6   | Augšējie 77%                     | 7,000                                  |
+| Līmenis 7   | Augšējie 89%                     | 5,000                                  |
+| Līmenis 8   | Augšējie 96%                     | 3,000                                  |
+| Līmenis 9   | Augšējie 100%                    | 1,000                                  |
+
+##### Līmeņa noteikšanas metode
+
+1. **Aprēķināt veiktspējas rādītājus**
+
+   Izmantojiet iepriekš definēto metodi, lai aprēķinātu katra pakalpojuma veiktspējas rādītāju $ P_n $.
+
+2. **Noteikt pakalpojumu rangu**
+
+   Sakārtojiet visus pakalpojumus **dilstošā secībā** pēc to veiktspējas rādītājiem.
+
+3. **Aprēķināt kumulatīvās augšējās procentiles**
+
+   Katram pakalpojumam aprēķiniet kumulatīvo augšējo procentili:
+
+   $$
+   \text{Kumulatīvā augšējā procentile (\%)} = \left(1 - \frac{\text{Rangs} - 1}{N} \right) \times 100\%
+   $$
+
+   Kur:
+
+    - $ \text{Rangs} $: Pakalpojuma rangs (sākot no 1).
+    - $ N $: Kopējais pakalpojumu skaits.
+
+4. **Piešķirt līmeņus**
+
+   Piešķiriet līmeņus, pamatojoties uz kumulatīvajām augšējām procentilēm:
+
+    - **Līmenis 1**: Kumulatīvā augšējā procentile > 96%
+    - **Līmenis 2**: 89% < Kumulatīvā augšējā procentile ≤ 96%
+    - **Līmenis 3**: 77% < Kumulatīvā augšējā procentile ≤ 89%
+    - **Līmenis 4**: 60% < Kumulatīvā augšējā procentile ≤ 77%
+    - **Līmenis 5**: 40% < Kumulatīvā augšējā procentile ≤ 60%
+    - **Līmenis 6**: 23% < Kumulatīvā augšējā procentile ≤ 40%
+    - **Līmenis 7**: 11% < Kumulatīvā augšējā procentile ≤ 23%
+    - **Līmenis 8**: 4% < Kumulatīvā augšējā procentile ≤ 11%
+    - **Līmenis 9**: Kumulatīvā augšējā procentile ≤ 4%
+
+**Piemērs**:
+
+Ar kopumā **3** pakalpojumiem:
+
+1. **Aprēķināt rangus un kumulatīvās augšējās procentiles**
+
+    - **Pakalpojums A**:
+
+        - Veiktspējas rādītājs: $ P_A = 0.38 $
+        - Rangs: 1
+        - Kumulatīvā augšējā procentile:
+
+          $$
+          \text{Kumulatīvā augšējā procentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Pakalpojums C**:
+
+        - Veiktspējas rādītājs: $ P_C = 0.33 $
+        - Rangs: 2
+        - Kumulatīvā augšējā procentile:
+
+          $$
+          \text{Kumulatīvā augšējā procentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Pakalpojums B**:
+
+        - Veiktspējas rādītājs: $ P_B = 0.29 $
+        - Rangs: 3
+        - Kumulatīvā augšējā procentile:
+
+          $$
+          \text{Kumulatīvā augšējā procentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Piešķirt līmeņus**
+
+    - **Pakalpojums A**:
+
+        - Kumulatīvā augšējā procentile: 100%
+        - **Līmenis**: **Līmenis 1** (Kumulatīvā augšējā procentile > 96%)
+        - **Maksimālā žetonu izplatīšana**: 30,000 Jet
+
+    - **Pakalpojums C**:
+
+        - Kumulatīvā augšējā procentile: 66.67%
+        - **Līmenis**: **Līmenis 4** (60% < Kumulatīvā augšējā procentile ≤ 77%)
+        - **Maksimālā žetonu izplatīšana**: 15,000 Jet
+
+    - **Pakalpojums B**:
+
+        - Kumulatīvā augšējā procentile: 33.33%
+        - **Līmenis**: **Līmenis 6** (23% < Kumulatīvā augšējā procentile ≤ 40%)
+        - **Maksimālā žetonu izplatīšana**: 7,000 Jet
+
+**Piezīmes**:
+
+- **Vienādi rādītāji**: Pakalpojumi ar identiskiem veiktspējas rādītājiem saņem vienādu rangu. Aprēķinot kumulatīvās augšējās procentiles, tiek izmantots vidējais rangs.
+- **Maksimālā žetonu izplatīšana** attiecas uz maksimālo žetonu apjomu, ko pakalpojums var saņemt, pamatojoties uz tā līmeni.
+
+### Piemēra scenārijs
+
+#### Epoha 1 ($ t = 1 $)
+
+- **Pamata izplatīšanas apjoms**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Pielāgotais kopējais izplatīšanas apjoms**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Izplatīšanas apjoma aprēķināšana pēc pakalpojuma**
+
+Pamatojoties uz veiktspējas rādītājiem un līmeņiem:
+
+- **Kopējais veiktspējas rādītājs $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Pakalpojums A**:
+
+    - Attiecība: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Izplatīšanas apjoms:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Pakalpojums C**:
+
+    - Attiecība: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Izplatīšanas apjoms:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Pakalpojums B**:
+
+    - Attiecība: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Izplatīšanas apjoms:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Izplatīšanas rezultāti**
+
+- **Kopējie izplatītie žetoni**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Neizplatītie žetoni**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoha 2 ($ t = 2 $)
+
+- **Pamata izplatīšanas apjoms**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Pārnestie žetoni**: $ 3,427,788.70 \text{ Jet} $
+- **Pielāgotais kopējais izplatīšanas apjoms**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Atjauninātie veiktspējas rādītāji un līmeņi**
+
+Pieņemot izmaiņas veiktspējas rādītājos:
+
+- **Pakalpojums A**:
+
+    - Veiktspējas rādītājs: $ P_A = 0.40 $
+    - Rangs: 1
+    - Kumulatīvā augšējā procentile: 100%
+    - **Līmenis**: Līmenis 1
+    - **Maksimālā žetonu izplatīšana**: 30,000 Jet
+
+- **Pakalpojums C**:
+
+    - Veiktspējas rādītājs: $ P_C = 0.35 $
+    - Rangs: 2
+    - Kumulatīvā augšējā procentile: 66.67%
+    - **Līmenis**: Līmenis 4
+    - **Maksimālā žetonu izplatīšana**: 15,000 Jet
+
+- **Pakalpojums B**:
+
+    - Veiktspējas rādītājs: $ P_B = 0.25 $
+    - Rangs: 3
+    - Kumulatīvā augšējā procentile: 33.33%
+    - **Līmenis**: Līmenis 6
+    - **Maksimālā žetonu izplatīšana**: 7,000 Jet
+
+**Kopējais veiktspējas rādītājs $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Izplatīšanas apjoma aprēķināšana pēc pakalpojuma**
+
+1. **Pakalpojums A**:
+
+    - Attiecība: $ \frac{P_A}{P} = 0.40 $
+    - Izplatīšanas apjoms:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Pakalpojums C**:
+
+    - Attiecība: $ \frac{P_C}{P} = 0.35 $
+    - Izplatīšanas apjoms:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Pakalpojums B**:
+
+    - Attiecība: $ \frac{P_B}{P} = 0.25 $
+    - Izplatīšanas apjoms:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Izplatīšanas rezultāti**
+
+- **Kopējie izplatītie žetoni**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Neizplatītie žetoni**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Neizplatīto žetonu uzkrāšanas ietekme
+
+- **Palielināta pakalpojumu dalība un uzlabota veiktspēja** pakāpeniski samazinās neizplatīto žetonu apjomu.
+- **Sākotnējie pakalpojumi var izmantot maksimālo izplatīšanas apjomu**, lai veicinātu izaugsmi.
+- Žetonu pārnešana palīdz **uzturēt vērtības stabilitāti** un regulēt apgrozību.
+
+## Lietotāju atlīdzības un žetonu izmantošana
+
+### **Lietotāju atlīdzības mehānisms**
+
+- **Aktivitātēs balstītas atlīdzības**: Lietotāji saņem JetPack žetonus, kad viņi veic **iepriekš saskaņotas aktivitātes** (piemēram, satura veidošana, spēļu spēlēšana) pakalpojumā.
+- **Žetonu atlīdzības kritēriji**: Žetonu atlīdzības apjoms par katru aktivitāti tiek **noteikts konsultācijās** starp pakalpojumu un JetPack ekosistēmas operatoru.
+
+### **Žetonu izmantošanas metodes**
+
+1. **Pakalpojuma ietvaros**:
+    - **Piekļuve premium funkcijām**: Izmantojiet žetonus, lai piekļūtu maksas funkcijām vai saturam pakalpojumā.
+    - **Preču iegāde**: Iegādājieties digitālās preces vai pakalpojuma vienumus, izmantojot žetonus.
+
+2. **Izmantojot JetPack maku pakalpojumu apmaiņu**:
+    - **Žetonu pārdošana**: Lietotāji var apmainīt savus žetonus pret **ADA** (Cardano valūta).
+    - **Maka pārvaldība**: JetPack maks ļauj droši pārvaldīt žetonus un veikt pārskaitījumus uz citiem pakalpojumiem.
+
+### **Sagaidāmie ieguvumi no žetonu vērtības pieauguma**
+
+- **Žetonu likviditāte**: Žetonu tirdzniecība biržās palielina to **likviditāti**.
+- **Ekonomiskie ieguvumi**: Lietotāji var gūt **papildu ekonomiskus ieguvumus**, pārdodot žetonus, ja to vērtība pieaug.
+
+## Žetonu iegāde un pārdale
+
+### **Papildu žetonu iegāde no pakalpojumiem**
+
+- **Kad izplatītie žetoni ir izsmelti**: Ja pakalpojums izmanto visus piešķirtos žetonus, tas var iegādāties papildu žetonus no **JetPack maku pakalpojumu apmaiņas**.
+- **Iegādes valūta**: Žetoni tiek iegādāti, izmantojot **ADA**.
+- **Iegādāto žetonu izmantošana**: Iegādātie žetoni var tikt izmantoti, lai **atlīdzinātu lietotājus** vai **pakalpojuma ietvaros**.
+
+### **Pārdodamie un nepārdodamie žetoni**
+
+- **Izplatītie žetoni** (**Nepārdodamie**): Pakalpojumiem piešķirtie žetoni **nevar tikt pārdoti** un ir paredzēti tikai **lietotāju atlīdzībām**.
+- **Iegādātie žetoni un lietotāju iegūtie žetoni** (**Pārdodamie**): Žetoni, kas iegādāti ar ADA, un žetoni, kas saņemti no lietotājiem, **var tikt pārdoti**, palīdzot **iegūt likviditāti**.
+
+### **Žetonu pārdale un ekosistēmas aktivizēšana**
+
+1. **Žetonu apgrozības struktūra**:
+    - Pakalpojumi atlīdzina lietotājus ar žetoniem; lietotāji tos izmanto pakalpojumos vai pārdod biržās.
+    - Pakalpojumi iegūst žetonus no lietotājiem vai iegādājas tos, lai uzturētu **ilgtspējīgu atlīdzību sistēmu**.
+
+2. **Ekosistēmas aktivizēšanas efekti**:
+    - Žetonu apgrozība veicina **lietotāju iesaisti** un **pakalpojumu aktivizēšanu**.
+    - Tas veicina **žetonu vērtības stabilizāciju** un **ekosistēmas ilgtspējīgu izaugsmi**.

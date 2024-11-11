@@ -1,0 +1,529 @@
+# Olsem Wanem JetPack Tokens i Wok
+
+Sistem blong token blong JetPack i gat **fason blong givim mo serem token long ol aktiviti**, wan **sistem blong level blong sevis**, **ol riuod blong yusa mo ol rod blong yusum token**, mo wan **mekanism blong pem mo serem bak ol token**. Disfala straka i givim wan **feya mo efisien sistem blong riuod** blong yusa mo ol sevis provida.
+
+## Mekanism blong Serem (Drop) Token
+
+### Total Sapla blong Token mo Taim Blong Serem
+
+- **Total Sapla**: JetPack bambae i givimaot wan total blong **1 bilian Jet** tokens.
+- **Taim Blong Serem**: Ol token bambae i serem ova long **38 yia**, wetem wan total blong **2,776 serem** we i stap long semak interval olsem **Cardano Epoch** (1 epoch = 5 dei).
+
+### Amaon Blong Serem Token long Evri Epoch
+
+#### Kalkulet Amaon Blong Serem Folem Wan Logarithmic Fanksen
+
+Amaon blong ol token we i serem long evri epoch i disena blong i go daon long taem. Wan **logarithmic fanksen** i yus blong kalkulet amaon blong serem long evri epoch. **1 Jet i semak long 1,000,000 Pack**, olsem nao ol amaon blong serem i kalkulet i go kasem **sikth desimal ples** mo i pem folem.
+
+1. **Definisen blong Logarithmic Fanksen $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   We:
+
+    - $ t $ i namba blong epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ i fanksen blong natural logarithm.
+
+2. **Kalkulet Sam blong Log Fanksen $ f(t) $ Ova Long Ol Epoch Evriwan**:
+
+   Total sam blong ol fanksen valiu ova long ful taem blong serem $ S $ i:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Kalkulet Skeling Konstan $ A $**:
+
+   Total sapla blong token blong **1 bilian Jet** i divaedem long sam $ S $ blong ajastem amaon blong serem long evri epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Kalkulet Amaon Blong Serem Token long Evri Epoch**:
+
+   Amaon blong serem long evri epoch i:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Eksampol Blong Ol Amaon Blong Serem**:
+
+   Kalkulet ol amaon blong serem blong ol fastaem epoch:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Amaon blong serem long evri epoch i disaedem folem valiu blong log fanksen we i blong namba blong epoch.
+
+**Fasin Blong Serem**
+
+- Sins $ \ln(t + 1) $ i go antap taem $ t $ i go antap, denominator i kam bigwan, mekem amaon blong serem i go daon smol smol.
+- Amaon blong serem long evri epoch i go daon long taem, i go klosap long zero.
+- Disfala disena i mekem ol fastaem patisipant oli wantem mo i mekem token i skas.
+
+### Skedul Blong Serem Evriwan
+
+Daon i stap wan pat blong tebol we i soem ol amaon blong serem mo ol dei blong evri epoch.
+Blong save moa long ol epoch evriwan, plis lukluk long [dokumen](/attach/token_allocation_per_epoch.csv) mo [kod](/attach/token_allocation_per_epoch.py).
+
+| Namba Blong Epoch | Dei           | Amaon Blong Serem (Jet) |
+|-------------------|---------------|-------------------------|
+| 1                 | 2025-01-01    | 3,479,788.70            |
+| 2                 | 2025-01-06    | 2,195,502.227           |
+| 3                 | 2025-01-11    | 1,739,894.35            |
+| ...               | ...           | ...                     |
+| 2774              | 2062-12-18    | 304,223.285             |
+| 2775              | 2062-12-23    | 304,209.4607            |
+| 2776              | 2062-12-28    | 304,195.6425            |
+
+### Kriteria Blong Serem Token long Evri Sevis
+
+#### Kalkulet Reit Bitwin Ol Sevis
+
+Reit blong serem blong evri sevis i kalkulet folem perfomans skoa blong hem $ P_n $ we i relativ long total perfomans skoa $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+We:
+
+- $ P_n $: Perfomans skoa blong sevis $ n $.
+- $ P $: Sam blong ol perfomans skoa blong ol sevis evriwan.
+
+#### Kalkulet Amaon Blong Serem long Evri Sevis
+
+Amaon blong ol token we sevis $ n $ i kasem long evri epoch $ S_n $ i:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Ajastem total amaon blong serem blong epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Maksimum amaon blong token we i aloket folem level blong sevis (luk level-based maksimum token serem daon).
+
+#### Handlem Ol Token We I No Serem
+
+##### Karem I Go Long Nara Taim Ol Token We I No Serem
+
+- Ol token we i no serem long evri epoch oli **ad** long total amaon blong serem blong nekis epoch.
+- Diswan i sua long efektem serem blong token nating se patisipasen blong sevis i smol long stat.
+
+##### Kalkulet Ajastem Total Amaon Blong Serem long Evri Epoch
+
+Total amaon blong serem blong nekis epoch i:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Ajastem total amaon blong serem blong epoch $ t+1 $.
+- $ f(t+1) $: Amaon blong serem folem basik fanksen blong serem.
+- **Ol Token We I No Serem We I Karem I Go Long Nara Taim**: Namba blong token we i no serem long epoch $ t $.
+
+#### Kalkulet Perfomans Skoa ($ P_n $) long Evri Sevis
+
+Perfomans skoa blong evri sevis i kalkulet folem ol metrik ya. Weti blong evri metrik i save ajastem tru long gavman.
+
+1. **JetPack Token Konsampsen ($ M_{1n} $)**
+    - **Weti**: $ w_1 = 50\% $
+    - **Diskripsen**: Total amaon blong JetPack token we ol yusa i yusum insaed long sevis.
+
+2. **Degen Bunny Vot Kaon ($ M_{2n} $)**
+    - **Weti**: $ w_2 = 30\% $
+    - **Diskripsen**: Namba blong vot we i kasem long OG Degen Bunnies.
+
+3. **Kaon Blong Aktif Yusa ($ M_{3n} $)**
+    - **Weti**: $ w_3 = 20\% $
+    - **Diskripsen**: Namba blong ol yunik yusa we oli akses mo oli aktif long sevis long taem blong epoch.
+
+Perfomans skoa blong evri sevis $ P_n $ i kalkulet olsem:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+We:
+
+- $ M_{1n} $: JetPack token konsampsen blong sevis $ n $.
+- $ M_{1\text{total}} $: Total JetPack token konsampsen long ol sevis evriwan.
+- $ M_{2n} $: Degen Bunny vot kaon blong sevis $ n $.
+- $ M_{2\text{total}} $: Total Degen Bunny vot long ol sevis evriwan.
+- $ M_{3n} $: Kaon blong aktif yusa blong sevis $ n $.
+- $ M_{3\text{total}} $: Total aktif yusa long ol sevis evriwan.
+
+**Eksampol**:
+
+- **Sevis A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Sevis B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Sevis C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Total**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Weti**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Kalkulet Perfomans Skoa blong Sevis A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Kalkulet Perfomans Skoa blong Sevis B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Kalkulet Perfomans Skoa blong Sevis C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Olsem nao, ol perfomans skoa i:
+
+- **Sevis A**: $ P_A = 0.38 $
+- **Sevis B**: $ P_B = 0.29 $
+- **Sevis C**: $ P_C = 0.33 $
+
+#### Kriteria Blong Determinim Level mo Maksimum Amaon Blong Serem Token
+
+Folem perfomans skoa $ P_n $, evri sevis i klasifae long **Level 1 i go kasem 9**. Disfala klasifikesen i yusum **kumulativ top pesentail** blong ol perfomans skoa blong ol sevis evriwan.
+
+##### Kumulativ Top Pesentail mo Maksimum Amaon Blong Serem Token long Evri Level
+
+| **Level** | **Kumulativ Top Pesentail** | **Maksimum Amaon Blong Serem (Jet)** |
+|-----------|-----------------------------|--------------------------------------|
+| Level 1   | Top 4%                      | 30,000                               |
+| Level 2   | Top 11%                     | 25,000                               |
+| Level 3   | Top 23%                     | 20,000                               |
+| Level 4   | Top 40%                     | 15,000                               |
+| Level 5   | Top 60%                     | 10,000                               |
+| Level 6   | Top 77%                     | 7,000                                |
+| Level 7   | Top 89%                     | 5,000                                |
+| Level 8   | Top 96%                     | 3,000                                |
+| Level 9   | Top 100%                    | 1,000                                |
+
+##### Rod Blong Determinim Level
+
+1. **Kalkulet Ol Perfomans Skoa**
+
+   Yusum rod we i definim finis blong kalkulet perfomans skoa blong evri sevis $ P_n $.
+
+2. **Determinim Ol Renking Blong Sevis**
+
+   Renking blong ol sevis long **oda we i go daon** folem ol perfomans skoa blong olgeta.
+
+3. **Kalkulet Kumulativ Top Pesentail**
+
+   Blong evri sevis, kalkulet kumulativ top pesentail:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   We:
+
+    - $ \text{Rank} $: Renking blong sevis (stat long 1).
+    - $ N $: Total namba blong ol sevis.
+
+4. **Asaenem Ol Level**
+
+   Asaenem ol level folem kumulativ top pesentail:
+
+    - **Level 1**: Kumulativ top pesentail > 96%
+    - **Level 2**: 89% < Kumulativ top pesentail ≤ 96%
+    - **Level 3**: 77% < Kumulativ top pesentail ≤ 89%
+    - **Level 4**: 60% < Kumulativ top pesentail ≤ 77%
+    - **Level 5**: 40% < Kumulativ top pesentail ≤ 60%
+    - **Level 6**: 23% < Kumulativ top pesentail ≤ 40%
+    - **Level 7**: 11% < Kumulativ top pesentail ≤ 23%
+    - **Level 8**: 4% < Kumulativ top pesentail ≤ 11%
+    - **Level 9**: Kumulativ top pesentail ≤ 4%
+
+**Eksampol**:
+
+Wetem wan total blong **3** sevis:
+
+1. **Kalkulet Ol Renking mo Kumulativ Top Pesentail**
+
+    - **Sevis A**:
+
+        - Perfomans Skoa: $ P_A = 0.38 $
+        - Renking: 1
+        - Kumulativ Top Pesentail:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Sevis C**:
+
+        - Perfomans Skoa: $ P_C = 0.33 $
+        - Renking: 2
+        - Kumulativ Top Pesentail:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Sevis B**:
+
+        - Perfomans Skoa: $ P_B = 0.29 $
+        - Renking: 3
+        - Kumulativ Top Pesentail:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Asaenem Ol Level**
+
+    - **Sevis A**:
+
+        - Kumulativ Top Pesentail: 100%
+        - **Level**: **Level 1** (Kumulativ Top Pesentail > 96%)
+        - **Maksimum Amaon Blong Serem**: 30,000 Jet
+
+    - **Sevis C**:
+
+        - Kumulativ Top Pesentail: 66.67%
+        - **Level**: **Level 4** (60% < Kumulativ Top Pesentail ≤ 77%)
+        - **Maksimum Amaon Blong Serem**: 15,000 Jet
+
+    - **Sevis B**:
+
+        - Kumulativ Top Pesentail: 33.33%
+        - **Level**: **Level 6** (23% < Kumulativ Top Pesentail ≤ 40%)
+        - **Maksimum Amaon Blong Serem**: 7,000 Jet
+
+**Not**:
+
+- **Ol Skoa We I Semak**: Ol sevis wetem semak perfomans skoa i kasem semak renking. Long kalkulet kumulativ top pesentail, avrej renking i yusum.
+- **Maksimum Amaon Blong Serem** i minim maksimum amaon blong token we wan sevis i save kasem folem level blong hem.
+
+### Eksampol Senario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basik Amaon Blong Serem**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Ajastem Total Amaon Blong Serem**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Kalkulet Amaon Blong Serem long Evri Sevis**
+
+Folem ol perfomans skoa mo ol level:
+
+- **Total Perfomans Skoa $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Sevis A**:
+
+    - Reit: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Amaon Blong Serem:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Sevis C**:
+
+    - Reit: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Amaon Blong Serem:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Sevis B**:
+
+    - Reit: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Amaon Blong Serem:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Ol Risal Blong Serem**
+
+- **Total Token We I Serem**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Ol Token We I No Serem**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basik Amaon Blong Serem**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Ol Token We I Karem I Go Long Nara Taim**: $ 3,427,788.70 \text{ Jet} $
+- **Ajastem Total Amaon Blong Serem**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Ol Perfomans Skoa mo Ol Level We I Apdet**
+
+Sapos i gat jenis long ol perfomans skoa:
+
+- **Sevis A**:
+
+    - Perfomans Skoa: $ P_A = 0.40 $
+    - Renking: 1
+    - Kumulativ Top Pesentail: 100%
+    - **Level**: Level 1
+    - **Maksimum Amaon Blong Serem**: 30,000 Jet
+
+- **Sevis C**:
+
+    - Perfomans Skoa: $ P_C = 0.35 $
+    - Renking: 2
+    - Kumulativ Top Pesentail: 66.67%
+    - **Level**: Level 4
+    - **Maksimum Amaon Blong Serem**: 15,000 Jet
+
+- **Sevis B**:
+
+    - Perfomans Skoa: $ P_B = 0.25 $
+    - Renking: 3
+    - Kumulativ Top Pesentail: 33.33%
+    - **Level**: Level 6
+    - **Maksimum Amaon Blong Serem**: 7,000 Jet
+
+**Total Perfomans Skoa $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Kalkulet Amaon Blong Serem long Evri Sevis**
+
+1. **Sevis A**:
+
+    - Reit: $ \frac{P_A}{P} = 0.40 $
+    - Amaon Blong Serem:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Sevis C**:
+
+    - Reit: $ \frac{P_C}{P} = 0.35 $
+    - Amaon Blong Serem:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Sevis B**:
+
+    - Reit: $ \frac{P_B}{P} = 0.25 $
+    - Amaon Blong Serem:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Ol Risal Blong Serem**
+
+- **Total Token We I Serem**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Ol Token We I No Serem**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impak Blong Ol Token We I No Serem We I Karem I Go Long Nara Taim
+
+- **Patisipasen blong Sevis We I Go Antap mo Perfomans We I Betta** bambae i go daon smol smol long amaon blong ol token we i no serem.
+- **Ol sevis long stat i save yusum maksimum amaon blong serem** blong mekem i gru.
+- Karem i go long nara taem blong ol token i helpem blong **mekem valiu i stap stebol** mo regulatem sarikulesen.
+
+## Ol Riuod Blong Yusa mo Yus Blong Token
+
+### **Mekanism Blong Riuod Blong Yusa**
+
+- **Riuod Folem Aktiviti**: Ol yusa i kasem JetPack token taem oli mekem **ol aktiviti we i agririm finis** (e.g., mekem konten, plei gem) insaed long wan sevis.
+- **Kriteria Blong Riuod Blong Token**: Amaon blong token we i riuod blong evri aktiviti i **determinim tru long toktok** bitwin sevis mo JetPack ikosistem operator.
+
+### **Ol Rod Blong Yusum Token**
+
+1. **Insaed Long Sevis**:
+    - **Aksesem Ol Ficha We I Pem**: Yusum ol token blong aksesem ol ficha o konten we i pem insaed long sevis.
+    - **Pem Ol Gud**: Pem ol digital gud o ol aitem insaed long sevis yusum ol token.
+
+2. **Yusum JetPack Wolet Sevis Ekschenj**:
+    - **Salem Ol Token**: Ol yusa i save ekschenjem ol token blong olgeta blong **ADA** (mane blong **Cardano**).
+    - **Manajem Wolet**: JetPack wolet i alao blong manajem ol token mo transferem i go long ol narafala sevis long sef wei.
+
+### **Ol Benifit We I Ekspektem From Valiu Blong Token We I Go Antap**
+
+- **Likwiditi Blong Token**: Tradem ol token long ol ekschenj i mekem likwiditi blong olgeta i go antap.
+- **Ol Benifit Blong Ekonomi**: Ol yusa i save kasem ol benifit blong ekonomi sapos oli salem ol token blong olgeta sapos valiu blong olgeta i go antap.
+
+## Pem mo Serem Bak Blong Token
+
+### **Ol Sevis We I Pem Moa Token**
+
+- **Taem Ol Token We I Serem I Finis**: Sapos wan sevis i yusum evri token we i aloket, i save pem moa token long **JetPack Wolet Sevis Ekschenj**.
+- **Mane Blong Pem**: Ol token i pem yusum **ADA**.
+- **Yus Blong Ol Token We I Pem**: Ol token we i pem i save yusum blong **riuod blong ol yusa** o **insaed long sevis**.
+
+### **Ol Token We I Save Resalem mo Ol We I No Save Resalem**
+
+- **Ol Token We I Serem** (**I No Save Resalem**): Ol token we i aloket long ol sevis **i no save resalem** mo i blong **riuod blong ol yusa nomo**.
+- **Ol Token We I Pem mo Ol Token We I Kasem Long Ol Yusa** (**I Save Resalem**): Ol token we i pem wetem ADA mo ol token we i kasem long ol yusa **i save resalem**, i helpem long **kasem likwiditi**.
+
+### **Serem Bak Blong Token mo Aktivetem Ikosistem**
+
+1. **Straka Blong Sarikulesen Blong Token**:
+    - Ol sevis i riuod blong ol yusa wetem ol token; ol yusa i yusum olgeta insaed long ol sevis o salem olgeta long ol ekschenj.
+    - Ol sevis i kasem ol token long ol yusa o pem olgeta blong mekem wan **sistem blong riuod we i save stap**.
+
+2. **Efek Blong Aktivetem Ikosistem**:
+    - Sarikulesen blong token i mekem **ol yusa i wantem mo aktivetem sevis**.
+    - Diswan i kontribiut long **mekem valiu blong token i stap stebol** mo **gru we i save stap blong ikosistem**.

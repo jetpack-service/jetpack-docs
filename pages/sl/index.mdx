@@ -1,0 +1,84 @@
+import Image from 'next/image'
+
+# Uvod
+
+V današnji digitalni krajini se uporabniki vsakodnevno vključujejo v številne internetne storitve in aplikacije. Kljub svoji aktivni udeležbi pa uporabniki pogosto prejmejo malo ali nič nadomestila za svoje prispevke in interakcije. Hkrati se ponudniki storitev, zlasti neodvisni razvijalci in startupi, soočajo z velikimi izzivi pri izvajanju in upravljanju lastniških sistemov točk zaradi visokih stroškov razvoja in kompleksnosti. Obstoječi skupni sistemi točk imajo stroge vstopne ovire, zapletene poravnave in potencialne izgube prihodkov, ko se točke, pridobljene iz ene storitve, uporabijo v drugi. Poleg tega so tradicionalni sistemi žetonov pogosto nepravični, saj dodeljujejo velike količine žetonov zgodnjim vlagateljem in razvijalcem, kar običajne uporabnike postavlja v slabši položaj že od začetka.
+
+**JetPack Token System** se pojavlja kot rešitev za te razširjene težave z uvedbo poštenega, preglednega in učinkovitega ekosistema, ki temelji na žetonih in koristi tako uporabnikom kot ponudnikom storitev.
+
+```html
+<Image src="/images/en/intro.svg" alt="Reševanje digitalne angažiranosti in nagrad - JetPack Token System" width={700} height={534} className="dark:hidden"/>
+<Image src="/images/en/intro-dark.svg" alt="Reševanje digitalne angažiranosti in nagrad - JetPack Token System" width={700} height={534} className="hidden dark:block"/>
+```
+
+## Opis problema
+
+- **Pomanjkanje nagrad za uporabnike**: Uporabniki ne prejmejo pravičnega nadomestila za svojo angažiranost in aktivnosti znotraj internetnih storitev in aplikacij, kar omejuje njihovo motivacijo za aktivno sodelovanje.
+- **Izzivi za ponudnike storitev**: Razvoj in vzdrževanje lastnega sistema točk je zahtevno, zahteva veliko časa in finančnih sredstev ter lahko postane finančna obveznost.
+- **Omejitve obstoječih sistemov točk**: Skupni sistemi točk pogosto imajo omejujoče vstopne zahteve, in ko uporabniki porabijo točke, pridobljene iz ene storitve, v drugi, lahko to vodi do zmanjšanja dobička za prvotno storitev in zapletenih poravnalnih procesov.
+- **Nepravični tradicionalni sistemi žetonov**: Mnogi sistemi žetonov nesorazmerno favorizirajo zgodnje vlagatelje in razvijalce z vnaprejšnjo dodelitvijo velikih količin žetonov, kar preprečuje pošteno konkurenco in enake možnosti za običajne uporabnike.
+
+## Pregled rešitve
+
+**JetPack Token System** ponuja inovativen pristop k digitalnim nagradam in sistemom točk z:
+
+- **Izvajanjem poštenega in preglednega modela distribucije žetonov**: Vsi udeleženci začnejo na enakih izhodiščih, saj ni vnaprejšnje dodelitve žetonov nobeni strani, vključno z razvijalci in zgodnjimi vlagatelji.
+- **Omogočanjem vsestranskega žetona, uporabnega v več storitvah**: Uporabniki lahko zaslužijo in uporabljajo JetPack žetone v različnih storitvah, kar povečuje uporabnost in vrednost žetonov.
+- **Zagotavljanjem visoke prepustnosti transakcij in varnosti**: S kombinacijo porazdeljenih baz podatkov in blockchain tehnologije JetPack dosega visoke hitrosti obdelave transakcij (TPS) ob ohranjanju celovitosti in varnosti podatkov.
+- **Uvedbo sistema ravni storitev za spodbujanje rasti**: Storitve prejmejo žetone vsakih pet dni (epoh), njihova raven pa se povečuje glede na uporabo žetonov s strani uporabnikov, kar jim omogoča prejemanje več žetonov in spodbujanje angažiranosti uporabnikov.
+
+## Edinstvena vrednostna ponudba
+
+- **Poštena in enaka priložnost za vse udeležence**: JetPack odpravlja nepravične prednosti, ki jih vidimo v tradicionalnih sistemih žetonov, tako da ne dodeljuje žetonov nobeni entiteti vnaprej.
+- **Poenostavljena integracija za ponudnike storitev**: Razvijalci lahko enostavno integrirajo JetPack Token System v svoje storitve z uporabo ponujenih SDK-jev in API-jev, kar prihrani čas in sredstva.
+- **Izboljšana angažiranost in nagrade za uporabnike**: Uporabniki so neposredno nagrajeni za svoje aktivnosti, kar povečuje njihovo motivacijo za sodelovanje in angažiranost s storitvami.
+- **Učinkovite in varne transakcije**: Kombinacija porazdeljenih baz podatkov in blockchaina zagotavlja, da so transakcije obdelane hitro in varno, brez kompromisov glede celovitosti podatkov.
+- **Spodbude za rast storitev**: Sistem ravni nagrajuje storitve, ki spodbujajo udeležbo uporabnikov in uporabo žetonov, kar spodbuja zdrav in konkurenčen ekosistem.
+
+## Kako deluje
+
+- **Distribucija žetonov in sistem ravni**: Vsakih pet dni storitve prejmejo distribucijo JetPack žetonov. Storitve lahko povečajo svojo raven od 0 do 99 glede na količino žetonov, ki jih uporabniki uporabijo, kar jim omogoča prejemanje dodatnih žetonov v naslednjih distribucijah.
+- **Mehanizem nagrajevanja uporabnikov**: Uporabniki zaslužijo JetPack žetone skozi svoje aktivnosti znotraj storitev. Te žetone lahko porabijo znotraj ekosistema storitev ali jih zamenjajo na borzah za ADA, kar zagotavlja oprijemljivo vrednost za njihove digitalne interakcije.
+- **Ponovni nakup in redistribucija žetonov**: Ko storitev porabi svoje dodeljene žetone, lahko kupi dodatne žetone z uporabo ADA, da nadaljuje z nagrajevanjem svojih uporabnikov, kar zagotavlja neprekinjen cikel nagrajevanja.
+- **Učinkovita obdelava transakcij in varnostni ukrepi**: Podatki o transakcijah so shranjeni v porazdeljeni bazi podatkov in zaščiteni z uporabo strukture verige zgoščenk, da se prepreči poseganje. Poleg tega se vsakih pet minut zgoščena vrednost shrani na Cardano blockchain, da se dokaže celovitost podatkov.
+
+## Ciljni kupci
+
+- **Ponudniki storitev**: Neodvisni razvijalci in operaterji startup storitev, ki iščejo enostavno integriran, učinkovit in varen sistem točk.
+- **Uporabniki storitev**: Splošni uporabniki, ki želijo prejeti pravično nadomestilo za svoje aktivnosti in imeti prilagodljivost uporabe svojih zasluženih točk v različnih storitvah.
+- **Prispevalci ekosistema**: Operaterji vozlišč, posojilodajalci NFT in drugi udeleženci, ki prispevajo k rasti in vzdrževanju JetPack ekosistema.
+
+### Zgodnji posvojitelji
+
+- **NFT skupnosti in projekti, ki potrebujejo žetone**
+- **Indie razvijalci**
+
+## Kanali in integracija
+
+- **SDK-ji in API-ji**: Na voljo za več platform, vključno z Java, Unity in JavaScript, kar omogoča brezhibno integracijo v različne storitve in aplikacije.
+- **Skupnostne platforme**: Aktivna prisotnost na Discordu, Twitterju in sodelovanje v Cardano skupnosti ter blockchain dogodkih za vključevanje z uporabniki in razvijalci.
+- **Partnerstva s storitvami in aplikacijami**: Sodelovanja s storitvami, ki uporabljajo JetPack žetone za širitev ekosistema in povečanje uporabnosti žetonov.
+
+## Prihodkovni tokovi
+
+- **Prodaja žetonov za ADA**: Prihodki, ustvarjeni, ko storitve kupijo dodatne žetone z uporabo ADA po izčrpanju svojih dodeljenih žetonov.
+- **Transakcijske provizije**: Majhne provizije, zbrane iz transakcij žetonov znotraj ekosistema.
+- **Premium storitve**: Ponudba naprednih storitev, kot je profesionalna statistična analiza za plačilo.
+
+## Struktura stroškov
+
+- **Vzdrževanje strežniške infrastrukture**: Stroški, povezani z delovanjem porazdeljene baze podatkov in vzdrževanjem celovitosti omrežja.
+- **Razvojni in operativni stroški**: Nenehni razvoj in vzdrževanje platforme, SDK-jev in API-jev.
+- **Trženje in upravljanje skupnosti**: Stroški, povezani s pridobivanjem uporabnikov in ponudnikov storitev ter vključevanjem skupnosti.
+- **Pravni in skladnostni stroški**: Stroški za pravno svetovanje in zagotavljanje skladnosti z regulativnimi zahtevami.
+
+## Ključne metrike
+
+- **Udeležba storitev**: Število storitev, ki sprejemajo JetPack Token System, in njihove ustrezne ravni.
+- **Kroženje in uporaba žetonov**: Skupna količina žetonov, razdeljenih uporabnikom, in obseg uporabe žetonov znotraj storitev.
+- **Obseg nakupa žetonov**: Skupna količina žetonov, kupljenih s strani storitev z uporabo ADA.
+- **Metrike angažiranosti uporabnikov**: Število aktivnih uporabnikov, obsegi transakcij žetonov in drugi kazalniki udeležbe uporabnikov.
+
+---
+
+**JetPack Token System** predstavlja revolucionaren pristop k digitalnim nagradam in ekosistemom točk. Z naslavljanjem omejitev obstoječih sistemov in prednostnim obravnavanjem pravičnosti, preglednosti in učinkovitosti JetPack spodbuja okolje, kjer so uporabniki pravično nagrajeni za svoje prispevke, ponudniki storitev pa lahko rastejo in inovirajo brez nepotrebnih bremen. Ta nova paradigma v digitalnem gospodarstvu si prizadeva zgraditi uspešen ekosistem, kjer lahko vsi udeleženci uspevajo skupaj.

@@ -1,0 +1,529 @@
+# Wie JetPack-Token funktionieren
+
+Das JetPack-Token-System umfasst **aktivitätsbasierte Token-Ausgabe und -Verteilung**, ein **Service-Level-System**, **Benutzerbelohnungen und Token-Nutzungsmethoden** sowie einen **Mechanismus zum Kauf und zur Umverteilung von Tokens**. Diese Struktur bietet ein **faires und effizientes Belohnungssystem** für sowohl Benutzer als auch Dienstanbieter.
+
+## Token-Verteilungsmechanismus (Drop)
+
+### Gesamtes Token-Angebot und Verteilungszeitraum
+
+- **Gesamtangebot**: JetPack wird insgesamt **1 Milliarde Jet**-Tokens ausgeben.
+- **Verteilungszeitraum**: Tokens werden über **38 Jahre** verteilt, mit insgesamt **2.776 Verteilungen**, die in denselben Intervallen wie die **Cardano-Epoche** (1 Epoche = 5 Tage) stattfinden.
+
+### Token-Verteilungsmenge pro Epoche
+
+#### Berechnung der Verteilungsmenge basierend auf einer logarithmischen Funktion
+
+Die Menge der pro Epoche verteilten Tokens ist so konzipiert, dass sie im Laufe der Zeit abnimmt. Eine **logarithmische Funktion** wird verwendet, um die Verteilungsmenge für jede Epoche zu berechnen. **1 Jet entspricht 1.000.000 Pack**, daher werden die Verteilungsbeträge auf die **sechste Dezimalstelle** berechnet und entsprechend ausgezahlt.
+
+1. **Definition der logarithmischen Funktion $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Wo:
+
+    - $ t $ die Epochenzahl ist, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ die natürliche Logarithmusfunktion ist.
+
+2. **Berechnung der Summe der Log-Funktion $ f(t) $ über alle Epochen**:
+
+   Die Gesamtsumme der Funktionswerte über den gesamten Verteilungszeitraum $ S $ ist:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Berechnung der Skalierungskonstante $ A $**:
+
+   Das gesamte Token-Angebot von **1 Milliarde Jet** wird durch die Summe $ S $ geteilt, um die Verteilungsmenge für jede Epoche anzupassen:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Berechnung der Token-Verteilungsmenge pro Epoche**:
+
+   Die Verteilungsmenge für jede Epoche ist:
+
+   $$
+   \text{Verteilungsmenge}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Beispiele für Verteilungsbeträge**:
+
+   Berechnung der Verteilungsbeträge für die ersten Epochen:
+
+    - **Epoche 1**:
+
+      $$
+      \text{Verteilungsmenge}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoche 2**:
+
+      $$
+      \text{Verteilungsmenge}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoche 3**:
+
+      $$
+      \text{Verteilungsmenge}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Die Verteilungsmenge für jede Epoche wird durch den Wert der Log-Funktion bestimmt, der der Epochenzahl entspricht.
+
+**Verteilungseigenschaften**
+
+- Da $ \ln(t + 1) $ zunimmt, wenn $ t $ zunimmt, wird der Nenner größer, was dazu führt, dass die gesamte Verteilungsmenge allmählich abnimmt.
+- Die Verteilungsmenge pro Epoche nimmt im Laufe der Zeit ab und nähert sich null.
+- Dieses Design incentiviert frühe Teilnehmer und erhöht die Knappheit des Tokens.
+
+### Gesamtverteilungsplan
+
+Nachfolgend eine teilweise Tabelle, die die Verteilungsbeträge und -daten pro Epoche zusammenfasst.
+Für detaillierte Informationen zu allen Epochen, siehe das separate [Dokument](/attach/token_allocation_per_epoch.csv) und [Code](/attach/token_allocation_per_epoch.py).
+
+| Epochenzahl | Datum          | Verteilungsmenge (Jet)     |
+|-------------|----------------|----------------------------|
+| 1           | 2025-01-01     | 3,479,788.70               |
+| 2           | 2025-01-06     | 2,195,502.227              |
+| 3           | 2025-01-11     | 1,739,894.35               |
+| ...         | ...            | ...                        |
+| 2774        | 2062-12-18     | 304,223.285                |
+| 2775        | 2062-12-23     | 304,209.4607               |
+| 2776        | 2062-12-28     | 304,195.6425               |
+
+### Token-Verteilungskriterien pro Dienst
+
+#### Berechnung der Verhältnisse zwischen Diensten
+
+Das Verteilungsverhältnis für jeden Dienst wird basierend auf seiner Leistungsbewertung $ P_n $ im Verhältnis zur Gesamtleistungsbewertung $ P $ berechnet:
+
+$$
+\text{Verhältnis für Dienst } n = \frac{P_n}{P}
+$$
+
+Wo:
+
+- $ P_n $: Leistungsbewertung des Dienstes $ n $.
+- $ P $: Summe der Leistungsbewertungen aller Dienste.
+
+#### Berechnung der Verteilungsmenge pro Dienst
+
+Die Menge der Tokens, die Dienst $ n $ in jeder Epoche $ S_n $ erhält, ist:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximale Token-Verteilung für Dienst } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Angepasste Gesamtverteilungsmenge für die Epoche.
+- $ \text{Maximale Token-Verteilung für Dienst } n $: Maximale Token-Menge, die basierend auf dem Level des Dienstes zugewiesen wird (siehe levelbasierte maximale Token-Verteilung unten).
+
+#### Umgang mit nicht verteilten Tokens
+
+##### Übertragung nicht verteilter Tokens
+
+- Nicht verteilte Tokens aus jeder Epoche werden **zur Gesamtverteilungsmenge der nächsten Epoche hinzugefügt**.
+- Dies stellt eine effektive Token-Verteilung sicher, auch wenn die anfängliche Dienstteilnahme gering ist.
+
+##### Berechnung der angepassten Gesamtverteilungsmenge pro Epoche
+
+Die Gesamtverteilungsmenge für die nächste Epoche ist:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Nicht verteilte Tokens aus der vorherigen Epoche}
+$$
+
+- $ f_{\text{total}}(t+1) $: Angepasste Gesamtverteilungsmenge für Epoche $ t+1 $.
+- $ f(t+1) $: Verteilungsmenge basierend auf der grundlegenden Verteilungsfunktion.
+- **Übertragene nicht verteilte Tokens**: Anzahl der Tokens, die in Epoche $ t $ nicht verteilt wurden.
+
+#### Berechnung der Leistungsbewertung ($ P_n $) pro Dienst
+
+Die Leistungsbewertung jedes Dienstes wird basierend auf den folgenden Metriken berechnet. Das Gewicht jeder Metrik kann durch Governance angepasst werden.
+
+1. **JetPack-Token-Verbrauch ($ M_{1n} $)**
+    - **Gewicht**: $ w_1 = 50\% $
+    - **Beschreibung**: Gesamtmenge der von Benutzern innerhalb des Dienstes verbrauchten JetPack-Tokens.
+
+2. **Degen Bunny Abstimmungsanzahl ($ M_{2n} $)**
+    - **Gewicht**: $ w_2 = 30\% $
+    - **Beschreibung**: Anzahl der Stimmen, die von OG Degen Bunnies erhalten wurden.
+
+3. **Anzahl aktiver Benutzer ($ M_{3n} $)**
+    - **Gewicht**: $ w_3 = 20\% $
+    - **Beschreibung**: Anzahl der eindeutigen Benutzer, die während der Epoche auf den Dienst zugegriffen und aktiv waren.
+
+Die Leistungsbewertung jedes Dienstes $ P_n $ wird berechnet als:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Wo:
+
+- $ M_{1n} $: JetPack-Token-Verbrauch des Dienstes $ n $.
+- $ M_{1\text{total}} $: Gesamt-JetPack-Token-Verbrauch über alle Dienste.
+- $ M_{2n} $: Degen Bunny Abstimmungsanzahl für Dienst $ n $.
+- $ M_{2\text{total}} $: Gesamtanzahl der Degen Bunny Stimmen über alle Dienste.
+- $ M_{3n} $: Anzahl aktiver Benutzer des Dienstes $ n $.
+- $ M_{3\text{total}} $: Gesamtanzahl aktiver Benutzer über alle Dienste.
+
+**Beispiel**:
+
+- **Dienst A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Dienst B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Dienst C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Gesamtwerte**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Gewichte**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Berechnung der Leistungsbewertung für Dienst A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Berechnung der Leistungsbewertung für Dienst B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Berechnung der Leistungsbewertung für Dienst C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Daher sind die Leistungsbewertungen:
+
+- **Dienst A**: $ P_A = 0.38 $
+- **Dienst B**: $ P_B = 0.29 $
+- **Dienst C**: $ P_C = 0.33 $
+
+#### Kriterien zur Bestimmung des Levels und maximale Token-Verteilungsmenge
+
+Basierend auf der Leistungsbewertung $ P_n $ wird jeder Dienst in **Level 1 bis 9** eingestuft. Diese Klassifizierung verwendet das **kumulative Top-Prozentil** der Leistungsbewertungen aller Dienste.
+
+##### Kumulative Top-Prozentile und maximale Token-Verteilungsbeträge pro Level
+
+| **Level** | **Kumulatives Top-Prozentil** | **Maximale Token-Verteilung (Jet)** |
+|-----------|-------------------------------|-------------------------------------|
+| Level 1   | Top 4%                        | 30,000                              |
+| Level 2   | Top 11%                       | 25,000                              |
+| Level 3   | Top 23%                       | 20,000                              |
+| Level 4   | Top 40%                       | 15,000                              |
+| Level 5   | Top 60%                       | 10,000                              |
+| Level 6   | Top 77%                       | 7,000                               |
+| Level 7   | Top 89%                       | 5,000                               |
+| Level 8   | Top 96%                       | 3,000                               |
+| Level 9   | Top 100%                      | 1,000                               |
+
+##### Methode zur Bestimmung des Levels
+
+1. **Berechnung der Leistungsbewertungen**
+
+   Verwenden Sie die zuvor definierte Methode, um die Leistungsbewertung jedes Dienstes $ P_n $ zu berechnen.
+
+2. **Bestimmung der Dienst-Rankings**
+
+   Ordnen Sie alle Dienste in **absteigender Reihenfolge** basierend auf ihren Leistungsbewertungen.
+
+3. **Berechnung der kumulativen Top-Prozentile**
+
+   Berechnen Sie für jeden Dienst das kumulative Top-Prozentil:
+
+   $$
+   \text{Kumulatives Top-Prozentil (\%)} = \left(1 - \frac{\text{Rang} - 1}{N} \right) \times 100\%
+   $$
+
+   Wo:
+
+    - $ \text{Rang} $: Der Rang des Dienstes (beginnend bei 1).
+    - $ N $: Gesamtanzahl der Dienste.
+
+4. **Zuweisung von Levels**
+
+   Weisen Sie Levels basierend auf den kumulativen Top-Prozentilen zu:
+
+    - **Level 1**: Kumulatives Top-Prozentil > 96%
+    - **Level 2**: 89% < Kumulatives Top-Prozentil ≤ 96%
+    - **Level 3**: 77% < Kumulatives Top-Prozentil ≤ 89%
+    - **Level 4**: 60% < Kumulatives Top-Prozentil ≤ 77%
+    - **Level 5**: 40% < Kumulatives Top-Prozentil ≤ 60%
+    - **Level 6**: 23% < Kumulatives Top-Prozentil ≤ 40%
+    - **Level 7**: 11% < Kumulatives Top-Prozentil ≤ 23%
+    - **Level 8**: 4% < Kumulatives Top-Prozentil ≤ 11%
+    - **Level 9**: Kumulatives Top-Prozentil ≤ 4%
+
+**Beispiel**:
+
+Mit insgesamt **3** Diensten:
+
+1. **Berechnung der Rankings und kumulativen Top-Prozentile**
+
+    - **Dienst A**:
+
+        - Leistungsbewertung: $ P_A = 0.38 $
+        - Rang: 1
+        - Kumulatives Top-Prozentil:
+
+          $$
+          \text{Kumulatives Top-Prozentil} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Dienst C**:
+
+        - Leistungsbewertung: $ P_C = 0.33 $
+        - Rang: 2
+        - Kumulatives Top-Prozentil:
+
+          $$
+          \text{Kumulatives Top-Prozentil} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Dienst B**:
+
+        - Leistungsbewertung: $ P_B = 0.29 $
+        - Rang: 3
+        - Kumulatives Top-Prozentil:
+
+          $$
+          \text{Kumulatives Top-Prozentil} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Zuweisung von Levels**
+
+    - **Dienst A**:
+
+        - Kumulatives Top-Prozentil: 100%
+        - **Level**: **Level 1** (Kumulatives Top-Prozentil > 96%)
+        - **Maximale Token-Verteilung**: 30,000 Jet
+
+    - **Dienst C**:
+
+        - Kumulatives Top-Prozentil: 66.67%
+        - **Level**: **Level 4** (60% < Kumulatives Top-Prozentil ≤ 77%)
+        - **Maximale Token-Verteilung**: 15,000 Jet
+
+    - **Dienst B**:
+
+        - Kumulatives Top-Prozentil: 33.33%
+        - **Level**: **Level 6** (23% < Kumulatives Top-Prozentil ≤ 40%)
+        - **Maximale Token-Verteilung**: 7,000 Jet
+
+**Hinweise**:
+
+- **Gleiche Bewertungen**: Dienste mit identischen Leistungsbewertungen erhalten denselben Rang. Bei der Berechnung der kumulativen Top-Prozentile wird der Durchschnittsrang verwendet.
+- **Maximale Token-Verteilung** bezieht sich auf die maximale Token-Menge, die ein Dienst basierend auf seinem Level erhalten kann.
+
+### Beispiel-Szenario
+
+#### Epoche 1 ($ t = 1 $)
+
+- **Grundlegende Verteilungsmenge**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Angepasste Gesamtverteilungsmenge**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Berechnung der Verteilungsmenge pro Dienst**
+
+Basierend auf den Leistungsbewertungen und Levels:
+
+- **Gesamtleistungsbewertung $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Dienst A**:
+
+    - Verhältnis: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Verteilungsmenge:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Dienst C**:
+
+    - Verhältnis: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Verteilungsmenge:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Dienst B**:
+
+    - Verhältnis: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Verteilungsmenge:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Verteilungsergebnisse**
+
+- **Insgesamt verteilte Tokens**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nicht verteilte Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoche 2 ($ t = 2 $)
+
+- **Grundlegende Verteilungsmenge**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Übertragene Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Angepasste Gesamtverteilungsmenge**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Aktualisierte Leistungsbewertungen und Levels**
+
+Angenommene Änderungen in den Leistungsbewertungen:
+
+- **Dienst A**:
+
+    - Leistungsbewertung: $ P_A = 0.40 $
+    - Rang: 1
+    - Kumulatives Top-Prozentil: 100%
+    - **Level**: Level 1
+    - **Maximale Token-Verteilung**: 30,000 Jet
+
+- **Dienst C**:
+
+    - Leistungsbewertung: $ P_C = 0.35 $
+    - Rang: 2
+    - Kumulatives Top-Prozentil: 66.67%
+    - **Level**: Level 4
+    - **Maximale Token-Verteilung**: 15,000 Jet
+
+- **Dienst B**:
+
+    - Leistungsbewertung: $ P_B = 0.25 $
+    - Rang: 3
+    - Kumulatives Top-Prozentil: 33.33%
+    - **Level**: Level 6
+    - **Maximale Token-Verteilung**: 7,000 Jet
+
+**Gesamtleistungsbewertung $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Berechnung der Verteilungsmenge pro Dienst**
+
+1. **Dienst A**:
+
+    - Verhältnis: $ \frac{P_A}{P} = 0.40 $
+    - Verteilungsmenge:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Dienst C**:
+
+    - Verhältnis: $ \frac{P_C}{P} = 0.35 $
+    - Verteilungsmenge:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Dienst B**:
+
+    - Verhältnis: $ \frac{P_B}{P} = 0.25 $
+    - Verteilungsmenge:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Verteilungsergebnisse**
+
+- **Insgesamt verteilte Tokens**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nicht verteilte Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Auswirkungen von angesammelten nicht verteilten Tokens
+
+- **Erhöhte Dienstteilnahme und verbesserte Leistung** werden die Menge der nicht verteilten Tokens allmählich reduzieren.
+- **Anfängliche Dienste können die maximale Verteilungsmenge nutzen**, um Wachstum zu fördern.
+- Die Übertragung von Tokens hilft, **Wertstabilität zu erhalten** und die Zirkulation zu regulieren.
+
+## Benutzerbelohnungen und Token-Nutzung
+
+### **Benutzerbelohnungsmechanismus**
+
+- **Aktivitätsbasierte Belohnungen**: Benutzer erhalten JetPack-Tokens, wenn sie **vorab vereinbarte Aktivitäten** (z. B. Inhaltserstellung, Gameplay) innerhalb eines Dienstes ausführen.
+- **Token-Belohnungskriterien**: Die Menge der für jede Aktivität belohnten Tokens wird **durch Konsultation** zwischen dem Dienst und dem JetPack-Ökosystembetreiber bestimmt.
+
+### **Token-Nutzungsmethoden**
+
+1. **Innerhalb des Dienstes**:
+    - **Zugriff auf Premium-Funktionen**: Verwenden Sie Tokens, um auf kostenpflichtige Funktionen oder Inhalte innerhalb des Dienstes zuzugreifen.
+    - **Kauf von Waren**: Kaufen Sie digitale Waren oder dienstinterne Artikel mit Tokens.
+
+2. **Verwendung des JetPack Wallet Service Exchange**:
+    - **Token-Verkäufe**: Benutzer können ihre Tokens gegen **ADA** (die Währung von **Cardano**) eintauschen.
+    - **Wallet-Verwaltung**: Das JetPack-Wallet ermöglicht die sichere Verwaltung von Tokens und Übertragungen zu anderen Diensten.
+
+### **Erwartete Vorteile durch Wertsteigerung der Tokens**
+
+- **Token-Liquidität**: Der Handel mit Tokens an Börsen erhöht ihre **Liquidität**.
+- **Wirtschaftliche Gewinne**: Benutzer können **zusätzliche wirtschaftliche Vorteile** erzielen, indem sie Tokens verkaufen, wenn ihr Wert steigt.
+
+## Token-Kauf und Umverteilung
+
+### **Zusätzliche Token-Käufe durch Dienste**
+
+- **Wenn verteilte Tokens aufgebraucht sind**: Wenn ein Dienst alle ihm zugewiesenen Tokens verwendet, kann er zusätzliche Tokens vom **JetPack Wallet Service Exchange** kaufen.
+- **Kaufwährung**: Tokens werden mit **ADA** gekauft.
+- **Nutzung der gekauften Tokens**: Gekaufte Tokens können verwendet werden, um **Benutzer zu belohnen** oder **innerhalb des Dienstes**.
+
+### **Wiederverkäufliche vs. nicht wiederverkäufliche Tokens**
+
+- **Verteilte Tokens** (**Nicht wiederverkäuflich**): Tokens, die Diensten zugewiesen werden, **können nicht weiterverkauft werden** und sind nur für **Benutzerbelohnungen** bestimmt.
+- **Gekaufte Tokens und von Benutzern erworbene Tokens** (**Wiederverkäuflich**): Tokens, die mit ADA gekauft wurden, und Tokens, die von Benutzern erhalten wurden, **können weiterverkauft werden**, was zur **Liquiditätsbeschaffung** beiträgt.
+
+### **Token-Umverteilung und Ökosystemaktivierung**
+
+1. **Token-Zirkulationsstruktur**:
+    - Dienste belohnen Benutzer mit Tokens; Benutzer verwenden sie innerhalb von Diensten oder verkaufen sie an Börsen.
+    - Dienste erwerben Tokens von Benutzern oder kaufen sie, um ein **nachhaltiges Belohnungssystem** aufrechtzuerhalten.
+
+2. **Auswirkungen der Ökosystemaktivierung**:
+    - Die Token-Zirkulation fördert **Benutzerengagement** und **Dienstaktivierung**.
+    - Dies trägt zur **Wertstabilisierung der Tokens** und zum **nachhaltigen Wachstum** des Ökosystems bei.

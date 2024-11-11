@@ -1,0 +1,529 @@
+# JetPack Tokenlarının Çalışma Prensibi
+
+JetPack token sistemi, **aktivite tabanlı token ihraç ve dağıtımı**, bir **hizmet seviyesi sistemi**, **kullanıcı ödülleri ve token kullanım yöntemleri** ve **token satın alma ve yeniden dağıtma mekanizması** içerir. Bu yapı, hem kullanıcılar hem de hizmet sağlayıcılar için **adil ve verimli bir ödül sistemi** sağlar.
+
+## Token Dağıtım (Drop) Mekanizması
+
+### Toplam Token Arzı ve Dağıtım Süresi
+
+- **Toplam Arz**: JetPack toplamda **1 milyar Jet** token ihraç edecektir.
+- **Dağıtım Süresi**: Tokenlar **38 yıl** boyunca dağıtılacak ve toplamda **2,776 dağıtım** **Cardano Epoch** ile aynı aralıklarla (1 epoch = 5 gün) gerçekleşecektir.
+
+### Epoch Başına Token Dağıtım Miktarı
+
+#### Logaritmik Fonksiyona Dayalı Dağıtım Miktarının Hesaplanması
+
+Epoch başına dağıtılan token miktarı zamanla azalacak şekilde tasarlanmıştır. Her epoch için dağıtım miktarını hesaplamak için bir **logaritmik fonksiyon** kullanılır. **1 Jet, 1,000,000 Pack** eşittir, bu nedenle dağıtım miktarları **altıncı ondalık basamağa** kadar hesaplanır ve buna göre ödenir.
+
+1. **Logaritmik Fonksiyon $ f(t) $ Tanımı**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Burada:
+
+    - $ t $ epoch numarasıdır, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ doğal logaritma fonksiyonudur.
+
+2. **Tüm Epochlar Üzerinde Log Fonksiyonunun $ f(t) $ Toplamının Hesaplanması**:
+
+   Tüm dağıtım dönemi boyunca fonksiyon değerlerinin toplamı $ S $:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Ölçekleme Sabiti $ A $'nın Hesaplanması**:
+
+   **1 milyar Jet** toplam token arzı, her epoch için dağıtım miktarını ayarlamak üzere toplam $ S $'ye bölünür:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Epoch Başına Token Dağıtım Miktarının Hesaplanması**:
+
+   Her epoch için dağıtım miktarı:
+
+   $$
+   \text{Dağıtım Miktarı}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Dağıtım Miktarları Örnekleri**:
+
+   İlk epochlar için dağıtım miktarlarının hesaplanması:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Dağıtım Miktarı}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Dağıtım Miktarı}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Dağıtım Miktarı}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Her epoch için dağıtım miktarı, epoch numarasına karşılık gelen log fonksiyonunun değeri ile belirlenir.
+
+**Dağıtım Özellikleri**
+
+- $ \ln(t + 1) $ arttıkça, payda büyür ve bu da genel dağıtım miktarının kademeli olarak azalmasına neden olur.
+- Epoch başına dağıtım miktarı zamanla azalır ve sıfıra yaklaşır.
+- Bu tasarım, erken katılımcıları teşvik eder ve tokenin kıtlığını artırır.
+
+### Genel Dağıtım Takvimi
+
+Aşağıda, epoch başına dağıtım miktarlarını ve tarihleri özetleyen kısmi bir tablo bulunmaktadır.
+Tüm epochlar hakkında ayrıntılı bilgi için ayrı [belgeye](/attach/token_allocation_per_epoch.csv) ve [koda](/attach/token_allocation_per_epoch.py) bakınız.
+
+| Epoch Numarası | Tarih         | Dağıtım Miktarı (Jet) |
+|----------------|---------------|-----------------------|
+| 1              | 2025-01-01    | 3,479,788.70          |
+| 2              | 2025-01-06    | 2,195,502.227         |
+| 3              | 2025-01-11    | 1,739,894.35          |
+| ...            | ...           | ...                   |
+| 2774           | 2062-12-18    | 304,223.285           |
+| 2775           | 2062-12-23    | 304,209.4607          |
+| 2776           | 2062-12-28    | 304,195.6425          |
+
+### Hizmet Başına Token Dağıtım Kriterleri
+
+#### Hizmetler Arasında Oranların Hesaplanması
+
+Her hizmet için dağıtım oranı, performans puanı $ P_n $'nin toplam performans puanına $ P $ oranına göre hesaplanır:
+
+$$
+\text{Hizmet } n \text{ için Oran} = \frac{P_n}{P}
+$$
+
+Burada:
+
+- $ P_n $: Hizmet $ n $'nin performans puanı.
+- $ P $: Tüm hizmetlerin performans puanlarının toplamı.
+
+#### Hizmet Başına Dağıtım Miktarının Hesaplanması
+
+Her epoch'ta hizmet $ n $'nin aldığı token miktarı $ S_n $:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Hizmet } n \text{ için Maksimum Token Dağıtımı}\right)
+$$
+
+- $ f_{\text{total}}(t) $: Epoch için ayarlanmış toplam dağıtım miktarı.
+- $ \text{Hizmet } n \text{ için Maksimum Token Dağıtımı} $: Hizmetin seviyesine göre tahsis edilen maksimum token miktarı (aşağıdaki seviye tabanlı maksimum token dağıtımına bakınız).
+
+#### Dağıtılmayan Tokenların İşlenmesi
+
+##### Dağıtılmayan Tokenların Devredilmesi
+
+- Her epoch'tan dağıtılmayan tokenlar, bir sonraki epoch için toplam dağıtım miktarına **eklenir**.
+- Bu, başlangıçtaki hizmet katılımı düşük olduğunda bile etkili token dağıtımını sağlar.
+
+##### Epoch Başına Ayarlanmış Toplam Dağıtım Miktarının Hesaplanması
+
+Bir sonraki epoch için toplam dağıtım miktarı:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Önceki Epoch'tan Dağıtılmayan Tokenlar}
+$$
+
+- $ f_{\text{total}}(t+1) $: Epoch $ t+1 $ için ayarlanmış toplam dağıtım miktarı.
+- $ f(t+1) $: Temel dağıtım fonksiyonuna dayalı dağıtım miktarı.
+- **Devredilen Dağıtılmayan Tokenlar**: Epoch $ t $'de dağıtılmayan token sayısı.
+
+#### Hizmet Başına Performans Puanı ($ P_n $) Hesaplanması
+
+Her hizmetin performans puanı aşağıdaki metriklere göre hesaplanır. Her metrik için ağırlık, yönetişim yoluyla ayarlanabilir.
+
+1. **JetPack Token Tüketimi ($ M_{1n} $)**
+    - **Ağırlık**: $ w_1 = 50\% $
+    - **Açıklama**: Hizmet içinde kullanıcılar tarafından tüketilen toplam JetPack token miktarı.
+
+2. **Degen Bunny Oy Sayısı ($ M_{2n} $)**
+    - **Ağırlık**: $ w_2 = 30\% $
+    - **Açıklama**: OG Degen Bunnies'den alınan oy sayısı.
+
+3. **Aktif Kullanıcı Sayısı ($ M_{3n} $)**
+    - **Ağırlık**: $ w_3 = 20\% $
+    - **Açıklama**: Epoch sırasında hizmete erişen ve aktif olan benzersiz kullanıcı sayısı.
+
+Her hizmetin performans puanı $ P_n $ şu şekilde hesaplanır:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Burada:
+
+- $ M_{1n} $: Hizmet $ n $'nin JetPack token tüketimi.
+- $ M_{1\text{total}} $: Tüm hizmetler arasında toplam JetPack token tüketimi.
+- $ M_{2n} $: Hizmet $ n $ için Degen Bunny oy sayısı.
+- $ M_{2\text{total}} $: Tüm hizmetler arasında toplam Degen Bunny oyları.
+- $ M_{3n} $: Hizmet $ n $'nin aktif kullanıcı sayısı.
+- $ M_{3\text{total}} $: Tüm hizmetler arasında toplam aktif kullanıcılar.
+
+**Örnek**:
+
+- **Hizmet A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Hizmet B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Hizmet C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Toplamlar**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Ağırlıklar**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Hizmet A için Performans Puanının Hesaplanması**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Hizmet B için Performans Puanının Hesaplanması**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Hizmet C için Performans Puanının Hesaplanması**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Böylece, performans puanları:
+
+- **Hizmet A**: $ P_A = 0.38 $
+- **Hizmet B**: $ P_B = 0.29 $
+- **Hizmet C**: $ P_C = 0.33 $
+
+#### Seviye Belirleme Kriterleri ve Maksimum Token Dağıtım Miktarı
+
+Performans puanı $ P_n $'ye göre, her hizmet **1'den 9'a kadar Seviyeler**e sınıflandırılır. Bu sınıflandırma, tüm hizmetlerin performans puanlarının **kümülatif üst yüzdesi** kullanılarak yapılır.
+
+##### Kümülatif Üst Yüzdeler ve Seviye Başına Maksimum Token Dağıtım Miktarları
+
+| **Seviye** | **Kümülatif Üst Yüzde** | **Maksimum Token Dağıtımı (Jet)** |
+|------------|-------------------------|-----------------------------------|
+| Seviye 1   | İlk %4                  | 30,000                            |
+| Seviye 2   | İlk %11                 | 25,000                            |
+| Seviye 3   | İlk %23                 | 20,000                            |
+| Seviye 4   | İlk %40                 | 15,000                            |
+| Seviye 5   | İlk %60                 | 10,000                            |
+| Seviye 6   | İlk %77                 | 7,000                             |
+| Seviye 7   | İlk %89                 | 5,000                             |
+| Seviye 8   | İlk %96                 | 3,000                             |
+| Seviye 9   | İlk %100                | 1,000                             |
+
+##### Seviye Belirleme Yöntemi
+
+1. **Performans Puanlarını Hesapla**
+
+   Her hizmetin performans puanı $ P_n $'yi hesaplamak için daha önce tanımlanan yöntemi kullanın.
+
+2. **Hizmet Sıralamalarını Belirle**
+
+   Tüm hizmetleri performans puanlarına göre **azalan sırayla** sıralayın.
+
+3. **Kümülatif Üst Yüzdeleri Hesapla**
+
+   Her hizmet için kümülatif üst yüzdeyi hesaplayın:
+
+   $$
+   \text{Kümülatif Üst Yüzde (\%)} = \left(1 - \frac{\text{Sıra} - 1}{N} \right) \times 100\%
+   $$
+
+   Burada:
+
+    - $ \text{Sıra} $: Hizmetin sırası (1'den başlayarak).
+    - $ N $: Toplam hizmet sayısı.
+
+4. **Seviyeleri Ata**
+
+   Kümülatif üst yüzdelere göre seviyeleri atayın:
+
+    - **Seviye 1**: Kümülatif üst yüzde > %96
+    - **Seviye 2**: %89 < Kümülatif üst yüzde ≤ %96
+    - **Seviye 3**: %77 < Kümülatif üst yüzde ≤ %89
+    - **Seviye 4**: %60 < Kümülatif üst yüzde ≤ %77
+    - **Seviye 5**: %40 < Kümülatif üst yüzde ≤ %60
+    - **Seviye 6**: %23 < Kümülatif üst yüzde ≤ %40
+    - **Seviye 7**: %11 < Kümülatif üst yüzde ≤ %23
+    - **Seviye 8**: %4 < Kümülatif üst yüzde ≤ %11
+    - **Seviye 9**: Kümülatif üst yüzde ≤ %4
+
+**Örnek**:
+
+Toplam **3** hizmetle:
+
+1. **Sıralamaları ve Kümülatif Üst Yüzdeleri Hesapla**
+
+    - **Hizmet A**:
+
+        - Performans Puanı: $ P_A = 0.38 $
+        - Sıra: 1
+        - Kümülatif Üst Yüzde:
+
+          $$
+          \text{Kümülatif Üst Yüzde} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Hizmet C**:
+
+        - Performans Puanı: $ P_C = 0.33 $
+        - Sıra: 2
+        - Kümülatif Üst Yüzde:
+
+          $$
+          \text{Kümülatif Üst Yüzde} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Hizmet B**:
+
+        - Performans Puanı: $ P_B = 0.29 $
+        - Sıra: 3
+        - Kümülatif Üst Yüzde:
+
+          $$
+          \text{Kümülatif Üst Yüzde} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Seviyeleri Ata**
+
+    - **Hizmet A**:
+
+        - Kümülatif Üst Yüzde: 100%
+        - **Seviye**: **Seviye 1** (Kümülatif Üst Yüzde > %96)
+        - **Maksimum Token Dağıtımı**: 30,000 Jet
+
+    - **Hizmet C**:
+
+        - Kümülatif Üst Yüzde: 66.67%
+        - **Seviye**: **Seviye 4** (%60 < Kümülatif Üst Yüzde ≤ %77)
+        - **Maksimum Token Dağıtımı**: 15,000 Jet
+
+    - **Hizmet B**:
+
+        - Kümülatif Üst Yüzde: 33.33%
+        - **Seviye**: **Seviye 6** (%23 < Kümülatif Üst Yüzde ≤ %40)
+        - **Maksimum Token Dağıtımı**: 7,000 Jet
+
+**Notlar**:
+
+- **Eşit Puanlar**: Aynı performans puanına sahip hizmetler aynı sırayı alır. Kümülatif üst yüzdeleri hesaplarken, ortalama sıra kullanılır.
+- **Maksimum Token Dağıtımı**, bir hizmetin seviyesine göre alabileceği maksimum token miktarını ifade eder.
+
+### Örnek Senaryo
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Temel Dağıtım Miktarı**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Ayarlanmış Toplam Dağıtım Miktarı**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Hizmet Başına Dağıtım Miktarının Hesaplanması**
+
+Performans puanları ve seviyelere göre:
+
+- **Toplam Performans Puanı $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Hizmet A**:
+
+    - Oran: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Dağıtım Miktarı:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Hizmet C**:
+
+    - Oran: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Dağıtım Miktarı:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Hizmet B**:
+
+    - Oran: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Dağıtım Miktarı:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Dağıtım Sonuçları**
+
+- **Toplam Dağıtılan Tokenlar**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Dağıtılmayan Tokenlar**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Temel Dağıtım Miktarı**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Devredilen Tokenlar**: $ 3,427,788.70 \text{ Jet} $
+- **Ayarlanmış Toplam Dağıtım Miktarı**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Güncellenmiş Performans Puanları ve Seviyeler**
+
+Performans puanlarındaki değişiklikler varsayıldığında:
+
+- **Hizmet A**:
+
+    - Performans Puanı: $ P_A = 0.40 $
+    - Sıra: 1
+    - Kümülatif Üst Yüzde: 100%
+    - **Seviye**: Seviye 1
+    - **Maksimum Token Dağıtımı**: 30,000 Jet
+
+- **Hizmet C**:
+
+    - Performans Puanı: $ P_C = 0.35 $
+    - Sıra: 2
+    - Kümülatif Üst Yüzde: 66.67%
+    - **Seviye**: Seviye 4
+    - **Maksimum Token Dağıtımı**: 15,000 Jet
+
+- **Hizmet B**:
+
+    - Performans Puanı: $ P_B = 0.25 $
+    - Sıra: 3
+    - Kümülatif Üst Yüzde: 33.33%
+    - **Seviye**: Seviye 6
+    - **Maksimum Token Dağıtımı**: 7,000 Jet
+
+**Toplam Performans Puanı $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Hizmet Başına Dağıtım Miktarının Hesaplanması**
+
+1. **Hizmet A**:
+
+    - Oran: $ \frac{P_A}{P} = 0.40 $
+    - Dağıtım Miktarı:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Hizmet C**:
+
+    - Oran: $ \frac{P_C}{P} = 0.35 $
+    - Dağıtım Miktarı:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Hizmet B**:
+
+    - Oran: $ \frac{P_B}{P} = 0.25 $
+    - Dağıtım Miktarı:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Dağıtım Sonuçları**
+
+- **Toplam Dağıtılan Tokenlar**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Dağıtılmayan Tokenlar**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Birikmiş Dağıtılmayan Tokenların Etkisi
+
+- **Artan Hizmet Katılımı ve İyileşen Performans**, dağıtılmayan token miktarını kademeli olarak azaltacaktır.
+- **Başlangıç hizmetleri, maksimum dağıtım miktarını kullanarak büyümeyi teşvik edebilir**.
+- Tokenların devredilmesi, **değer istikrarını korumaya** ve dolaşımı düzenlemeye yardımcı olur.
+
+## Kullanıcı Ödülleri ve Token Kullanımı
+
+### **Kullanıcı Ödül Mekanizması**
+
+- **Aktivite Tabanlı Ödüller**: Kullanıcılar, bir hizmet içinde **önceden anlaşılmış aktiviteleri** (örneğin, içerik oluşturma, oyun oynama) gerçekleştirdiklerinde JetPack tokenları alırlar.
+- **Token Ödül Kriterleri**: Her aktivite için ödüllendirilecek token miktarı, hizmet ve JetPack ekosistem operatörü arasında **danışma yoluyla belirlenir**.
+
+### **Token Kullanım Yöntemleri**
+
+1. **Hizmet İçinde**:
+    - **Premium Özelliklere Erişim**: Tokenları, hizmet içinde ücretli özelliklere veya içeriğe erişmek için kullanın.
+    - **Mal Satın Alma**: Tokenları kullanarak dijital mallar veya hizmet içi öğeler satın alın.
+
+2. **JetPack Cüzdan Hizmet Değişimi Kullanarak**:
+    - **Token Satışları**: Kullanıcılar, tokenlarını **ADA** (Cardano'nun para birimi) ile değiştirebilirler.
+    - **Cüzdan Yönetimi**: JetPack cüzdanı, tokenların güvenli yönetimini ve diğer hizmetlere transferini sağlar.
+
+### **Token Değer Artışından Beklenen Faydalar**
+
+- **Token Likiditesi**: Tokenların borsalarda alınıp satılması, likiditelerini artırır.
+- **Ekonomik Kazançlar**: Kullanıcılar, tokenların değeri artarsa, tokenları satarak **ekonomik faydalar** elde edebilirler.
+
+## Token Satın Alma ve Yeniden Dağıtım
+
+### **Hizmetler Tarafından Ek Token Satın Alımları**
+
+- **Dağıtılan Tokenlar Tükendiğinde**: Bir hizmet, tahsis edilen tüm tokenlarını kullandığında, **JetPack Cüzdan Hizmet Değişimi**'nden ek token satın alabilir.
+- **Satın Alma Para Birimi**: Tokenlar **ADA** kullanılarak satın alınır.
+- **Satın Alınan Tokenların Kullanımı**: Satın alınan tokenlar, **kullanıcıları ödüllendirmek** veya **hizmet içinde** kullanılabilir.
+
+### **Yeniden Satılabilir ve Satılamaz Tokenlar**
+
+- **Dağıtılan Tokenlar** (**Satılamaz**): Hizmetlere tahsis edilen tokenlar **satılamaz** ve yalnızca **kullanıcı ödülleri** içindir.
+- **Satın Alınan Tokenlar ve Kullanıcılardan Alınan Tokenlar** (**Yeniden Satılabilir**): ADA ile satın alınan ve kullanıcılardan alınan tokenlar **satılabilir**, bu da **likidite edinimine** yardımcı olur.
+
+### **Token Yeniden Dağıtımı ve Ekosistem Aktivasyonu**
+
+1. **Token Dolaşım Yapısı**:
+    - Hizmetler, kullanıcıları tokenlarla ödüllendirir; kullanıcılar, bunları hizmetler içinde kullanır veya borsalarda satar.
+    - Hizmetler, kullanıcılarından token alır veya sürdürülebilir bir ödül sistemi sağlamak için satın alır.
+
+2. **Ekosistem Aktivasyon Etkileri**:
+    - Token dolaşımı, **kullanıcı katılımını** ve **hizmet aktivasyonunu** teşvik eder.
+    - Bu, **token değerinin istikrarına** ve ekosistemin **sürdürülebilir büyümesine** katkıda bulunur.

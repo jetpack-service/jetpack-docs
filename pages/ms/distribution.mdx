@@ -1,0 +1,529 @@
+# Bagaimana Token JetPack Berfungsi
+
+Sistem token JetPack terdiri daripada **pengeluaran dan pengagihan token berdasarkan aktiviti**, sistem **tahap perkhidmatan**, **ganjaran pengguna dan kaedah penggunaan token**, dan **mekanisme untuk pembelian dan pengagihan semula token**. Struktur ini menyediakan sistem ganjaran yang **adil dan cekap** untuk kedua-dua pengguna dan penyedia perkhidmatan.
+
+## Mekanisme Pengagihan Token (Drop)
+
+### Jumlah Bekalan Token dan Tempoh Pengagihan
+
+- **Jumlah Bekalan**: JetPack akan mengeluarkan sejumlah **1 bilion Jet** token.
+- **Tempoh Pengagihan**: Token akan diagihkan selama **38 tahun**, dengan sejumlah **2,776 pengagihan** berlaku pada selang masa yang sama dengan **Cardano Epoch** (1 epoch = 5 hari).
+
+### Jumlah Pengagihan Token per Epoch
+
+#### Mengira Jumlah Pengagihan Berdasarkan Fungsi Logaritma
+
+Jumlah token yang diagihkan per epoch direka untuk berkurang dari masa ke masa. Fungsi **logaritma** digunakan untuk mengira jumlah pengagihan bagi setiap epoch. **1 Jet bersamaan dengan 1,000,000 Pack**, jadi jumlah pengagihan dikira hingga **enam tempat perpuluhan** dan dibayar sewajarnya.
+
+1. **Definisi Fungsi Logaritma $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Di mana:
+
+    - $ t $ adalah nombor epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ adalah fungsi logaritma semulajadi.
+
+2. **Mengira Jumlah Fungsi Log $ f(t) $ Sepanjang Semua Epoch**:
+
+   Jumlah keseluruhan nilai fungsi sepanjang tempoh pengagihan $ S $ adalah:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Mengira Pemalar Skala $ A $**:
+
+   Jumlah bekalan token **1 bilion Jet** dibahagikan dengan jumlah $ S $ untuk menyesuaikan jumlah pengagihan bagi setiap epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Mengira Jumlah Pengagihan Token per Epoch**:
+
+   Jumlah pengagihan bagi setiap epoch adalah:
+
+   $$
+   \text{Jumlah Pengagihan}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Contoh Jumlah Pengagihan**:
+
+   Mengira jumlah pengagihan untuk epoch awal:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Jumlah Pengagihan}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Jumlah Pengagihan}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Jumlah Pengagihan}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Jumlah pengagihan bagi setiap epoch ditentukan oleh nilai fungsi log yang sepadan dengan nombor epoch.
+
+**Ciri-ciri Pengagihan**
+
+- Oleh kerana $ \ln(t + 1) $ meningkat apabila $ t $ meningkat, penyebut menjadi lebih besar, menyebabkan jumlah pengagihan keseluruhan berkurang secara beransur-ansur.
+- Jumlah pengagihan per epoch berkurang dari masa ke masa, menghampiri sifar.
+- Reka bentuk ini memberi insentif kepada peserta awal dan meningkatkan kekurangan token.
+
+### Jadual Pengagihan Keseluruhan
+
+Di bawah adalah jadual ringkas yang merangkum jumlah pengagihan dan tarikh per epoch.
+Untuk maklumat terperinci mengenai semua epoch, sila rujuk [dokumen](/attach/token_allocation_per_epoch.csv) dan [kod](/attach/token_allocation_per_epoch.py) yang berasingan.
+
+| Nombor Epoch | Tarikh         | Jumlah Pengagihan (Jet)   |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Kriteria Pengagihan Token per Perkhidmatan
+
+#### Mengira Nisbah Antara Perkhidmatan
+
+Nisbah pengagihan bagi setiap perkhidmatan dikira berdasarkan skor prestasi $ P_n $ berbanding jumlah skor prestasi $ P $:
+
+$$
+\text{Nisbah untuk Perkhidmatan } n = \frac{P_n}{P}
+$$
+
+Di mana:
+
+- $ P_n $: Skor prestasi perkhidmatan $ n $.
+- $ P $: Jumlah skor prestasi semua perkhidmatan.
+
+#### Mengira Jumlah Pengagihan per Perkhidmatan
+
+Jumlah token yang diterima oleh perkhidmatan $ n $ dalam setiap epoch $ S_n $ adalah:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Pengagihan Token Maksimum untuk Perkhidmatan } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Jumlah pengagihan keseluruhan yang disesuaikan untuk epoch.
+- $ \text{Pengagihan Token Maksimum untuk Perkhidmatan } n $: Jumlah token maksimum yang diperuntukkan berdasarkan tahap perkhidmatan (lihat pengagihan token maksimum berdasarkan tahap di bawah).
+
+#### Pengendalian Token yang Tidak Diagihkan
+
+##### Membawa Token yang Tidak Diagihkan
+
+- Token yang tidak diagihkan dari setiap epoch **ditambah** kepada jumlah pengagihan keseluruhan untuk epoch seterusnya.
+- Ini memastikan pengagihan token yang berkesan walaupun penyertaan perkhidmatan awal adalah rendah.
+
+##### Mengira Jumlah Pengagihan Keseluruhan yang Disesuaikan per Epoch
+
+Jumlah pengagihan keseluruhan untuk epoch seterusnya adalah:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Token yang Tidak Diagihkan dari Epoch Sebelumnya}
+$$
+
+- $ f_{\text{total}}(t+1) $: Jumlah pengagihan keseluruhan yang disesuaikan untuk epoch $ t+1 $.
+- $ f(t+1) $: Jumlah pengagihan berdasarkan fungsi pengagihan asas.
+- **Token yang Tidak Diagihkan yang Dibawa**: Bilangan token yang tidak diagihkan dalam epoch $ t $.
+
+#### Mengira Skor Prestasi ($ P_n $) per Perkhidmatan
+
+Skor prestasi setiap perkhidmatan dikira berdasarkan metrik berikut. Berat setiap metrik boleh disesuaikan melalui tadbir urus.
+
+1. **Penggunaan Token JetPack ($ M_{1n} $)**
+    - **Berat**: $ w_1 = 50\% $
+    - **Penerangan**: Jumlah keseluruhan token JetPack yang digunakan oleh pengguna dalam perkhidmatan.
+
+2. **Bilangan Undi Degen Bunny ($ M_{2n} $)**
+    - **Berat**: $ w_2 = 30\% $
+    - **Penerangan**: Bilangan undi yang diterima daripada OG Degen Bunnies.
+
+3. **Bilangan Pengguna Aktif ($ M_{3n} $)**
+    - **Berat**: $ w_3 = 20\% $
+    - **Penerangan**: Bilangan pengguna unik yang mengakses dan aktif dalam perkhidmatan semasa epoch.
+
+Skor prestasi setiap perkhidmatan $ P_n $ dikira sebagai:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Di mana:
+
+- $ M_{1n} $: Penggunaan token JetPack perkhidmatan $ n $.
+- $ M_{1\text{total}} $: Jumlah penggunaan token JetPack di semua perkhidmatan.
+- $ M_{2n} $: Bilangan undi Degen Bunny untuk perkhidmatan $ n $.
+- $ M_{2\text{total}} $: Jumlah undi Degen Bunny di semua perkhidmatan.
+- $ M_{3n} $: Bilangan pengguna aktif perkhidmatan $ n $.
+- $ M_{3\text{total}} $: Jumlah pengguna aktif di semua perkhidmatan.
+
+**Contoh**:
+
+- **Perkhidmatan A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Perkhidmatan B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Perkhidmatan C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Jumlah**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Berat**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Mengira Skor Prestasi untuk Perkhidmatan A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Mengira Skor Prestasi untuk Perkhidmatan B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Mengira Skor Prestasi untuk Perkhidmatan C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Oleh itu, skor prestasi adalah:
+
+- **Perkhidmatan A**: $ P_A = 0.38 $
+- **Perkhidmatan B**: $ P_B = 0.29 $
+- **Perkhidmatan C**: $ P_C = 0.33 $
+
+#### Kriteria Penentuan Tahap dan Jumlah Pengagihan Token Maksimum
+
+Berdasarkan skor prestasi $ P_n $, setiap perkhidmatan diklasifikasikan ke dalam **Tahap 1 hingga 9**. Klasifikasi ini menggunakan **peratusan teratas kumulatif** dari semua skor prestasi perkhidmatan.
+
+##### Peratusan Teratas Kumulatif dan Jumlah Pengagihan Token Maksimum per Tahap
+
+| **Tahap** | **Peratusan Teratas Kumulatif** | **Pengagihan Token Maksimum (Jet)** |
+|-----------|---------------------------------|-------------------------------------|
+| Tahap 1   | Teratas 4%                      | 30,000                              |
+| Tahap 2   | Teratas 11%                     | 25,000                              |
+| Tahap 3   | Teratas 23%                     | 20,000                              |
+| Tahap 4   | Teratas 40%                     | 15,000                              |
+| Tahap 5   | Teratas 60%                     | 10,000                              |
+| Tahap 6   | Teratas 77%                     | 7,000                               |
+| Tahap 7   | Teratas 89%                     | 5,000                               |
+| Tahap 8   | Teratas 96%                     | 3,000                               |
+| Tahap 9   | Teratas 100%                    | 1,000                               |
+
+##### Kaedah Penentuan Tahap
+
+1. **Kira Skor Prestasi**
+
+   Gunakan kaedah yang telah ditentukan untuk mengira skor prestasi setiap perkhidmatan $ P_n $.
+
+2. **Tentukan Kedudukan Perkhidmatan**
+
+   Susun semua perkhidmatan dalam **susunan menurun** berdasarkan skor prestasi mereka.
+
+3. **Kira Peratusan Teratas Kumulatif**
+
+   Untuk setiap perkhidmatan, kira peratusan teratas kumulatif:
+
+   $$
+   \text{Peratusan Teratas Kumulatif (\%)} = \left(1 - \frac{\text{Kedudukan} - 1}{N} \right) \times 100\%
+   $$
+
+   Di mana:
+
+    - $ \text{Kedudukan} $: Kedudukan perkhidmatan (bermula dari 1).
+    - $ N $: Jumlah bilangan perkhidmatan.
+
+4. **Tetapkan Tahap**
+
+   Tetapkan tahap berdasarkan peratusan teratas kumulatif:
+
+    - **Tahap 1**: Peratusan teratas kumulatif > 96%
+    - **Tahap 2**: 89% < Peratusan teratas kumulatif ≤ 96%
+    - **Tahap 3**: 77% < Peratusan teratas kumulatif ≤ 89%
+    - **Tahap 4**: 60% < Peratusan teratas kumulatif ≤ 77%
+    - **Tahap 5**: 40% < Peratusan teratas kumulatif ≤ 60%
+    - **Tahap 6**: 23% < Peratusan teratas kumulatif ≤ 40%
+    - **Tahap 7**: 11% < Peratusan teratas kumulatif ≤ 23%
+    - **Tahap 8**: 4% < Peratusan teratas kumulatif ≤ 11%
+    - **Tahap 9**: Peratusan teratas kumulatif ≤ 4%
+
+**Contoh**:
+
+Dengan jumlah **3** perkhidmatan:
+
+1. **Kira Kedudukan dan Peratusan Teratas Kumulatif**
+
+    - **Perkhidmatan A**:
+
+        - Skor Prestasi: $ P_A = 0.38 $
+        - Kedudukan: 1
+        - Peratusan Teratas Kumulatif:
+
+          $$
+          \text{Peratusan Teratas Kumulatif} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Perkhidmatan C**:
+
+        - Skor Prestasi: $ P_C = 0.33 $
+        - Kedudukan: 2
+        - Peratusan Teratas Kumulatif:
+
+          $$
+          \text{Peratusan Teratas Kumulatif} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Perkhidmatan B**:
+
+        - Skor Prestasi: $ P_B = 0.29 $
+        - Kedudukan: 3
+        - Peratusan Teratas Kumulatif:
+
+          $$
+          \text{Peratusan Teratas Kumulatif} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Tetapkan Tahap**
+
+    - **Perkhidmatan A**:
+
+        - Peratusan Teratas Kumulatif: 100%
+        - **Tahap**: **Tahap 1** (Peratusan Teratas Kumulatif > 96%)
+        - **Pengagihan Token Maksimum**: 30,000 Jet
+
+    - **Perkhidmatan C**:
+
+        - Peratusan Teratas Kumulatif: 66.67%
+        - **Tahap**: **Tahap 4** (60% < Peratusan Teratas Kumulatif ≤ 77%)
+        - **Pengagihan Token Maksimum**: 15,000 Jet
+
+    - **Perkhidmatan B**:
+
+        - Peratusan Teratas Kumulatif: 33.33%
+        - **Tahap**: **Tahap 6** (23% < Peratusan Teratas Kumulatif ≤ 40%)
+        - **Pengagihan Token Maksimum**: 7,000 Jet
+
+**Nota**:
+
+- **Skor Seri**: Perkhidmatan dengan skor prestasi yang sama menerima kedudukan yang sama. Dalam mengira peratusan teratas kumulatif, purata kedudukan digunakan.
+- **Pengagihan Token Maksimum** merujuk kepada jumlah token maksimum yang boleh diterima oleh perkhidmatan berdasarkan tahapnya.
+
+### Senario Contoh
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Jumlah Pengagihan Asas**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Jumlah Pengagihan Keseluruhan yang Disesuaikan**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Mengira Jumlah Pengagihan per Perkhidmatan**
+
+Berdasarkan skor prestasi dan tahap:
+
+- **Jumlah Skor Prestasi $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Perkhidmatan A**:
+
+    - Nisbah: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Jumlah Pengagihan:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Perkhidmatan C**:
+
+    - Nisbah: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Jumlah Pengagihan:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Perkhidmatan B**:
+
+    - Nisbah: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Jumlah Pengagihan:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Keputusan Pengagihan**
+
+- **Jumlah Token yang Diagihkan**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token yang Tidak Diagihkan**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Jumlah Pengagihan Asas**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Token yang Dibawa**: $ 3,427,788.70 \text{ Jet} $
+- **Jumlah Pengagihan Keseluruhan yang Disesuaikan**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Skor Prestasi dan Tahap yang Dikemas Kini**
+
+Dengan andaian perubahan dalam skor prestasi:
+
+- **Perkhidmatan A**:
+
+    - Skor Prestasi: $ P_A = 0.40 $
+    - Kedudukan: 1
+    - Peratusan Teratas Kumulatif: 100%
+    - **Tahap**: Tahap 1
+    - **Pengagihan Token Maksimum**: 30,000 Jet
+
+- **Perkhidmatan C**:
+
+    - Skor Prestasi: $ P_C = 0.35 $
+    - Kedudukan: 2
+    - Peratusan Teratas Kumulatif: 66.67%
+    - **Tahap**: Tahap 4
+    - **Pengagihan Token Maksimum**: 15,000 Jet
+
+- **Perkhidmatan B**:
+
+    - Skor Prestasi: $ P_B = 0.25 $
+    - Kedudukan: 3
+    - Peratusan Teratas Kumulatif: 33.33%
+    - **Tahap**: Tahap 6
+    - **Pengagihan Token Maksimum**: 7,000 Jet
+
+**Jumlah Skor Prestasi $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Mengira Jumlah Pengagihan per Perkhidmatan**
+
+1. **Perkhidmatan A**:
+
+    - Nisbah: $ \frac{P_A}{P} = 0.40 $
+    - Jumlah Pengagihan:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Perkhidmatan C**:
+
+    - Nisbah: $ \frac{P_C}{P} = 0.35 $
+    - Jumlah Pengagihan:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Perkhidmatan B**:
+
+    - Nisbah: $ \frac{P_B}{P} = 0.25 $
+    - Jumlah Pengagihan:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Keputusan Pengagihan**
+
+- **Jumlah Token yang Diagihkan**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token yang Tidak Diagihkan**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Kesan Token yang Tidak Diagihkan yang Terkumpul
+
+- **Peningkatan Penyertaan Perkhidmatan dan Prestasi yang Diperbaiki** akan secara beransur-ansur mengurangkan jumlah token yang tidak diagihkan.
+- **Perkhidmatan awal boleh menggunakan jumlah pengagihan maksimum** untuk memupuk pertumbuhan.
+- Membawa token membantu **mengekalkan kestabilan nilai** dan mengawal edaran.
+
+## Ganjaran Pengguna dan Penggunaan Token
+
+### **Mekanisme Ganjaran Pengguna**
+
+- **Ganjaran Berdasarkan Aktiviti**: Pengguna menerima token JetPack apabila mereka melakukan **aktiviti yang telah dipersetujui** (contohnya, penciptaan kandungan, permainan) dalam perkhidmatan.
+- **Kriteria Ganjaran Token**: Jumlah token yang diberi ganjaran untuk setiap aktiviti **ditentukan melalui perundingan** antara perkhidmatan dan pengendali ekosistem JetPack.
+
+### **Kaedah Penggunaan Token**
+
+1. **Dalam Perkhidmatan**:
+    - **Akses Ciri Premium**: Gunakan token untuk mengakses ciri atau kandungan berbayar dalam perkhidmatan.
+    - **Beli Barangan**: Beli barangan digital atau item dalam perkhidmatan menggunakan token.
+
+2. **Menggunakan Pertukaran Perkhidmatan Dompet JetPack**:
+    - **Jualan Token**: Pengguna boleh menukar token mereka untuk **ADA** (mata wang **Cardano**).
+    - **Pengurusan Dompet**: Dompet JetPack membolehkan pengurusan token yang selamat dan pemindahan ke perkhidmatan lain.
+
+### **Manfaat yang Dijangka dari Peningkatan Nilai Token**
+
+- **Kecairan Token**: Perdagangan token di bursa meningkatkan **kecairan** mereka.
+- **Keuntungan Ekonomi**: Pengguna boleh mencapai **manfaat ekonomi tambahan** dengan menjual token jika nilai mereka meningkat.
+
+## Pembelian dan Pengagihan Semula Token
+
+### **Pembelian Token Tambahan oleh Perkhidmatan**
+
+- **Apabila Token yang Diagihkan Habis**: Jika perkhidmatan menggunakan semua token yang diperuntukkan, ia boleh membeli token tambahan dari **Pertukaran Perkhidmatan Dompet JetPack**.
+- **Mata Wang Pembelian**: Token dibeli menggunakan **ADA**.
+- **Penggunaan Token yang Dibeli**: Token yang dibeli boleh digunakan untuk **memberi ganjaran kepada pengguna** atau **dalam perkhidmatan**.
+
+### **Token yang Boleh Dijual Semula vs. Tidak Boleh Dijual Semula**
+
+- **Token yang Diagihkan** (**Tidak Boleh Dijual Semula**): Token yang diperuntukkan kepada perkhidmatan **tidak boleh dijual semula** dan hanya untuk **ganjaran pengguna**.
+- **Token yang Dibeli dan Token yang Diperoleh dari Pengguna** (**Boleh Dijual Semula**): Token yang dibeli dengan ADA dan token yang diterima dari pengguna **boleh dijual semula**, membantu dalam **pemerolehan kecairan**.
+
+### **Pengagihan Semula Token dan Pengaktifan Ekosistem**
+
+1. **Struktur Edaran Token**:
+    - Perkhidmatan memberi ganjaran kepada pengguna dengan token; pengguna menggunakannya dalam perkhidmatan atau menjualnya di bursa.
+    - Perkhidmatan memperoleh token dari pengguna atau membelinya untuk mengekalkan sistem ganjaran yang **lestari**.
+
+2. **Kesan Pengaktifan Ekosistem**:
+    - Edaran token mempromosikan **penglibatan pengguna** dan **pengaktifan perkhidmatan**.
+    - Ini menyumbang kepada **penstabilan nilai token** dan **pertumbuhan lestari** ekosistem.

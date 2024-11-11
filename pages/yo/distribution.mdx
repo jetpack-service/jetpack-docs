@@ -1,0 +1,529 @@
+# Bawo ni Awọn Tokeni JetPack Ṣe N ṣiṣẹ
+
+Eto tokeni JetPack ni **ifisilẹ ati pinpin tokeni ti o da lori iṣẹ-ṣiṣe**, eto **ipele iṣẹ**, **awọn ere olumulo ati awọn ọna lilo tokeni**, ati **ẹrọ fun rira ati pinpin awọn tokeni**. Eto yii pese **eto ere ti o tọ ati ti o munadoko** fun awọn olumulo ati awọn olupese iṣẹ mejeeji.
+
+## Ẹrọ Pinpin Tokeni (Drop)
+
+### Lapapọ Ipese Tokeni ati Akoko Pinpin
+
+- **Lapapọ Ipese**: JetPack yoo funni ni apapọ ti **1 bilionu Jet** awọn tokeni.
+- **Akoko Pinpin**: Awọn tokeni yoo pinpin lori **ọdun 38**, pẹlu apapọ ti **2,776 pinpin** ti o waye ni awọn akoko kanna bi **Cardano Epoch** (1 epoch = ọjọ 5).
+
+### Iye Pinpin Tokeni fun Epoch
+
+#### Ṣiṣiro Iye Pinpin Da lori Iṣẹ Logarithmic
+
+Iye awọn tokeni ti a pinpin fun epoch jẹ apẹrẹ lati dinku lori akoko. A **iṣẹ logarithmic** ni a lo lati ṣe iṣiro iye pinpin fun epoch kọọkan. **1 Jet jẹ deede si 1,000,000 Pack**, nitorinaa awọn iye pinpin ni a ṣe iṣiro si **ibi kẹfa ti desimali** ati sanwo ni ibamu.
+
+1. **Itumọ ti Iṣẹ Logarithmic $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Nibo ni:
+
+    - $ t $ jẹ nọmba epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ jẹ iṣẹ logarithm adayeba.
+
+2. **Ṣiṣiro Lapapọ Iṣẹ Log $ f(t) $ Lori Gbogbo Awọn Epochs**:
+
+   Lapapọ iye awọn iye iṣẹ lori gbogbo akoko pinpin $ S $ jẹ:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Ṣiṣiro Iwọn Aṣa $ A $**:
+
+   Lapapọ ipese tokeni ti **1 bilionu Jet** ti pin nipasẹ apapọ $ S $ lati ṣatunṣe iye pinpin fun epoch kọọkan:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Ṣiṣiro Iye Pinpin Tokeni fun Epoch**:
+
+   Iye pinpin fun epoch kọọkan jẹ:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Awọn Apẹẹrẹ ti Awọn Iye Pinpin**:
+
+   Ṣiṣiro awọn iye pinpin fun awọn epoch ibẹrẹ:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Iye pinpin fun epoch kọọkan jẹ ipinnu nipasẹ iye iṣẹ log ti o baamu si nọmba epoch.
+
+**Awọn abuda Pinpin**
+
+- Niwọn igba ti $ \ln(t + 1) $ n pọ si bi $ t $ n pọ si, denominator di nla, ti o fa ki iye pinpin lapapọ dinku ni kẹkẹ.
+- Iye pinpin fun epoch kọọkan dinku lori akoko, sunmọ odo.
+- Apẹrẹ yii ṣe iwuri fun awọn olukopa ibẹrẹ ati mu ainiye tokeni pọ si.
+
+### Eto Pinpin Lapapọ
+
+Ni isalẹ ni tabili apakan ti o ṣe akopọ awọn iye pinpin ati awọn ọjọ fun epoch kọọkan.
+Fun alaye ni kikun lori gbogbo awọn epoch, jọwọ tọka si [iwe aṣẹ](/attach/token_allocation_per_epoch.csv) ati [koodu](/attach/token_allocation_per_epoch.py) lọtọ.
+
+| Nọmba Epoch | Ọjọ           | Iye Pinpin (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Awọn Ilana Pinpin Tokeni fun Iṣẹ
+
+#### Ṣiṣiro Awọn ipin Laarin Awọn Iṣẹ
+
+Ipin pinpin fun iṣẹ kọọkan ni a ṣe iṣiro da lori iwọn iṣẹ rẹ $ P_n $ ni ibatan si iwọn iṣẹ lapapọ $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Nibo ni:
+
+- $ P_n $: Iwọn iṣẹ ti iṣẹ $ n $.
+- $ P $: Lapapọ awọn iwọn iṣẹ ti gbogbo awọn iṣẹ.
+
+#### Ṣiṣiro Iye Pinpin fun Iṣẹ
+
+Iye awọn tokeni ti iṣẹ $ n $ gba ni epoch kọọkan $ S_n $ jẹ:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Iye pinpin lapapọ ti a ṣatunṣe fun epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Iye tokeni ti o pọju ti a pin da lori ipele iṣẹ (wo pinpin tokeni ti o pọju ti o da lori ipele ni isalẹ).
+
+#### Iṣakoso ti Awọn Tokeni ti a ko Pinpin
+
+##### Gbigbe Awọn Tokeni ti a ko Pinpin
+
+- Awọn tokeni ti a ko pinpin lati epoch kọọkan ni a **fi kun** si iye pinpin lapapọ fun epoch ti n bọ.
+- Eyi ṣe idaniloju pinpin tokeni ti o munadoko paapaa nigbati ikopa iṣẹ ibẹrẹ ba kere.
+
+##### Ṣiṣiro Iye Pinpin Lapapọ ti a Ṣatunṣe fun Epoch
+
+Iye pinpin lapapọ fun epoch ti n bọ jẹ:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Iye pinpin lapapọ ti a ṣatunṣe fun epoch $ t+1 $.
+- $ f(t+1) $: Iye pinpin ti o da lori iṣẹ pinpin ipilẹ.
+- **Awọn Tokeni ti a ko Pinpin ti a gbe lọ**: Nọmba awọn tokeni ti a ko pinpin ni epoch $ t $.
+
+#### Ṣiṣiro Iwọn Iṣẹ ($ P_n $) fun Iṣẹ
+
+Iwọn iṣẹ ti iṣẹ kọọkan ni a ṣe iṣiro da lori awọn metiriki wọnyi. Iwọn ti ọkọọkan metiriki le ṣe atunṣe nipasẹ iṣakoso.
+
+1. **Iṣamulo Tokeni JetPack ($ M_{1n} $)**
+    - **Iwọn**: $ w_1 = 50\% $
+    - **Apejuwe**: Lapapọ iye awọn tokeni JetPack ti awọn olumulo lo laarin iṣẹ naa.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Iwọn**: $ w_2 = 30\% $
+    - **Apejuwe**: Nọmba awọn ibo ti a gba lati OG Degen Bunnies.
+
+3. **Active User Count ($ M_{3n} $)**
+    - **Iwọn**: $ w_3 = 20\% $
+    - **Apejuwe**: Nọmba awọn olumulo alailẹgbẹ ti o wọle ati ti nṣiṣe lọwọ ninu iṣẹ lakoko epoch naa.
+
+Iwọn iṣẹ ti iṣẹ kọọkan $ P_n $ ni a ṣe iṣiro bi:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Nibo ni:
+
+- $ M_{1n} $: Iṣamulo tokeni JetPack ti iṣẹ $ n $.
+- $ M_{1\text{total}} $: Lapapọ iṣamulo tokeni JetPack kọja gbogbo awọn iṣẹ.
+- $ M_{2n} $: Degen Bunny vote count fun iṣẹ $ n $.
+- $ M_{2\text{total}} $: Lapapọ awọn ibo Degen Bunny kọja gbogbo awọn iṣẹ.
+- $ M_{3n} $: Active user count ti iṣẹ $ n $.
+- $ M_{3\text{total}} $: Lapapọ awọn olumulo ti nṣiṣe lọwọ kọja gbogbo awọn iṣẹ.
+
+**Apeere**:
+
+- **Iṣẹ A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Iṣẹ B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Iṣẹ C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Lapapọ**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Awọn Iwọn**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Ṣiṣiro Iwọn Iṣẹ fun Iṣẹ A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Ṣiṣiro Iwọn Iṣẹ fun Iṣẹ B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Ṣiṣiro Iwọn Iṣẹ fun Iṣẹ C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Nitorinaa, awọn iwọn iṣẹ jẹ:
+
+- **Iṣẹ A**: $ P_A = 0.38 $
+- **Iṣẹ B**: $ P_B = 0.29 $
+- **Iṣẹ C**: $ P_C = 0.33 $
+
+#### Awọn Ilana Ipele ati Iye Pinpin Tokeni ti o pọju
+
+Da lori iwọn iṣẹ $ P_n $, iṣẹ kọọkan ni a ṣe akojọ si **Awọn ipele 1 nipasẹ 9**. Ipele yii nlo **cumulative top percentile** ti gbogbo awọn iwọn iṣẹ ti awọn iṣẹ.
+
+##### Awọn Percentiles Top Cumulative ati Awọn Iye Pinpin Tokeni ti o pọju fun Ipele
+
+| **Ipele** | **Cumulative Top Percentile** | **Maximum Token Distribution (Jet)** |
+|-----------|-------------------------------|--------------------------------------|
+| Ipele 1   | Top 4%                        | 30,000                               |
+| Ipele 2   | Top 11%                       | 25,000                               |
+| Ipele 3   | Top 23%                       | 20,000                               |
+| Ipele 4   | Top 40%                       | 15,000                               |
+| Ipele 5   | Top 60%                       | 10,000                               |
+| Ipele 6   | Top 77%                       | 7,000                                |
+| Ipele 7   | Top 89%                       | 5,000                                |
+| Ipele 8   | Top 96%                       | 3,000                                |
+| Ipele 9   | Top 100%                      | 1,000                                |
+
+##### Ọna Ipele Ipele
+
+1. **Ṣiṣiro Awọn Iwọn Iṣẹ**
+
+   Lo ọna ti a ṣalaye tẹlẹ lati ṣe iṣiro iwọn iṣẹ ti iṣẹ kọọkan $ P_n $.
+
+2. **Ṣe Ipele Awọn Iṣẹ**
+
+   Ṣeto gbogbo awọn iṣẹ ni **aṣẹ idinku** da lori awọn iwọn iṣẹ wọn.
+
+3. **Ṣiṣiro Awọn Percentiles Top Cumulative**
+
+   Fun iṣẹ kọọkan, ṣe iṣiro percentile oke ti o pọ si:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Nibo ni:
+
+    - $ \text{Rank} $: Ipele iṣẹ (ti o bẹrẹ lati 1).
+    - $ N $: Lapapọ nọmba awọn iṣẹ.
+
+4. **Fi Awọn Ipele si**
+
+   Fi awọn ipele si da lori awọn percentiles oke ti o pọ si:
+
+    - **Ipele 1**: Cumulative top percentile > 96%
+    - **Ipele 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Ipele 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Ipele 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Ipele 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Ipele 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Ipele 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Ipele 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Ipele 9**: Cumulative top percentile ≤ 4%
+
+**Apeere**:
+
+Pẹlu apapọ ti **3** awọn iṣẹ:
+
+1. **Ṣiṣiro Awọn Ipele ati Awọn Percentiles Top Cumulative**
+
+    - **Iṣẹ A**:
+
+        - Iwọn Iṣẹ: $ P_A = 0.38 $
+        - Ipele: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Iṣẹ C**:
+
+        - Iwọn Iṣẹ: $ P_C = 0.33 $
+        - Ipele: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Iṣẹ B**:
+
+        - Iwọn Iṣẹ: $ P_B = 0.29 $
+        - Ipele: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Fi Awọn Ipele si**
+
+    - **Iṣẹ A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Ipele**: **Ipele 1** (Cumulative Top Percentile > 96%)
+        - **Maximum Token Distribution**: 30,000 Jet
+
+    - **Iṣẹ C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Ipele**: **Ipele 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum Token Distribution**: 15,000 Jet
+
+    - **Iṣẹ B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Ipele**: **Ipele 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum Token Distribution**: 7,000 Jet
+
+**Awọn akọsilẹ**:
+
+- **Awọn Iwọn Ti o Dọgba**: Awọn iṣẹ pẹlu awọn iwọn iṣẹ kanna gba ipo kanna. Ninu iṣiro awọn percentiles oke ti o pọ si, a lo ipo apapọ.
+- **Maximum Token Distribution** tọka si iye tokeni ti o pọju ti iṣẹ le gba da lori ipele rẹ.
+
+### Apeere Ipo
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Iye Pinpin ipilẹ**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Iye Pinpin Lapapọ ti a Ṣatunṣe**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Ṣiṣiro Iye Pinpin fun Iṣẹ**
+
+Da lori awọn iwọn iṣẹ ati awọn ipele:
+
+- **Lapapọ Iwọn Iṣẹ $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Iṣẹ A**:
+
+    - Ipin: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Iye Pinpin:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Iṣẹ C**:
+
+    - Ipin: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Iye Pinpin:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Iṣẹ B**:
+
+    - Ipin: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Iye Pinpin:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Awọn Abajade Pinpin**
+
+- **Lapapọ Awọn Tokeni ti a Pinpin**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Awọn Tokeni ti a ko Pinpin**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Iye Pinpin ipilẹ**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Awọn Tokeni ti a gbe lọ**: $ 3,427,788.70 \text{ Jet} $
+- **Iye Pinpin Lapapọ ti a Ṣatunṣe**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Awọn Iwọn Iṣẹ ati Awọn Ipele ti a Ṣatunṣe**
+
+Ti o ba jẹ pe awọn ayipada ninu awọn iwọn iṣẹ:
+
+- **Iṣẹ A**:
+
+    - Iwọn Iṣẹ: $ P_A = 0.40 $
+    - Ipele: 1
+    - Cumulative Top Percentile: 100%
+    - **Ipele**: Ipele 1
+    - **Maximum Token Distribution**: 30,000 Jet
+
+- **Iṣẹ C**:
+
+    - Iwọn Iṣẹ: $ P_C = 0.35 $
+    - Ipele: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Ipele**: Ipele 4
+    - **Maximum Token Distribution**: 15,000 Jet
+
+- **Iṣẹ B**:
+
+    - Iwọn Iṣẹ: $ P_B = 0.25 $
+    - Ipele: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Ipele**: Ipele 6
+    - **Maximum Token Distribution**: 7,000 Jet
+
+**Lapapọ Iwọn Iṣẹ $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Ṣiṣiro Iye Pinpin fun Iṣẹ**
+
+1. **Iṣẹ A**:
+
+    - Ipin: $ \frac{P_A}{P} = 0.40 $
+    - Iye Pinpin:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Iṣẹ C**:
+
+    - Ipin: $ \frac{P_C}{P} = 0.35 $
+    - Iye Pinpin:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Iṣẹ B**:
+
+    - Ipin: $ \frac{P_B}{P} = 0.25 $
+    - Iye Pinpin:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Awọn Abajade Pinpin**
+
+- **Lapapọ Awọn Tokeni ti a Pinpin**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Awọn Tokeni ti a ko Pinpin**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Ipa ti Awọn Tokeni ti a ko Pinpin ti o kojọpọ
+
+- **Ikopa Iṣẹ ti o pọ si ati Iṣẹ ti o dara julọ** yoo dinku iye awọn tokeni ti a ko pinpin ni kẹkẹ.
+- **Awọn iṣẹ ibẹrẹ le lo iye pinpin ti o pọju** lati ṣe alekun idagbasoke.
+- Gbigbe awọn tokeni ṣe iranlọwọ **mimu iduroṣinṣin iye** ati ṣakoso pinpin.
+
+## Awọn Ere Olumulo ati Lilo Tokeni
+
+### **Ẹrọ Ere Olumulo**
+
+- **Awọn Ere ti o da lori Iṣẹ-ṣiṣe**: Awọn olumulo gba awọn tokeni JetPack nigbati wọn ṣe **awọn iṣẹ ti a gba tẹlẹ** (e.g., ẹda akoonu, ere) laarin iṣẹ kan.
+- **Awọn Ilana Ere Tokeni**: Iye awọn tokeni ti a fun ni ere fun iṣẹ kọọkan jẹ **ipinnu nipasẹ ijumọsọrọ** laarin iṣẹ ati oniṣẹ eto JetPack.
+
+### **Awọn ọna Lilo Tokeni**
+
+1. **Ninu Iṣẹ naa**:
+    - **Wọle si Awọn ẹya Ere**: Lo awọn tokeni lati wọle si awọn ẹya ti o sanwo tabi akoonu laarin iṣẹ naa.
+    - **Ra Awọn Ọjà**: Ra awọn ọja oni-nọmba tabi awọn ohun inu iṣẹ nipa lilo awọn tokeni.
+
+2. **Lilo Iṣowo Iṣẹ Apo JetPack**:
+    - **Tita Tokeni**: Awọn olumulo le paarọ awọn tokeni wọn fun **ADA** (owo ti **Cardano**).
+    - **Iṣakoso Apo**: Apo JetPack ngbanilaaye iṣakoso to ni aabo ti awọn tokeni ati awọn gbigbe si awọn iṣẹ miiran.
+
+### **Awọn Anfaani ti a reti lati Iye Tokeni ti o niyelori**
+
+- **Iṣan Tokeni**: Iṣowo awọn tokeni lori awọn paṣipaarọ mu ki wọn **niyelori**.
+- **Awọn Ere Iṣuna**: Awọn olumulo le ṣaṣeyọri **awọn anfani eto-ọrọ afikun** nipa tita awọn tokeni ti iye wọn ba niyelori.
+
+## Rira Tokeni ati Pinpin
+
+### **Awọn Rira Tokeni afikun nipasẹ Awọn Iṣẹ**
+
+- **Nigbati Awọn Tokeni ti a Pinpin ti pari**: Ti iṣẹ kan ba lo gbogbo awọn tokeni ti a pin si, o le ra awọn tokeni afikun lati **Iṣowo Iṣẹ Apo JetPack**.
+- **Owo Rira**: Awọn tokeni ni a ra nipa lilo **ADA**.
+- **Lilo ti Awọn Tokeni ti a ra**: Awọn tokeni ti a ra le ṣee lo lati **fun awọn olumulo ni ere** tabi **ninu iṣẹ naa**.
+
+### **Awọn Tokeni ti a le ta pada ati Awọn Tokeni ti a ko le ta pada**
+
+- **Awọn Tokeni ti a Pinpin** (**Ti a ko le ta pada**): Awọn tokeni ti a pin si awọn iṣẹ **ko le ta pada** ati pe o jẹ fun **awọn ere olumulo** nikan.
+- **Awọn Tokeni ti a ra ati Awọn Tokeni ti a gba lati ọdọ Awọn olumulo** (**Ti a le ta pada**): Awọn tokeni ti a ra pẹlu ADA ati awọn tokeni ti a gba lati ọdọ awọn olumulo **le ta pada**, iranlọwọ ni **iṣowo niyelori**.
+
+### **Pinpin Tokeni ati Igbesoke Eto**
+
+1. **Eto Pinpin Tokeni**:
+    - Awọn iṣẹ fun awọn olumulo ni awọn tokeni; awọn olumulo lo wọn laarin awọn iṣẹ tabi ta wọn lori awọn paṣipaarọ.
+    - Awọn iṣẹ gba awọn tokeni lati ọdọ awọn olumulo tabi ra wọn lati ṣetọju **eto ere ti o ni atilẹyin**.
+
+2. **Awọn ipa Igbesoke Eto**:
+    - Pinpin tokeni ṣe igbega **ikopa olumulo** ati **igbesoke iṣẹ**.
+    - Eyi ṣe alabapin si **iduroṣinṣin iye tokeni** ati **idagbasoke alagbero** ti eto naa.

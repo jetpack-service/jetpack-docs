@@ -1,0 +1,529 @@
+# Kiel Funkcias JetPack-Tokentoj
+
+La JetPack-tokensistemo konsistas el **aktivec-bazita token-eldonado kaj distribuo**, **serva nivelsistemo**, **uzantaj rekompencoj kaj token-uzado metodoj**, kaj **mekanismo por aĉeti kaj redistribui tokenojn**. Ĉi tiu strukturo provizas **justan kaj efikan rekompencsistemon** por ambaŭ uzantoj kaj servoprovizantoj.
+
+## Tokendistribua (Drop) Mekanismo
+
+### Totala Tokena Provizo kaj Distribua Periodo
+
+- **Totala Provizo**: JetPack eldonos totalon de **1 miliardo da Jet**-tokenoj.
+- **Distribua Periodo**: Tokenoj estos distribuitaj dum **38 jaroj**, kun totalo de **2,776 distribuoj** okazantaj en la samaj intervaloj kiel la **Cardano Epoko** (1 epoko = 5 tagoj).
+
+### Tokendistribua Kvanto po Epoko
+
+#### Kalkulado de Distribua Kvanto Baze sur Logaritma Funkcio
+
+La kvanto de tokenoj distribuitaj po epoko estas desegnita por malpliiĝi kun la tempo. **Logaritma funkcio** estas uzata por kalkuli la distribuan kvanton por ĉiu epoko. **1 Jet egalas al 1,000,000 Pack**, do la distribuaj kvantoj estas kalkulitaj ĝis la **sesa decimalo** kaj pagitaj laŭe.
+
+1. **Difino de la Logaritma Funkcio $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kie:
+
+    - $ t $ estas la epoknumero, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ estas la natura logaritma funkcio.
+
+2. **Kalkulado de la Sumo de la Logaritma Funkcio $ f(t) $ Super Ĉiuj Epokoj**:
+
+   La totala sumo de la funkciovaloroj super la tuta distribua periodo $ S $ estas:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Kalkulado de la Skaliga Konstanto $ A $**:
+
+   La totala tokena provizo de **1 miliardo da Jet** estas dividita per la sumo $ S $ por ĝustigi la distribuan kvanton por ĉiu epoko:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Kalkulado de la Tokendistribua Kvanto po Epoko**:
+
+   La distribua kvanto por ĉiu epoko estas:
+
+   $$
+   \text{Distribua Kvanto}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Ekzemploj de Distribuaj Kvantoj**:
+
+   Kalkulado de la distribuaj kvantoj por la komencaj epokoj:
+
+    - **Epoko 1**:
+
+      $$
+      \text{Distribua Kvanto}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoko 2**:
+
+      $$
+      \text{Distribua Kvanto}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoko 3**:
+
+      $$
+      \text{Distribua Kvanto}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   La distribua kvanto por ĉiu epoko estas determinita de la valoro de la logaritma funkcio respondanta al la epoknumero.
+
+**Distribuaj Karakterizaĵoj**
+
+- Ĉar $ \ln(t + 1) $ pliiĝas kiam $ t $ pliiĝas, la denominatoro fariĝas pli granda, kaŭzante ke la ĝenerala distribua kvanto iom post iom malpliiĝas.
+- La distribua kvanto po epoko malpliiĝas kun la tempo, alproksimiĝante al nulo.
+- Ĉi tiu dezajno instigas fruajn partoprenantojn kaj pliigas la malabundecon de la tokeno.
+
+### Ĝenerala Distribua Horaro
+
+Sube estas parta tabelo resumanta la distribuajn kvantojn kaj datojn po epoko.
+Por detalaj informoj pri ĉiuj epokoj, bonvolu referenci la apartan [dokumenton](/attach/token_allocation_per_epoch.csv) kaj [kodon](/attach/token_allocation_per_epoch.py).
+
+| Epoknumero | Dato           | Distribua Kvanto (Jet) |
+|------------|----------------|------------------------|
+| 1          | 2025-01-01     | 3,479,788.70           |
+| 2          | 2025-01-06     | 2,195,502.227          |
+| 3          | 2025-01-11     | 1,739,894.35           |
+| ...        | ...            | ...                    |
+| 2774       | 2062-12-18     | 304,223.285            |
+| 2775       | 2062-12-23     | 304,209.4607           |
+| 2776       | 2062-12-28     | 304,195.6425           |
+
+### Tokendistribuaj Kriterioj po Servo
+
+#### Kalkulado de Proporcioj Inter Servoj
+
+La distribua proporcio por ĉiu servo estas kalkulita surbaze de ĝia agada poentaro $ P_n $ rilate al la totala agada poentaro $ P $:
+
+$$
+\text{Proporcio por Servo } n = \frac{P_n}{P}
+$$
+
+Kie:
+
+- $ P_n $: Agada poentaro de servo $ n $.
+- $ P $: Sumo de agadpoentaroj de ĉiuj servoj.
+
+#### Kalkulado de Distribua Kvanto po Servo
+
+La kvanto de tokenoj kiun servo $ n $ ricevas en ĉiu epoko $ S_n $ estas:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimuma Tokendistribuo por Servo } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Ĝustigita totala distribua kvanto por la epoko.
+- $ \text{Maksimuma Tokendistribuo por Servo } n $: Maksimuma tokena kvanto asignita surbaze de la servo-nivelo (vidu nivelo-bazitan maksimuman tokendistribuon sube).
+
+#### Traktado de Nedistribuitaj Tokenoj
+
+##### Portado de Nedistribuitaj Tokenoj
+
+- Nedistribuitaj tokenoj de ĉiu epoko estas **aldonitaj** al la totala distribua kvanto por la sekva epoko.
+- Ĉi tio certigas efikan tokendistribuon eĉ kiam komenca servopartopreno estas malalta.
+
+##### Kalkulado de Ĝustigita Totala Distribua Kvanto po Epoko
+
+La totala distribua kvanto por la sekva epoko estas:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Nedistribuitaj Tokenoj de Antaŭa Epoko}
+$$
+
+- $ f_{\text{total}}(t+1) $: Ĝustigita totala distribua kvanto por epoko $ t+1 $.
+- $ f(t+1) $: Distribua kvanto bazita sur la baza distribua funkcio.
+- **Portitaj Nedistribuitaj Tokenoj**: Nombro de tokenoj ne distribuitaj en epoko $ t $.
+
+#### Kalkulado de Agada Poentaro ($ P_n $) po Servo
+
+Ĉiu servo-agada poentaro estas kalkulita surbaze de la sekvaj metrikoj. La pezo de ĉiu metriko povas esti ĝustigita per regado.
+
+1. **JetPack Tokena Konsumo ($ M_{1n} $)**
+    - **Pezo**: $ w_1 = 50\% $
+    - **Priskribo**: Totala kvanto de JetPack-tokenoj konsumitaj de uzantoj ene de la servo.
+
+2. **Degen Bunny Voĉdona Kvanto ($ M_{2n} $)**
+    - **Pezo**: $ w_2 = 30\% $
+    - **Priskribo**: Nombro de voĉoj ricevitaj de OG Degen Bunnies.
+
+3. **Aktiva Uzanta Kvanto ($ M_{3n} $)**
+    - **Pezo**: $ w_3 = 20\% $
+    - **Priskribo**: Nombro de unikaj uzantoj kiuj aliris kaj estis aktivaj en la servo dum la epoko.
+
+Ĉiu servo-agada poentaro $ P_n $ estas kalkulita kiel:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kie:
+
+- $ M_{1n} $: JetPack-tokena konsumo de servo $ n $.
+- $ M_{1\text{total}} $: Totala JetPack-tokena konsumo tra ĉiuj servoj.
+- $ M_{2n} $: Degen Bunny voĉdona kvanto por servo $ n $.
+- $ M_{2\text{total}} $: Totala Degen Bunny-voĉoj tra ĉiuj servoj.
+- $ M_{3n} $: Aktiva uzanta kvanto de servo $ n $.
+- $ M_{3\text{total}} $: Totala aktivaj uzantoj tra ĉiuj servoj.
+
+**Ekzemplo**:
+
+- **Servo A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Servo B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Servo C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Sumoj**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Pezaj Faktoroj**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Kalkulado de Agada Poentaro por Servo A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Kalkulado de Agada Poentaro por Servo B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Kalkulado de Agada Poentaro por Servo C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Tiel, la agadaj poentaroj estas:
+
+- **Servo A**: $ P_A = 0.38 $
+- **Servo B**: $ P_B = 0.29 $
+- **Servo C**: $ P_C = 0.33 $
+
+#### Nivela Determina Kriterio kaj Maksimuma Tokendistribua Kvanto
+
+Baze de la agada poentaro $ P_n $, ĉiu servo estas klasifikita en **Niveloj 1 ĝis 9**. Ĉi tiu klasifiko uzas la **kumulativan supran percentilon** de ĉiuj servaj agadaj poentaroj.
+
+##### Kumulativaj Supraj Percentiloj kaj Maksimumaj Tokendistribuaj Kvantoj po Nivelo
+
+| **Nivelo** | **Kumulativa Supra Percentilo** | **Maksimuma Tokendistribuo (Jet)** |
+|------------|--------------------------------|-----------------------------------|
+| Nivelo 1   | Supraj 4%                      | 30,000                            |
+| Nivelo 2   | Supraj 11%                     | 25,000                            |
+| Nivelo 3   | Supraj 23%                     | 20,000                            |
+| Nivelo 4   | Supraj 40%                     | 15,000                            |
+| Nivelo 5   | Supraj 60%                     | 10,000                            |
+| Nivelo 6   | Supraj 77%                     | 7,000                             |
+| Nivelo 7   | Supraj 89%                     | 5,000                             |
+| Nivelo 8   | Supraj 96%                     | 3,000                             |
+| Nivelo 9   | Supraj 100%                    | 1,000                             |
+
+##### Nivela Determina Metodo
+
+1. **Kalkuli Agadajn Poentarojn**
+
+   Uzu la antaŭe difinitan metodon por kalkuli ĉiun servan agadan poentaron $ P_n $.
+
+2. **Determini Servajn Rangojn**
+
+   Rangigu ĉiujn servojn en **malsupreniranta ordo** bazita sur iliaj agadaj poentaroj.
+
+3. **Kalkuli Kumulativajn Suprajn Percentilojn**
+
+   Por ĉiu servo, kalkulu la kumulativan supran percentilon:
+
+   $$
+   \text{Kumulativa Supra Percentilo (\%)} = \left(1 - \frac{\text{Rango} - 1}{N} \right) \times 100\%
+   $$
+
+   Kie:
+
+    - $ \text{Rango} $: La servo-rango (komencante de 1).
+    - $ N $: Totala nombro de servoj.
+
+4. **Asigni Nivelojn**
+
+   Asignu nivelojn bazitajn sur la kumulativaj supraj percentiloj:
+
+    - **Nivelo 1**: Kumulativa supra percentilo > 96%
+    - **Nivelo 2**: 89% < Kumulativa supra percentilo ≤ 96%
+    - **Nivelo 3**: 77% < Kumulativa supra percentilo ≤ 89%
+    - **Nivelo 4**: 60% < Kumulativa supra percentilo ≤ 77%
+    - **Nivelo 5**: 40% < Kumulativa supra percentilo ≤ 60%
+    - **Nivelo 6**: 23% < Kumulativa supra percentilo ≤ 40%
+    - **Nivelo 7**: 11% < Kumulativa supra percentilo ≤ 23%
+    - **Nivelo 8**: 4% < Kumulativa supra percentilo ≤ 11%
+    - **Nivelo 9**: Kumulativa supra percentilo ≤ 4%
+
+**Ekzemplo**:
+
+Kun totala de **3** servoj:
+
+1. **Kalkuli Rangojn kaj Kumulativajn Suprajn Percentilojn**
+
+    - **Servo A**:
+
+        - Agada Poentaro: $ P_A = 0.38 $
+        - Rango: 1
+        - Kumulativa Supra Percentilo:
+
+          $$
+          \text{Kumulativa Supra Percentilo} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Servo C**:
+
+        - Agada Poentaro: $ P_C = 0.33 $
+        - Rango: 2
+        - Kumulativa Supra Percentilo:
+
+          $$
+          \text{Kumulativa Supra Percentilo} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Servo B**:
+
+        - Agada Poentaro: $ P_B = 0.29 $
+        - Rango: 3
+        - Kumulativa Supra Percentilo:
+
+          $$
+          \text{Kumulativa Supra Percentilo} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Asigni Nivelojn**
+
+    - **Servo A**:
+
+        - Kumulativa Supra Percentilo: 100%
+        - **Nivelo**: **Nivelo 1** (Kumulativa Supra Percentilo > 96%)
+        - **Maksimuma Tokendistribuo**: 30,000 Jet
+
+    - **Servo C**:
+
+        - Kumulativa Supra Percentilo: 66.67%
+        - **Nivelo**: **Nivelo 4** (60% < Kumulativa Supra Percentilo ≤ 77%)
+        - **Maksimuma Tokendistribuo**: 15,000 Jet
+
+    - **Servo B**:
+
+        - Kumulativa Supra Percentilo: 33.33%
+        - **Nivelo**: **Nivelo 6** (23% < Kumulativa Supra Percentilo ≤ 40%)
+        - **Maksimuma Tokendistribuo**: 7,000 Jet
+
+**Notoj**:
+
+- **Ligataj Poentaroj**: Servoj kun identaj agadaj poentaroj ricevas la saman rangon. En kalkulado de kumulativaj supraj percentiloj, la averaĝa rango estas uzata.
+- **Maksimuma Tokendistribuo** rilatas al la maksimuma tokena kvanto kiun servo povas ricevi bazita sur ĝia nivelo.
+
+### Ekzempla Scenaro
+
+#### Epoko 1 ($ t = 1 $)
+
+- **Baza Distribua Kvanto**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Ĝustigita Totala Distribua Kvanto**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Kalkulado de Distribua Kvanto po Servo**
+
+Baze de la agadaj poentaroj kaj niveloj:
+
+- **Totala Agada Poentaro $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Servo A**:
+
+    - Proporcio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Distribua Kvanto:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servo C**:
+
+    - Proporcio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Distribua Kvanto:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servo B**:
+
+    - Proporcio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Distribua Kvanto:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distribuaj Rezultoj**
+
+- **Totalaj Tokenoj Distribuitaj**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nedistribuitaj Tokenoj**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoko 2 ($ t = 2 $)
+
+- **Baza Distribua Kvanto**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Portitaj Tokenoj**: $ 3,427,788.70 \text{ Jet} $
+- **Ĝustigita Totala Distribua Kvanto**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Ĝisdatigitaj Agadaj Poentaroj kaj Niveloj**
+
+Supozante ŝanĝojn en agadaj poentaroj:
+
+- **Servo A**:
+
+    - Agada Poentaro: $ P_A = 0.40 $
+    - Rango: 1
+    - Kumulativa Supra Percentilo: 100%
+    - **Nivelo**: Nivelo 1
+    - **Maksimuma Tokendistribuo**: 30,000 Jet
+
+- **Servo C**:
+
+    - Agada Poentaro: $ P_C = 0.35 $
+    - Rango: 2
+    - Kumulativa Supra Percentilo: 66.67%
+    - **Nivelo**: Nivelo 4
+    - **Maksimuma Tokendistribuo**: 15,000 Jet
+
+- **Servo B**:
+
+    - Agada Poentaro: $ P_B = 0.25 $
+    - Rango: 3
+    - Kumulativa Supra Percentilo: 33.33%
+    - **Nivelo**: Nivelo 6
+    - **Maksimuma Tokendistribuo**: 7,000 Jet
+
+**Totala Agada Poentaro $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Kalkulado de Distribua Kvanto po Servo**
+
+1. **Servo A**:
+
+    - Proporcio: $ \frac{P_A}{P} = 0.40 $
+    - Distribua Kvanto:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servo C**:
+
+    - Proporcio: $ \frac{P_C}{P} = 0.35 $
+    - Distribua Kvanto:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servo B**:
+
+    - Proporcio: $ \frac{P_B}{P} = 0.25 $
+    - Distribua Kvanto:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distribuaj Rezultoj**
+
+- **Totalaj Tokenoj Distribuitaj**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nedistribuitaj Tokenoj**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Efiko de Akumulitaj Nedistribuitaj Tokenoj
+
+- **Pliigita Serva Partopreno kaj Plibonigita Agado** iom post iom reduktos la kvanton de nedistribuitaj tokenoj.
+- **Komencaj servoj povas utiligi la maksimuman distribuan kvanton** por stimuli kreskon.
+- Portado de tokenoj helpas **konservi valorstabilecon** kaj reguligi cirkuladon.
+
+## Uzantaj Rekompencoj kaj Tokena Uzado
+
+### **Uzanta Rekompenca Mekanismo**
+
+- **Aktivec-Bazitaj Rekompencoj**: Uzantoj ricevas JetPack-tokenojn kiam ili plenumas **antaŭkonsentitajn aktivecojn** (ekz., enhavokreado, ludado) ene de servo.
+- **Tokena Rekompenca Kriterio**: La kvanto de tokenoj rekompencitaj por ĉiu aktiveco estas **determinita per konsultado** inter la servo kaj la JetPack-ekosistema operacianto.
+
+### **Tokena Uzado Metodoj**
+
+1. **Ene de la Servo**:
+    - **Aliri Premiumajn Trajtojn**: Uzu tokenojn por aliri pagitajn trajtojn aŭ enhavon ene de la servo.
+    - **Aĉeti Varojn**: Aĉetu ciferecajn varojn aŭ en-servajn erojn uzante tokenojn.
+
+2. **Uzante la JetPack-Monujan Servan Interŝanĝon**:
+    - **Tokena Vendo**: Uzantoj povas interŝanĝi siajn tokenojn por **ADA** (la valuto de **Cardano**).
+    - **Monuja Administrado**: La JetPack-monujo permesas sekuran administradon de tokenoj kaj translokigojn al aliaj servoj.
+
+### **Atenditaj Avantaĝoj de Tokena Valora Apresio**
+
+- **Tokena Likvideco**: Komercado de tokenoj en interŝanĝoj pliigas ilian **likvidecon**.
+- **Ekonomiaj Gajnoj**: Uzantoj povas atingi **aldonajn ekonomiajn avantaĝojn** vendante tokenojn se ilia valoro aprezas.
+
+## Tokena Aĉeto kaj Redistribuo
+
+### **Aldonaj Tokenaĉetoj de Servoj**
+
+- **Kiam Distribuitaj Tokenoj Estas Elĉerpitaj**: Se servo uzas ĉiujn siajn asignitajn tokenojn, ĝi povas aĉeti aldonajn tokenojn de la **JetPack-Monujan Servan Interŝanĝon**.
+- **Aĉeta Valuto**: Tokenoj estas aĉetitaj uzante **ADA**.
+- **Utiligo de Aĉetitaj Tokenoj**: Aĉetitaj tokenoj povas esti uzataj por **rekompenci uzantojn** aŭ **ene de la servo**.
+
+### **Revendeeblaj vs. Ne-Revendeeblaj Tokenoj**
+
+- **Distribuitaj Tokenoj** (**Ne-Revendeeblaj**): Tokenoj asignitaj al servoj **ne povas esti revenditaj** kaj estas nur por **uzantaj rekompencoj**.
+- **Aĉetitaj Tokenoj kaj Tokenoj Akiritaj de Uzantoj** (**Revendeeblaj**): Tokenoj aĉetitaj kun ADA kaj tokenoj ricevitaj de uzantoj **povas esti revenditaj**, helpante en **likvideca akiro**.
+
+### **Tokena Redistribuo kaj Ekosistema Aktivigo**
+
+1. **Tokena Cirkulada Strukturo**:
+    - Servoj rekompencas uzantojn per tokenoj; uzantoj uzas ilin ene de servoj aŭ vendas ilin en interŝanĝoj.
+    - Servoj akiras tokenojn de uzantoj aŭ aĉetas ilin por konservi **daŭrigeblan rekompencsistemon**.
+
+2. **Ekosistema Aktiviga Efikoj**:
+    - Tokena cirkulado antaŭenigas **uzantan engaĝiĝon** kaj **servan aktivigon**.
+    - Ĉi tio kontribuas al **tokena valora stabiligo** kaj la **daŭrigebla kresko** de la ekosistemo.

@@ -1,0 +1,529 @@
+# Cara Kerja Token JetPack
+
+Sistem token JetPack terdiri dari **penerbitan dan distribusi token berbasis aktivitas**, **sistem tingkat layanan**, **hadiah pengguna dan metode pemanfaatan token**, dan **mekanisme untuk membeli dan mendistribusikan ulang token**. Struktur ini menyediakan **sistem penghargaan yang adil dan efisien** untuk pengguna dan penyedia layanan.
+
+## Mekanisme Distribusi Token (Drop)
+
+### Total Pasokan Token dan Periode Distribusi
+
+- **Total Pasokan**: JetPack akan menerbitkan total **1 miliar Jet** token.
+- **Periode Distribusi**: Token akan didistribusikan selama **38 tahun**, dengan total **2.776 distribusi** yang terjadi pada interval yang sama dengan **Cardano Epoch** (1 epoch = 5 hari).
+
+### Jumlah Distribusi Token per Epoch
+
+#### Menghitung Jumlah Distribusi Berdasarkan Fungsi Logaritmik
+
+Jumlah token yang didistribusikan per epoch dirancang untuk berkurang seiring waktu. Sebuah **fungsi logaritmik** digunakan untuk menghitung jumlah distribusi untuk setiap epoch. **1 Jet setara dengan 1.000.000 Pack**, sehingga jumlah distribusi dihitung hingga **enam tempat desimal** dan dibayarkan sesuai.
+
+1. **Definisi Fungsi Logaritmik $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Di mana:
+
+    - $ t $ adalah nomor epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ adalah fungsi logaritma natural.
+
+2. **Menghitung Jumlah Fungsi Log $ f(t) $ Selama Semua Epoch**:
+
+   Jumlah total nilai fungsi selama periode distribusi $ S $ adalah:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Menghitung Konstanta Skala $ A $**:
+
+   Total pasokan token **1 miliar Jet** dibagi dengan jumlah $ S $ untuk menyesuaikan jumlah distribusi untuk setiap epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Menghitung Jumlah Distribusi Token per Epoch**:
+
+   Jumlah distribusi untuk setiap epoch adalah:
+
+   $$
+   \text{Jumlah Distribusi}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Contoh Jumlah Distribusi**:
+
+   Menghitung jumlah distribusi untuk epoch awal:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Jumlah Distribusi}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Jumlah Distribusi}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Jumlah Distribusi}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Jumlah distribusi untuk setiap epoch ditentukan oleh nilai fungsi log yang sesuai dengan nomor epoch.
+
+**Karakteristik Distribusi**
+
+- Karena $ \ln(t + 1) $ meningkat seiring dengan meningkatnya $ t $, penyebut menjadi lebih besar, menyebabkan jumlah distribusi keseluruhan secara bertahap berkurang.
+- Jumlah distribusi per epoch berkurang seiring waktu, mendekati nol.
+- Desain ini mendorong partisipasi awal dan meningkatkan kelangkaan token.
+
+### Jadwal Distribusi Keseluruhan
+
+Berikut adalah tabel parsial yang merangkum jumlah distribusi dan tanggal per epoch.
+Untuk informasi detail tentang semua epoch, silakan merujuk ke [dokumen](/attach/token_allocation_per_epoch.csv) dan [kode](/attach/token_allocation_per_epoch.py) terpisah.
+
+| Nomor Epoch | Tanggal        | Jumlah Distribusi (Jet)    |
+|-------------|----------------|----------------------------|
+| 1           | 2025-01-01     | 3,479,788.70               |
+| 2           | 2025-01-06     | 2,195,502.227              |
+| 3           | 2025-01-11     | 1,739,894.35               |
+| ...         | ...            | ...                        |
+| 2774        | 2062-12-18     | 304,223.285                |
+| 2775        | 2062-12-23     | 304,209.4607               |
+| 2776        | 2062-12-28     | 304,195.6425               |
+
+### Kriteria Distribusi Token per Layanan
+
+#### Menghitung Rasio Antar Layanan
+
+Rasio distribusi untuk setiap layanan dihitung berdasarkan skor kinerja $ P_n $ relatif terhadap total skor kinerja $ P $:
+
+$$
+\text{Rasio untuk Layanan } n = \frac{P_n}{P}
+$$
+
+Di mana:
+
+- $ P_n $: Skor kinerja layanan $ n $.
+- $ P $: Jumlah skor kinerja semua layanan.
+
+#### Menghitung Jumlah Distribusi per Layanan
+
+Jumlah token yang diterima layanan $ n $ dalam setiap epoch $ S_n $ adalah:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Distribusi Token Maksimum untuk Layanan } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Jumlah distribusi total yang disesuaikan untuk epoch.
+- $ \text{Distribusi Token Maksimum untuk Layanan } n $: Jumlah token maksimum yang dialokasikan berdasarkan tingkat layanan (lihat distribusi token maksimum berbasis tingkat di bawah).
+
+#### Penanganan Token yang Tidak Terdistribusi
+
+##### Membawa Token yang Tidak Terdistribusi
+
+- Token yang tidak terdistribusi dari setiap epoch **ditambahkan** ke jumlah distribusi total untuk epoch berikutnya.
+- Ini memastikan distribusi token yang efektif bahkan ketika partisipasi layanan awal rendah.
+
+##### Menghitung Jumlah Distribusi Total yang Disesuaikan per Epoch
+
+Jumlah distribusi total untuk epoch berikutnya adalah:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Token yang Tidak Terdistribusi dari Epoch Sebelumnya}
+$$
+
+- $ f_{\text{total}}(t+1) $: Jumlah distribusi total yang disesuaikan untuk epoch $ t+1 $.
+- $ f(t+1) $: Jumlah distribusi berdasarkan fungsi distribusi dasar.
+- **Token yang Tidak Terdistribusi yang Dibawa**: Jumlah token yang tidak terdistribusi pada epoch $ t $.
+
+#### Menghitung Skor Kinerja ($ P_n $) per Layanan
+
+Skor kinerja setiap layanan dihitung berdasarkan metrik berikut. Bobot setiap metrik dapat disesuaikan melalui tata kelola.
+
+1. **Konsumsi Token JetPack ($ M_{1n} $)**
+    - **Bobot**: $ w_1 = 50\% $
+    - **Deskripsi**: Jumlah total token JetPack yang dikonsumsi oleh pengguna dalam layanan.
+
+2. **Jumlah Suara Degen Bunny ($ M_{2n} $)**
+    - **Bobot**: $ w_2 = 30\% $
+    - **Deskripsi**: Jumlah suara yang diterima dari OG Degen Bunnies.
+
+3. **Jumlah Pengguna Aktif ($ M_{3n} $)**
+    - **Bobot**: $ w_3 = 20\% $
+    - **Deskripsi**: Jumlah pengguna unik yang mengakses dan aktif dalam layanan selama epoch.
+
+Skor kinerja setiap layanan $ P_n $ dihitung sebagai:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Di mana:
+
+- $ M_{1n} $: Konsumsi token JetPack layanan $ n $.
+- $ M_{1\text{total}} $: Total konsumsi token JetPack di semua layanan.
+- $ M_{2n} $: Jumlah suara Degen Bunny untuk layanan $ n $.
+- $ M_{2\text{total}} $: Total suara Degen Bunny di semua layanan.
+- $ M_{3n} $: Jumlah pengguna aktif layanan $ n $.
+- $ M_{3\text{total}} $: Total pengguna aktif di semua layanan.
+
+**Contoh**:
+
+- **Layanan A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Layanan B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Layanan C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Total**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Bobot**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Menghitung Skor Kinerja untuk Layanan A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Menghitung Skor Kinerja untuk Layanan B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Menghitung Skor Kinerja untuk Layanan C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Dengan demikian, skor kinerja adalah:
+
+- **Layanan A**: $ P_A = 0.38 $
+- **Layanan B**: $ P_B = 0.29 $
+- **Layanan C**: $ P_C = 0.33 $
+
+#### Kriteria Penentuan Tingkat dan Jumlah Distribusi Token Maksimum
+
+Berdasarkan skor kinerja $ P_n $, setiap layanan diklasifikasikan ke dalam **Tingkat 1 hingga 9**. Klasifikasi ini menggunakan **persentil teratas kumulatif** dari semua skor kinerja layanan.
+
+##### Persentil Teratas Kumulatif dan Jumlah Distribusi Token Maksimum per Tingkat
+
+| **Tingkat** | **Persentil Teratas Kumulatif** | **Distribusi Token Maksimum (Jet)** |
+|-------------|---------------------------------|-------------------------------------|
+| Tingkat 1   | Top 4%                          | 30,000                              |
+| Tingkat 2   | Top 11%                         | 25,000                              |
+| Tingkat 3   | Top 23%                         | 20,000                              |
+| Tingkat 4   | Top 40%                         | 15,000                              |
+| Tingkat 5   | Top 60%                         | 10,000                              |
+| Tingkat 6   | Top 77%                         | 7,000                               |
+| Tingkat 7   | Top 89%                         | 5,000                               |
+| Tingkat 8   | Top 96%                         | 3,000                               |
+| Tingkat 9   | Top 100%                        | 1,000                               |
+
+##### Metode Penentuan Tingkat
+
+1. **Menghitung Skor Kinerja**
+
+   Gunakan metode yang telah ditentukan sebelumnya untuk menghitung skor kinerja setiap layanan $ P_n $.
+
+2. **Menentukan Peringkat Layanan**
+
+   Peringkat semua layanan dalam **urutan menurun** berdasarkan skor kinerja mereka.
+
+3. **Menghitung Persentil Teratas Kumulatif**
+
+   Untuk setiap layanan, hitung persentil teratas kumulatif:
+
+   $$
+   \text{Persentil Teratas Kumulatif (\%)} = \left(1 - \frac{\text{Peringkat} - 1}{N} \right) \times 100\%
+   $$
+
+   Di mana:
+
+    - $ \text{Peringkat} $: Peringkat layanan (dimulai dari 1).
+    - $ N $: Jumlah total layanan.
+
+4. **Menetapkan Tingkat**
+
+   Tetapkan tingkat berdasarkan persentil teratas kumulatif:
+
+    - **Tingkat 1**: Persentil teratas kumulatif > 96%
+    - **Tingkat 2**: 89% < Persentil teratas kumulatif ≤ 96%
+    - **Tingkat 3**: 77% < Persentil teratas kumulatif ≤ 89%
+    - **Tingkat 4**: 60% < Persentil teratas kumulatif ≤ 77%
+    - **Tingkat 5**: 40% < Persentil teratas kumulatif ≤ 60%
+    - **Tingkat 6**: 23% < Persentil teratas kumulatif ≤ 40%
+    - **Tingkat 7**: 11% < Persentil teratas kumulatif ≤ 23%
+    - **Tingkat 8**: 4% < Persentil teratas kumulatif ≤ 11%
+    - **Tingkat 9**: Persentil teratas kumulatif ≤ 4%
+
+**Contoh**:
+
+Dengan total **3** layanan:
+
+1. **Menghitung Peringkat dan Persentil Teratas Kumulatif**
+
+    - **Layanan A**:
+
+        - Skor Kinerja: $ P_A = 0.38 $
+        - Peringkat: 1
+        - Persentil Teratas Kumulatif:
+
+          $$
+          \text{Persentil Teratas Kumulatif} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Layanan C**:
+
+        - Skor Kinerja: $ P_C = 0.33 $
+        - Peringkat: 2
+        - Persentil Teratas Kumulatif:
+
+          $$
+          \text{Persentil Teratas Kumulatif} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Layanan B**:
+
+        - Skor Kinerja: $ P_B = 0.29 $
+        - Peringkat: 3
+        - Persentil Teratas Kumulatif:
+
+          $$
+          \text{Persentil Teratas Kumulatif} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Menetapkan Tingkat**
+
+    - **Layanan A**:
+
+        - Persentil Teratas Kumulatif: 100%
+        - **Tingkat**: **Tingkat 1** (Persentil Teratas Kumulatif > 96%)
+        - **Distribusi Token Maksimum**: 30,000 Jet
+
+    - **Layanan C**:
+
+        - Persentil Teratas Kumulatif: 66.67%
+        - **Tingkat**: **Tingkat 4** (60% < Persentil Teratas Kumulatif ≤ 77%)
+        - **Distribusi Token Maksimum**: 15,000 Jet
+
+    - **Layanan B**:
+
+        - Persentil Teratas Kumulatif: 33.33%
+        - **Tingkat**: **Tingkat 6** (23% < Persentil Teratas Kumulatif ≤ 40%)
+        - **Distribusi Token Maksimum**: 7,000 Jet
+
+**Catatan**:
+
+- **Skor yang Sama**: Layanan dengan skor kinerja yang identik menerima peringkat yang sama. Dalam menghitung persentil teratas kumulatif, rata-rata peringkat digunakan.
+- **Distribusi Token Maksimum** mengacu pada jumlah token maksimum yang dapat diterima layanan berdasarkan tingkatnya.
+
+### Contoh Skenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Jumlah Distribusi Dasar**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Jumlah Distribusi Total yang Disesuaikan**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Menghitung Jumlah Distribusi per Layanan**
+
+Berdasarkan skor kinerja dan tingkat:
+
+- **Total Skor Kinerja $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Layanan A**:
+
+    - Rasio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Jumlah Distribusi:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Layanan C**:
+
+    - Rasio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Jumlah Distribusi:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Layanan B**:
+
+    - Rasio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Jumlah Distribusi:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Hasil Distribusi**
+
+- **Total Token yang Didistribusikan**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token yang Tidak Terdistribusi**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Jumlah Distribusi Dasar**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Token yang Dibawa**: $ 3,427,788.70 \text{ Jet} $
+- **Jumlah Distribusi Total yang Disesuaikan**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Skor Kinerja dan Tingkat yang Diperbarui**
+
+Dengan asumsi perubahan dalam skor kinerja:
+
+- **Layanan A**:
+
+    - Skor Kinerja: $ P_A = 0.40 $
+    - Peringkat: 1
+    - Persentil Teratas Kumulatif: 100%
+    - **Tingkat**: Tingkat 1
+    - **Distribusi Token Maksimum**: 30,000 Jet
+
+- **Layanan C**:
+
+    - Skor Kinerja: $ P_C = 0.35 $
+    - Peringkat: 2
+    - Persentil Teratas Kumulatif: 66.67%
+    - **Tingkat**: Tingkat 4
+    - **Distribusi Token Maksimum**: 15,000 Jet
+
+- **Layanan B**:
+
+    - Skor Kinerja: $ P_B = 0.25 $
+    - Peringkat: 3
+    - Persentil Teratas Kumulatif: 33.33%
+    - **Tingkat**: Tingkat 6
+    - **Distribusi Token Maksimum**: 7,000 Jet
+
+**Total Skor Kinerja $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Menghitung Jumlah Distribusi per Layanan**
+
+1. **Layanan A**:
+
+    - Rasio: $ \frac{P_A}{P} = 0.40 $
+    - Jumlah Distribusi:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Layanan C**:
+
+    - Rasio: $ \frac{P_C}{P} = 0.35 $
+    - Jumlah Distribusi:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Layanan B**:
+
+    - Rasio: $ \frac{P_B}{P} = 0.25 $
+    - Jumlah Distribusi:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Hasil Distribusi**
+
+- **Total Token yang Didistribusikan**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token yang Tidak Terdistribusi**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Dampak dari Akumulasi Token yang Tidak Terdistribusi
+
+- **Peningkatan Partisipasi Layanan dan Peningkatan Kinerja** akan secara bertahap mengurangi jumlah token yang tidak terdistribusi.
+- **Layanan awal dapat memanfaatkan jumlah distribusi maksimum** untuk mendorong pertumbuhan.
+- Membawa token membantu **mempertahankan stabilitas nilai** dan mengatur sirkulasi.
+
+## Hadiah Pengguna dan Penggunaan Token
+
+### **Mekanisme Hadiah Pengguna**
+
+- **Hadiah Berbasis Aktivitas**: Pengguna menerima token JetPack ketika mereka melakukan **aktivitas yang telah disepakati sebelumnya** (misalnya, pembuatan konten, permainan) dalam layanan.
+- **Kriteria Hadiah Token**: Jumlah token yang diberikan untuk setiap aktivitas **ditentukan melalui konsultasi** antara layanan dan operator ekosistem JetPack.
+
+### **Metode Penggunaan Token**
+
+1. **Dalam Layanan**:
+    - **Akses Fitur Premium**: Gunakan token untuk mengakses fitur atau konten berbayar dalam layanan.
+    - **Membeli Barang**: Beli barang digital atau item dalam layanan menggunakan token.
+
+2. **Menggunakan Layanan Pertukaran Dompet JetPack**:
+    - **Penjualan Token**: Pengguna dapat menukar token mereka dengan **ADA** (mata uang **Cardano**).
+    - **Manajemen Dompet**: Dompet JetPack memungkinkan pengelolaan token yang aman dan transfer ke layanan lain.
+
+### **Manfaat yang Diharapkan dari Apresiasi Nilai Token**
+
+- **Likuiditas Token**: Perdagangan token di bursa meningkatkan **likuiditas** mereka.
+- **Keuntungan Ekonomi**: Pengguna dapat mencapai **manfaat ekonomi tambahan** dengan menjual token jika nilainya meningkat.
+
+## Pembelian dan Redistribusi Token
+
+### **Pembelian Token Tambahan oleh Layanan**
+
+- **Ketika Token yang Didistribusikan Habis**: Jika layanan menggunakan semua token yang dialokasikan, layanan dapat membeli token tambahan dari **Layanan Pertukaran Dompet JetPack**.
+- **Mata Uang Pembelian**: Token dibeli menggunakan **ADA**.
+- **Pemanfaatan Token yang Dibeli**: Token yang dibeli dapat digunakan untuk **memberi hadiah kepada pengguna** atau **dalam layanan**.
+
+### **Token yang Dapat Dijual Kembali vs. Tidak Dapat Dijual Kembali**
+
+- **Token yang Didistribusikan** (**Tidak Dapat Dijual Kembali**): Token yang dialokasikan untuk layanan **tidak dapat dijual kembali** dan hanya untuk **hadiah pengguna**.
+- **Token yang Dibeli dan Token yang Diperoleh dari Pengguna** (**Dapat Dijual Kembali**): Token yang dibeli dengan ADA dan token yang diterima dari pengguna **dapat dijual kembali**, membantu dalam **perolehan likuiditas**.
+
+### **Redistribusi Token dan Aktivasi Ekosistem**
+
+1. **Struktur Sirkulasi Token**:
+    - Layanan memberi hadiah kepada pengguna dengan token; pengguna menggunakannya dalam layanan atau menjualnya di bursa.
+    - Layanan memperoleh token dari pengguna atau membelinya untuk mempertahankan **sistem hadiah yang berkelanjutan**.
+
+2. **Efek Aktivasi Ekosistem**:
+    - Sirkulasi token mendorong **keterlibatan pengguna** dan **aktivasi layanan**.
+    - Ini berkontribusi pada **stabilisasi nilai token** dan **pertumbuhan berkelanjutan** ekosistem.

@@ -1,0 +1,529 @@
+# Kuidas JetPacki Tokenid Töötavad
+
+JetPacki tokenisüsteem koosneb **tegevuspõhisest tokenite emiteerimisest ja jaotamisest**, **teenustaseme süsteemist**, **kasutajate preemiatest ja tokenite kasutusmeetoditest** ning **tokenite ostmise ja ümberjaotamise mehhanismist**. See struktuur pakub **õiglast ja tõhusat preemiasüsteemi** nii kasutajatele kui ka teenusepakkujatele.
+
+## Tokenite Jaotamise (Drop) Mehhanism
+
+### Tokenite Kogupakkumine ja Jaotamisperiood
+
+- **Kogupakkumine**: JetPack emiteerib kokku **1 miljard Jet** tokenit.
+- **Jaotamisperiood**: Tokeneid jaotatakse **38 aasta** jooksul, kokku toimub **2,776 jaotust** samade intervallidega nagu **Cardano Epohh** (1 epohh = 5 päeva).
+
+### Tokenite Jaotamise Kogus Epohhi Kohta
+
+#### Jaotamise Koguse Arvutamine Logaritmilise Funktsiooni Põhjal
+
+Epohhi kohta jaotatavate tokenite kogus on kavandatud aja jooksul vähenema. Jaotamise koguse arvutamiseks iga epohhi kohta kasutatakse **logaritmilist funktsiooni**. **1 Jet võrdub 1,000,000 Packiga**, seega arvutatakse jaotamise kogused **kuuenda kümnendkohani** ja makstakse vastavalt.
+
+1. **Logaritmilise Funktsiooni $ f(t) $ Definitsioon**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kus:
+
+    - $ t $ on epohhi number, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ on naturaallogaritmi funktsioon.
+
+2. **Logaritmilise Funktsiooni $ f(t) $ Summa Arvutamine Kõigi Epohhide Kohta**:
+
+   Funktsiooni väärtuste kogusumma kogu jaotamisperioodi jooksul $ S $ on:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Skaalakonstandi $ A $ Arvutamine**:
+
+   Kogu tokenite pakkumine **1 miljard Jet** jagatakse summa $ S $ järgi, et kohandada jaotamise kogust iga epohhi jaoks:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Tokenite Jaotamise Koguse Arvutamine Epohhi Kohta**:
+
+   Jaotamise kogus iga epohhi jaoks on:
+
+   $$
+   \text{Jaotamise Kogus}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Jaotamise Koguste Näited**:
+
+   Jaotamise koguste arvutamine esialgsete epohhide jaoks:
+
+    - **Epohh 1**:
+
+      $$
+      \text{Jaotamise Kogus}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epohh 2**:
+
+      $$
+      \text{Jaotamise Kogus}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epohh 3**:
+
+      $$
+      \text{Jaotamise Kogus}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Jaotamise kogus iga epohhi jaoks määratakse logaritmilise funktsiooni väärtuse järgi, mis vastab epohhi numbrile.
+
+**Jaotamise Iseloomustus**
+
+- Kuna $ \ln(t + 1) $ suureneb, kui $ t $ suureneb, muutub nimetaja suuremaks, põhjustades kogu jaotamise koguse järkjärgulist vähenemist.
+- Jaotamise kogus epohhi kohta väheneb aja jooksul, lähenedes nullile.
+- See disain motiveerib varajasi osalejaid ja suurendab tokeni nappust.
+
+### Üldine Jaotamise Ajakava
+
+Allpool on osaline tabel, mis võtab kokku jaotamise kogused ja kuupäevad epohhi kohta.
+Üksikasjaliku teabe saamiseks kõigi epohhide kohta vaadake eraldi [dokument](/attach/token_allocation_per_epoch.csv) ja [kood](/attach/token_allocation_per_epoch.py).
+
+| Epohhi Number | Kuupäev        | Jaotamise Kogus (Jet)     |
+|---------------|----------------|---------------------------|
+| 1             | 2025-01-01     | 3,479,788.70              |
+| 2             | 2025-01-06     | 2,195,502.227             |
+| 3             | 2025-01-11     | 1,739,894.35              |
+| ...           | ...            | ...                       |
+| 2774          | 2062-12-18     | 304,223.285               |
+| 2775          | 2062-12-23     | 304,209.4607              |
+| 2776          | 2062-12-28     | 304,195.6425              |
+
+### Tokenite Jaotamise Kriteeriumid Teenuse Kohta
+
+#### Suhete Arvutamine Teenuste Vahel
+
+Iga teenuse jaotamise suhe arvutatakse selle tulemuslikkuse skoori $ P_n $ alusel, võrreldes kogu tulemuslikkuse skooriga $ P $:
+
+$$
+\text{Suhe Teenuse } n = \frac{P_n}{P}
+$$
+
+Kus:
+
+- $ P_n $: Teenuse $ n $ tulemuslikkuse skoor.
+- $ P $: Kõigi teenuste tulemuslikkuse skooride summa.
+
+#### Jaotamise Koguse Arvutamine Teenuse Kohta
+
+Tokenite kogus, mida teenus $ n $ saab igas epohhis $ S_n $, on:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimaalne Tokenite Jaotamine Teenuse } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Kohandatud kogu jaotamise kogus epohhi jaoks.
+- $ \text{Maksimaalne Tokenite Jaotamine Teenuse } n $: Maksimaalne tokenite kogus, mis on määratud teenuse taseme alusel (vt tasemepõhist maksimaalset tokenite jaotamist allpool).
+
+#### Jaotamata Tokenite Käsitlemine
+
+##### Jaotamata Tokenite Ülekandmine
+
+- Iga epohhi jaotamata tokenid **lisatakse** järgmise epohhi kogu jaotamise kogusele.
+- See tagab tõhusa tokenite jaotamise isegi siis, kui esialgne teenuse osalus on madal.
+
+##### Kohandatud Kogu Jaotamise Koguse Arvutamine Epohhi Kohta
+
+Järgmise epohhi kogu jaotamise kogus on:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Eelmise Epohhi Jaotamata Tokenid}
+$$
+
+- $ f_{\text{total}}(t+1) $: Kohandatud kogu jaotamise kogus epohhi $ t+1 $ jaoks.
+- $ f(t+1) $: Jaotamise kogus põhijaotamise funktsiooni alusel.
+- **Ülekantud Jaotamata Tokenid**: Tokenite arv, mida ei jaotatud epohhis $ t $.
+
+#### Tulemuslikkuse Skoori ($ P_n $) Arvutamine Teenuse Kohta
+
+Iga teenuse tulemuslikkuse skoor arvutatakse järgmiste mõõdikute alusel. Iga mõõdiku kaalu saab kohandada valitsemise kaudu.
+
+1. **JetPack Tokenite Tarbimine ($ M_{1n} $)**
+    - **Kaal**: $ w_1 = 50\% $
+    - **Kirjeldus**: JetPacki tokenite kogus, mida kasutajad teenuses tarbivad.
+
+2. **Degen Bunny Häälte Arv ($ M_{2n} $)**
+    - **Kaal**: $ w_2 = 30\% $
+    - **Kirjeldus**: OG Degen Bunnies'ilt saadud häälte arv.
+
+3. **Aktiivsete Kasutajate Arv ($ M_{3n} $)**
+    - **Kaal**: $ w_3 = 20\% $
+    - **Kirjeldus**: Unikaalsete kasutajate arv, kes pääsesid teenusele ligi ja olid epohhi jooksul aktiivsed.
+
+Iga teenuse tulemuslikkuse skoor $ P_n $ arvutatakse järgmiselt:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kus:
+
+- $ M_{1n} $: Teenuse $ n $ JetPack tokenite tarbimine.
+- $ M_{1\text{total}} $: Kõigi teenuste JetPack tokenite kogutarbimine.
+- $ M_{2n} $: Teenuse $ n $ Degen Bunny häälte arv.
+- $ M_{2\text{total}} $: Kõigi teenuste Degen Bunny häälte koguarv.
+- $ M_{3n} $: Teenuse $ n $ aktiivsete kasutajate arv.
+- $ M_{3\text{total}} $: Kõigi teenuste aktiivsete kasutajate koguarv.
+
+**Näide**:
+
+- **Teenuse A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Teenuse B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Teenuse C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Kogusummad**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Kaalud**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Tulemuslikkuse Skoori Arvutamine Teenuse A Jaoks**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Tulemuslikkuse Skoori Arvutamine Teenuse B Jaoks**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Tulemuslikkuse Skoori Arvutamine Teenuse C Jaoks**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Seega on tulemuslikkuse skoorid:
+
+- **Teenuse A**: $ P_A = 0.38 $
+- **Teenuse B**: $ P_B = 0.29 $
+- **Teenuse C**: $ P_C = 0.33 $
+
+#### Taseme Määramise Kriteeriumid ja Maksimaalne Tokenite Jaotamise Kogus
+
+Tulemuslikkuse skoori $ P_n $ alusel klassifitseeritakse iga teenus **tasemetele 1 kuni 9**. See klassifikatsioon kasutab **kumulatiivset tipp-protsentiili** kõigi teenuste tulemuslikkuse skooridest.
+
+##### Kumulatiivsed Tipp-Protsentiilid ja Maksimaalsed Tokenite Jaotamise Kogused Taseme Kohta
+
+| **Tase** | **Kumulatiivne Tipp-Protsentiil** | **Maksimaalne Tokenite Jaotamine (Jet)** |
+|----------|-----------------------------------|------------------------------------------|
+| Tase 1   | Tipp 4%                           | 30,000                                   |
+| Tase 2   | Tipp 11%                          | 25,000                                   |
+| Tase 3   | Tipp 23%                          | 20,000                                   |
+| Tase 4   | Tipp 40%                          | 15,000                                   |
+| Tase 5   | Tipp 60%                          | 10,000                                   |
+| Tase 6   | Tipp 77%                          | 7,000                                    |
+| Tase 7   | Tipp 89%                          | 5,000                                    |
+| Tase 8   | Tipp 96%                          | 3,000                                    |
+| Tase 9   | Tipp 100%                         | 1,000                                    |
+
+##### Taseme Määramise Meetod
+
+1. **Arvuta Tulemuslikkuse Skoorid**
+
+   Kasuta eelnevalt määratletud meetodit iga teenuse tulemuslikkuse skoori $ P_n $ arvutamiseks.
+
+2. **Määra Teenuste Edetabelid**
+
+   Reasta kõik teenused **kahanevas järjekorras** nende tulemuslikkuse skooride alusel.
+
+3. **Arvuta Kumulatiivsed Tipp-Protsentiilid**
+
+   Iga teenuse jaoks arvuta kumulatiivne tipp-protsentiil:
+
+   $$
+   \text{Kumulatiivne Tipp-Protsentiil (\%)} = \left(1 - \frac{\text{Koht} - 1}{N} \right) \times 100\%
+   $$
+
+   Kus:
+
+    - $ \text{Koht} $: Teenuse koht (alates 1-st).
+    - $ N $: Teenuste koguarv.
+
+4. **Määra Tase**
+
+   Määra tase kumulatiivsete tipp-protsentiilide alusel:
+
+    - **Tase 1**: Kumulatiivne tipp-protsentiil > 96%
+    - **Tase 2**: 89% < Kumulatiivne tipp-protsentiil ≤ 96%
+    - **Tase 3**: 77% < Kumulatiivne tipp-protsentiil ≤ 89%
+    - **Tase 4**: 60% < Kumulatiivne tipp-protsentiil ≤ 77%
+    - **Tase 5**: 40% < Kumulatiivne tipp-protsentiil ≤ 60%
+    - **Tase 6**: 23% < Kumulatiivne tipp-protsentiil ≤ 40%
+    - **Tase 7**: 11% < Kumulatiivne tipp-protsentiil ≤ 23%
+    - **Tase 8**: 4% < Kumulatiivne tipp-protsentiil ≤ 11%
+    - **Tase 9**: Kumulatiivne tipp-protsentiil ≤ 4%
+
+**Näide**:
+
+Kokku on **3** teenust:
+
+1. **Arvuta Edetabelid ja Kumulatiivsed Tipp-Protsentiilid**
+
+    - **Teenuse A**:
+
+        - Tulemuslikkuse Skoor: $ P_A = 0.38 $
+        - Koht: 1
+        - Kumulatiivne Tipp-Protsentiil:
+
+          $$
+          \text{Kumulatiivne Tipp-Protsentiil} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Teenuse C**:
+
+        - Tulemuslikkuse Skoor: $ P_C = 0.33 $
+        - Koht: 2
+        - Kumulatiivne Tipp-Protsentiil:
+
+          $$
+          \text{Kumulatiivne Tipp-Protsentiil} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Teenuse B**:
+
+        - Tulemuslikkuse Skoor: $ P_B = 0.29 $
+        - Koht: 3
+        - Kumulatiivne Tipp-Protsentiil:
+
+          $$
+          \text{Kumulatiivne Tipp-Protsentiil} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Määra Tase**
+
+    - **Teenuse A**:
+
+        - Kumulatiivne Tipp-Protsentiil: 100%
+        - **Tase**: **Tase 1** (Kumulatiivne Tipp-Protsentiil > 96%)
+        - **Maksimaalne Tokenite Jaotamine**: 30,000 Jet
+
+    - **Teenuse C**:
+
+        - Kumulatiivne Tipp-Protsentiil: 66.67%
+        - **Tase**: **Tase 4** (60% < Kumulatiivne Tipp-Protsentiil ≤ 77%)
+        - **Maksimaalne Tokenite Jaotamine**: 15,000 Jet
+
+    - **Teenuse B**:
+
+        - Kumulatiivne Tipp-Protsentiil: 33.33%
+        - **Tase**: **Tase 6** (23% < Kumulatiivne Tipp-Protsentiil ≤ 40%)
+        - **Maksimaalne Tokenite Jaotamine**: 7,000 Jet
+
+**Märkused**:
+
+- **Võrdsete Skooride Korral**: Teenused, millel on identsed tulemuslikkuse skoorid, saavad sama koha. Kumulatiivsete tipp-protsentiilide arvutamisel kasutatakse keskmist kohta.
+- **Maksimaalne Tokenite Jaotamine** viitab maksimaalsele tokenite kogusele, mida teenus võib oma taseme alusel saada.
+
+### Näitesituatsioon
+
+#### Epohh 1 ($ t = 1 $)
+
+- **Põhijaotamise Kogus**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Kohandatud Kogu Jaotamise Kogus**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Jaotamise Koguse Arvutamine Teenuse Kohta**
+
+Tulemuslikkuse skooride ja tasemete alusel:
+
+- **Kogu Tulemuslikkuse Skoor $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Teenuse A**:
+
+    - Suhe: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Jaotamise Kogus:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Teenuse C**:
+
+    - Suhe: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Jaotamise Kogus:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Teenuse B**:
+
+    - Suhe: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Jaotamise Kogus:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Jaotamise Tulemused**
+
+- **Kokku Jaotatud Tokenid**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Jaotamata Tokenid**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epohh 2 ($ t = 2 $)
+
+- **Põhijaotamise Kogus**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Ülekantud Tokenid**: $ 3,427,788.70 \text{ Jet} $
+- **Kohandatud Kogu Jaotamise Kogus**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Uuendatud Tulemuslikkuse Skoorid ja Tase**
+
+Eeldades muutusi tulemuslikkuse skoorides:
+
+- **Teenuse A**:
+
+    - Tulemuslikkuse Skoor: $ P_A = 0.40 $
+    - Koht: 1
+    - Kumulatiivne Tipp-Protsentiil: 100%
+    - **Tase**: Tase 1
+    - **Maksimaalne Tokenite Jaotamine**: 30,000 Jet
+
+- **Teenuse C**:
+
+    - Tulemuslikkuse Skoor: $ P_C = 0.35 $
+    - Koht: 2
+    - Kumulatiivne Tipp-Protsentiil: 66.67%
+    - **Tase**: Tase 4
+    - **Maksimaalne Tokenite Jaotamine**: 15,000 Jet
+
+- **Teenuse B**:
+
+    - Tulemuslikkuse Skoor: $ P_B = 0.25 $
+    - Koht: 3
+    - Kumulatiivne Tipp-Protsentiil: 33.33%
+    - **Tase**: Tase 6
+    - **Maksimaalne Tokenite Jaotamine**: 7,000 Jet
+
+**Kogu Tulemuslikkuse Skoor $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Jaotamise Koguse Arvutamine Teenuse Kohta**
+
+1. **Teenuse A**:
+
+    - Suhe: $ \frac{P_A}{P} = 0.40 $
+    - Jaotamise Kogus:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Teenuse C**:
+
+    - Suhe: $ \frac{P_C}{P} = 0.35 $
+    - Jaotamise Kogus:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Teenuse B**:
+
+    - Suhe: $ \frac{P_B}{P} = 0.25 $
+    - Jaotamise Kogus:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Jaotamise Tulemused**
+
+- **Kokku Jaotatud Tokenid**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Jaotamata Tokenid**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Jaotamata Tokenite Kogunemise Mõju
+
+- **Teenuste Osaluse Suurenemine ja Tulemuslikkuse Parandamine** vähendab järk-järgult jaotamata tokenite kogust.
+- **Esialgsed teenused saavad kasutada maksimaalset jaotamise kogust**, et soodustada kasvu.
+- Tokenite ülekandmine aitab **säilitada väärtuse stabiilsust** ja reguleerida ringlust.
+
+## Kasutajate Preemiad ja Tokenite Kasutamine
+
+### **Kasutajate Preemiate Mehhanism**
+
+- **Tegevuspõhised Preemiad**: Kasutajad saavad JetPacki tokeneid, kui nad sooritavad **eelnevalt kokkulepitud tegevusi** (nt sisu loomine, mängimine) teenuses.
+- **Tokenite Preemiate Kriteeriumid**: Iga tegevuse eest premeeritavate tokenite kogus määratakse **konsultatsiooni teel** teenuse ja JetPacki ökosüsteemi operaatori vahel.
+
+### **Tokenite Kasutamise Meetodid**
+
+1. **Teenuse Raames**:
+    - **Juurdepääs Premium Funktsioonidele**: Kasuta tokeneid, et pääseda ligi tasulistele funktsioonidele või sisule teenuses.
+    - **Kaupade Ostmine**: Osta digitaalseid kaupu või teenusesiseseid esemeid tokenite abil.
+
+2. **JetPacki Rahakoti Teenuse Vahetuse Kasutamine**:
+    - **Tokenite Müük**: Kasutajad saavad vahetada oma tokeneid **ADA** (Cardano valuuta) vastu.
+    - **Rahakoti Haldamine**: JetPacki rahakott võimaldab tokenite turvalist haldamist ja ülekandeid teistele teenustele.
+
+### **Oodatavad Kasud Tokenite Väärtuse Tõusust**
+
+- **Tokenite Likviidsus**: Tokenite kauplemine börsidel suurendab nende **likviidsust**.
+- **Majanduslikud Kasud**: Kasutajad saavad saavutada **täiendavaid majanduslikke eeliseid**, müües tokeneid, kui nende väärtus tõuseb.
+
+## Tokenite Ostmine ja Ümberjaotamine
+
+### **Teenuste Täiendavad Tokenite Ostud**
+
+- **Kui Jaotatud Tokenid On Lõppenud**: Kui teenus kasutab ära kõik oma määratud tokenid, saab ta osta täiendavaid tokeneid **JetPacki Rahakoti Teenuse Vahetusest**.
+- **Ostmisvaluuta**: Tokeneid ostetakse **ADA** abil.
+- **Ostetud Tokenite Kasutamine**: Ostetud tokeneid saab kasutada **kasutajate premeerimiseks** või **teenuse raames**.
+
+### **Edasimüüdavad vs. Mitte-Edasimüüdavad Tokenid**
+
+- **Jaotatud Tokenid** (**Mitte-Edasimüüdavad**): Teenustele määratud tokeneid **ei saa edasi müüa** ja need on mõeldud ainult **kasutajate premeerimiseks**.
+- **Ostetud Tokenid ja Kasutajatelt Saadud Tokenid** (**Edasimüüdavad**): ADA-ga ostetud tokeneid ja kasutajatelt saadud tokeneid **saab edasi müüa**, aidates **likviidsuse omandamisel**.
+
+### **Tokenite Ümberjaotamine ja Ökosüsteemi Aktiveerimine**
+
+1. **Tokenite Ringluse Struktuur**:
+    - Teenused premeerivad kasutajaid tokenitega; kasutajad kasutavad neid teenustes või müüvad neid börsidel.
+    - Teenused omandavad tokeneid kasutajatelt või ostavad neid, et säilitada **jätkusuutlik preemiasüsteem**.
+
+2. **Ökosüsteemi Aktiveerimise Mõjud**:
+    - Tokenite ringlus soodustab **kasutajate kaasatust** ja **teenuste aktiveerimist**.
+    - See aitab kaasa **tokenite väärtuse stabiliseerimisele** ja ökosüsteemi **jätkusuutlikule kasvule**.

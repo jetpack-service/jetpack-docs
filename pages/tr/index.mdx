@@ -1,0 +1,84 @@
+import Image from 'next/image'
+
+# Giriş
+
+Günümüzün dijital ortamında, kullanıcılar her gün sayısız internet hizmeti ve uygulamasıyla etkileşimde bulunuyor. Ancak, aktif katılımlarına rağmen, kullanıcılar genellikle katkıları ve etkileşimleri için çok az veya hiç tazminat almıyorlar. Aynı zamanda, özellikle bağımsız geliştiriciler ve startup'lar, yüksek geliştirme maliyetleri ve karmaşıklık nedeniyle özel puan sistemlerini uygulama ve yönetme konusunda önemli zorluklarla karşılaşıyorlar. Mevcut paylaşılan puan sistemleri, katı giriş engelleri, karmaşık uzlaşmalar ve bir hizmetten kazanılan puanların başka bir hizmette kullanılması durumunda potansiyel gelir kayıpları ile birlikte gelir. Ayrıca, geleneksel token sistemleri genellikle adil değildir, büyük miktarda token'ı erken yatırımcılara ve geliştiricilere tahsis ederek, sıradan kullanıcıları baştan dezavantajlı duruma getirir.
+
+**JetPack Token Sistemi**, hem kullanıcılar hem de hizmet sağlayıcılar için adil, şeffaf ve verimli bir token tabanlı ekosistem sunarak bu yaygın sorunlara bir çözüm olarak ortaya çıkıyor.
+
+```html
+<Image src="/images/en/intro.svg" alt="Dijital Katılım ve Ödülleri Çözme - JetPack Token Sistemi" width={700} height={534} className="dark:hidden"/>
+<Image src="/images/en/intro-dark.svg" alt="Dijital Katılım ve Ödülleri Çözme - JetPack Token Sistemi" width={700} height={534} className="hidden dark:block"/>
+```
+
+## Problem Tanımı
+
+- **Kullanıcı Ödüllerinin Eksikliği**: Kullanıcılar, internet hizmetleri ve uygulamalarındaki katılımları ve etkinlikleri için adil bir tazminat almıyorlar, bu da aktif katılım motivasyonlarını sınırlıyor.
+- **Hizmet Sağlayıcılar İçin Zorluklar**: Dahili bir puan sistemi geliştirmek ve sürdürmek kaynak yoğun olup, önemli zaman ve mali yatırım gerektirir ve mali bir yük haline gelebilir.
+- **Mevcut Puan Sistemlerinin Sınırlamaları**: Paylaşılan puan sistemleri genellikle kısıtlayıcı giriş gereksinimlerine sahiptir ve kullanıcılar bir hizmetten kazandıkları puanları başka bir hizmette harcadıklarında, bu durum orijinal hizmet için azalan kârlara ve karmaşık uzlaşma süreçlerine yol açabilir.
+- **Adil Olmayan Geleneksel Token Sistemleri**: Birçok token sistemi, büyük miktarda token'ı önceden tahsis ederek erken yatırımcıları ve geliştiricileri orantısız bir şekilde kayırır, bu da sıradan kullanıcılar için adil rekabeti ve eşit fırsatı engeller.
+
+## Çözüm Genel Bakış
+
+**JetPack Token Sistemi**, dijital ödüller ve puan sistemlerine yenilikçi bir yaklaşım sunar:
+
+- **Adil ve Şeffaf Bir Token Dağıtım Modeli Uygulama**: Tüm katılımcılar eşit şartlarda başlar, çünkü geliştiriciler ve erken yatırımcılar dahil hiçbir tarafa önceden token tahsis edilmez.
+- **Birden Fazla Hizmette Kullanılabilir Çok Yönlü Bir Token Sağlama**: Kullanıcılar, JetPack Token'larını çeşitli hizmetlerde kazanabilir ve kullanabilir, bu da token'ların faydasını ve değerini artırır.
+- **Yüksek İşlem Hızı ve Güvenlik Sağlama**: Dağıtılmış veritabanlarını blok zinciri teknolojisiyle birleştirerek, JetPack yüksek işlem işleme hızlarına (TPS) ulaşırken veri bütünlüğünü ve güvenliğini korur.
+- **Büyümeyi Teşvik Etmek İçin Bir Hizmet Seviyesi Sistemi Tanıtma**: Hizmetler her beş günde bir (bir dönem) token alır ve kullanıcı token kullanımı temelinde seviyeleri artar, bu da daha fazla token almalarını ve kullanıcı katılımını teşvik etmelerini sağlar.
+
+## Benzersiz Değer Önerisi
+
+- **Tüm Katılımcılar İçin Adil ve Eşit Fırsat**: JetPack, token'ları önceden herhangi bir varlığa tahsis etmeyerek geleneksel token sistemlerinde görülen adaletsiz avantajları ortadan kaldırır.
+- **Hizmet Sağlayıcılar İçin Basitleştirilmiş Entegrasyon**: Geliştiriciler, sağlanan SDK'lar ve API'ler aracılığıyla JetPack Token Sistemi'ni hizmetlerine kolayca entegre edebilir, zaman ve kaynak tasarrufu sağlar.
+- **Artan Kullanıcı Katılımı ve Ödüller**: Kullanıcılar, etkinlikleri için doğrudan tazminat alır, bu da hizmetlerle katılım ve etkileşim motivasyonlarını artırır.
+- **Verimli ve Güvenli İşlemler**: Dağıtılmış veritabanları ve blok zinciri kombinasyonu, işlemlerin hızlı ve güvenli bir şekilde işlenmesini sağlar, veri bütünlüğünden ödün vermez.
+- **Hizmetler İçin Büyüme Teşvikleri**: Seviye sistemi, kullanıcı katılımını ve token kullanımını teşvik eden hizmetleri ödüllendirir, sağlıklı ve rekabetçi bir ekosistem oluşturur.
+
+## Nasıl Çalışır
+
+- **Token Dağıtımı ve Seviye Sistemi**: Her beş günde bir, hizmetler JetPack Token'larının dağıtımını alır. Hizmetler, kullanıcılarının kullandığı token miktarına bağlı olarak seviyelerini 0'dan 99'a kadar artırabilir, bu da sonraki dağıtımlarda ek token almalarını sağlar.
+- **Kullanıcı Ödül Mekanizması**: Kullanıcılar, hizmetler içindeki etkinlikleri aracılığıyla JetPack Token'ları kazanır. Bu token'ları hizmet ekosisteminde harcayabilir veya ADA karşılığında borsalarda takas edebilir, dijital etkileşimleri için somut değer sağlar.
+- **Token Geri Alımı ve Yeniden Dağıtımı**: Bir hizmet, tahsis edilen token'larını kullandıktan sonra, kullanıcılarını ödüllendirmeye devam etmek için ADA kullanarak ek token satın alabilir, sürekli bir ödül döngüsü sağlar.
+- **Verimli İşlem İşleme ve Güvenlik Önlemleri**: İşlem verileri, dağıtılmış bir veritabanında saklanır ve değiştirilmesini önlemek için bir hash zinciri yapısı kullanılarak korunur. Ayrıca, her beş dakikada bir, bir hash değeri veri bütünlüğünü kanıtlamak için Cardano blok zincirine kaydedilir.
+
+## Hedef Müşteriler
+
+- **Hizmet Sağlayıcılar**: Kolay entegre edilebilen, verimli ve güvenli bir puan sistemi arayan bağımsız geliştiriciler ve startup hizmet operatörleri.
+- **Hizmet Kullanıcıları**: Etkinlikleri için adil bir tazminat almak ve kazandıkları puanları çeşitli hizmetlerde kullanma esnekliğine sahip olmak isteyen genel kullanıcılar.
+- **Ekosistem Katkıcıları**: JetPack ekosisteminin büyümesine ve bakımına katkıda bulunan düğüm operatörleri, NFT ödünç verenler ve diğer katılımcılar.
+
+### Erken Benimseyenler
+
+- **Token İhtiyacı Olan NFT Toplulukları ve Projeleri**
+- **Bağımsız Geliştiriciler**
+
+## Kanallar ve Entegrasyon
+
+- **SDK'lar ve API'ler**: Java, Unity ve JavaScript dahil olmak üzere birden fazla platform için mevcut olup, çeşitli hizmet ve uygulamalara sorunsuz entegrasyon sağlar.
+- **Topluluk Platformları**: Kullanıcılar ve geliştiricilerle etkileşimde bulunmak için Discord, Twitter'da aktif varlık ve Cardano topluluğu ve blok zinciri etkinliklerine katılım.
+- **Hizmet ve Uygulama Ortaklıkları**: JetPack Token'larını kullanan hizmetlerle işbirlikleri yaparak ekosistemi genişletmek ve token faydasını artırmak.
+
+## Gelir Akışları
+
+- **ADA Karşılığında Token Satışları**: Hizmetlerin tahsis edilen token'larını tükettikten sonra ADA kullanarak ek token satın aldıklarında elde edilen gelir.
+- **İşlem Ücretleri**: Ekosistem içindeki token işlemlerinden toplanan küçük ücretler.
+- **Premium Hizmetler**: Profesyonel istatistiksel analiz gibi gelişmiş hizmetlerin ücret karşılığında sunulması.
+
+## Maliyet Yapısı
+
+- **Sunucu Altyapısı Bakımı**: Dağıtılmış veritabanını işletme ve ağ bütünlüğünü sürdürme ile ilgili maliyetler.
+- **Geliştirme ve Operasyonel Giderler**: Platform, SDK'lar ve API'lerin sürekli geliştirilmesi ve bakımı.
+- **Pazarlama ve Topluluk Yönetimi**: Kullanıcı ve hizmet sağlayıcı edinimi ve topluluk katılımı ile ilgili giderler.
+- **Hukuki ve Uyumluluk Maliyetleri**: Hukuki danışmanlık ücretleri ve düzenleyici gerekliliklere uyum sağlama.
+
+## Anahtar Metrikler
+
+- **Hizmet Katılımı**: JetPack Token Sistemi'ni benimseyen hizmetlerin sayısı ve bunların seviyeleri.
+- **Token Dolaşımı ve Kullanımı**: Kullanıcılara dağıtılan toplam token miktarı ve hizmetler içindeki token kullanım hacmi.
+- **Token Satın Alma Hacmi**: Hizmetlerin ADA kullanarak satın aldığı toplam token miktarı.
+- **Kullanıcı Katılım Metrikleri**: Aktif kullanıcı sayıları, token işlem hacimleri ve kullanıcı katılımının diğer göstergeleri.
+
+---
+
+**JetPack Token Sistemi**, dijital ödüller ve puan ekosistemlerine devrim niteliğinde bir yaklaşımı temsil eder. Mevcut sistemlerin sınırlamalarını ele alarak ve adalet, şeffaflık ve verimliliği önceliklendirerek, JetPack, kullanıcıların katkıları için hak ettikleri şekilde tazmin edildiği ve hizmet sağlayıcıların gereksiz yük olmadan büyüyüp yenilik yapabileceği bir ortamı teşvik eder. Dijital ekonomideki bu yeni paradigma, tüm katılımcıların birlikte gelişebileceği canlı bir ekosistem inşa etmeyi amaçlar.

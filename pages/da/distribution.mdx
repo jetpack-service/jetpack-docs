@@ -1,0 +1,529 @@
+# Hvordan JetPack Tokens Fungerer
+
+JetPack tokensystemet består af **aktivitetsbaseret tokenudstedelse og -distribution**, et **serviceniveausystem**, **brugerbelønninger og tokenanvendelsesmetoder**, og en **mekanisme til køb og omfordeling af tokens**. Denne struktur giver et **retfærdigt og effektivt belønningssystem** for både brugere og tjenesteudbydere.
+
+## Tokenfordelingsmekanisme (Drop)
+
+### Samlet Tokenforsyning og Distributionsperiode
+
+- **Samlet Forsyning**: JetPack vil udstede i alt **1 milliard Jet** tokens.
+- **Distributionsperiode**: Tokens vil blive distribueret over **38 år**, med i alt **2.776 distributioner**, der finder sted med samme intervaller som **Cardano Epoch** (1 epoch = 5 dage).
+
+### Tokenfordelingsmængde pr. Epoch
+
+#### Beregning af Fordelingsmængde Baseret på en Logaritmisk Funktion
+
+Mængden af tokens, der distribueres pr. epoch, er designet til at falde over tid. En **logaritmisk funktion** bruges til at beregne fordelingsmængden for hver epoch. **1 Jet svarer til 1.000.000 Pack**, så fordelingsmængderne beregnes til **sjette decimal** og udbetales i overensstemmelse hermed.
+
+1. **Definition af den Logaritmiske Funktion $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Hvor:
+
+    - $ t $ er epoch-nummeret, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ er den naturlige logaritmefunktion.
+
+2. **Beregning af Summen af Logfunktionen $ f(t) $ Over Alle Epochs**:
+
+   Den totale sum af funktionens værdier over hele distributionsperioden $ S $ er:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Beregning af Skaleringskonstanten $ A $**:
+
+   Den samlede tokenforsyning på **1 milliard Jet** divideres med summen $ S $ for at justere fordelingsmængden for hver epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Beregning af Tokenfordelingsmængde pr. Epoch**:
+
+   Fordelingsmængden for hver epoch er:
+
+   $$
+   \text{Fordelingsmængde}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Eksempler på Fordelingsmængder**:
+
+   Beregning af fordelingsmængderne for de første epochs:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Fordelingsmængde}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Fordelingsmængde}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Fordelingsmængde}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Fordelingsmængden for hver epoch bestemmes af værdien af logfunktionen svarende til epoch-nummeret.
+
+**Fordelingskarakteristika**
+
+- Da $ \ln(t + 1) $ stiger, når $ t $ stiger, bliver nævneren større, hvilket får den samlede fordelingsmængde til gradvist at falde.
+- Fordelingsmængden pr. epoch falder over tid og nærmer sig nul.
+- Dette design tilskynder tidlige deltagere og øger tokenens knaphed.
+
+### Overordnet Fordelingsplan
+
+Nedenfor er en delvis tabel, der opsummerer fordelingsmængderne og datoerne pr. epoch.
+For detaljerede oplysninger om alle epochs, henvises til det separate [dokument](/attach/token_allocation_per_epoch.csv) og [kode](/attach/token_allocation_per_epoch.py).
+
+| Epoch Nummer | Dato           | Fordelingsmængde (Jet) |
+|--------------|----------------|------------------------|
+| 1            | 2025-01-01     | 3,479,788.70           |
+| 2            | 2025-01-06     | 2,195,502.227          |
+| 3            | 2025-01-11     | 1,739,894.35           |
+| ...          | ...            | ...                    |
+| 2774         | 2062-12-18     | 304,223.285            |
+| 2775         | 2062-12-23     | 304,209.4607           |
+| 2776         | 2062-12-28     | 304,195.6425           |
+
+### Tokenfordelingskriterier pr. Service
+
+#### Beregning af Forhold Blandt Tjenester
+
+Fordelingsforholdet for hver service beregnes baseret på dens præstationsscore $ P_n $ i forhold til den samlede præstationsscore $ P $:
+
+$$
+\text{Forhold for Service } n = \frac{P_n}{P}
+$$
+
+Hvor:
+
+- $ P_n $: Præstationsscore for service $ n $.
+- $ P $: Sum af præstationsscorer for alle tjenester.
+
+#### Beregning af Fordelingsmængde pr. Service
+
+Mængden af tokens, som service $ n $ modtager i hver epoch $ S_n $, er:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimal Tokenfordeling for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Justeret total fordelingsmængde for epoch.
+- $ \text{Maksimal Tokenfordeling for Service } n $: Maksimal tokenmængde tildelt baseret på serviceens niveau (se niveau-baseret maksimal tokenfordeling nedenfor).
+
+#### Håndtering af Ufordelte Tokens
+
+##### Overførsel af Ufordelte Tokens
+
+- Ufordelte tokens fra hver epoch **tilføjes** til den samlede fordelingsmængde for den næste epoch.
+- Dette sikrer effektiv tokenfordeling, selv når den indledende service deltagelse er lav.
+
+##### Beregning af Justeret Total Fordelingsmængde pr. Epoch
+
+Den samlede fordelingsmængde for den næste epoch er:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Ufordelte Tokens fra Forrige Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Justeret total fordelingsmængde for epoch $ t+1 $.
+- $ f(t+1) $: Fordelingsmængde baseret på den grundlæggende fordelingsfunktion.
+- **Overførte Ufordelte Tokens**: Antal tokens, der ikke blev fordelt i epoch $ t $.
+
+#### Beregning af Præstationsscore ($ P_n $) pr. Service
+
+Hver services præstationsscore beregnes baseret på følgende metrikker. Vægten af hver metrik kan justeres gennem governance.
+
+1. **JetPack Tokenforbrug ($ M_{1n} $)**
+    - **Vægt**: $ w_1 = 50\% $
+    - **Beskrivelse**: Samlet mængde af JetPack tokens forbrugt af brugere inden for tjenesten.
+
+2. **Degen Bunny Stemmetal ($ M_{2n} $)**
+    - **Vægt**: $ w_2 = 30\% $
+    - **Beskrivelse**: Antal stemmer modtaget fra OG Degen Bunnies.
+
+3. **Aktiv Brugertælling ($ M_{3n} $)**
+    - **Vægt**: $ w_3 = 20\% $
+    - **Beskrivelse**: Antal unikke brugere, der har tilgået og været aktive i tjenesten under epoch.
+
+Hver services præstationsscore $ P_n $ beregnes som:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Hvor:
+
+- $ M_{1n} $: JetPack tokenforbrug for service $ n $.
+- $ M_{1\text{total}} $: Samlet JetPack tokenforbrug på tværs af alle tjenester.
+- $ M_{2n} $: Degen Bunny stemmetal for service $ n $.
+- $ M_{2\text{total}} $: Samlet Degen Bunny stemmer på tværs af alle tjenester.
+- $ M_{3n} $: Aktiv brugertælling for service $ n $.
+- $ M_{3\text{total}} $: Samlet aktive brugere på tværs af alle tjenester.
+
+**Eksempel**:
+
+- **Service A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Service B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Service C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totaler**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Vægte**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Beregning af Præstationsscore for Service A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Beregning af Præstationsscore for Service B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Beregning af Præstationsscore for Service C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Således er præstationsscorerne:
+
+- **Service A**: $ P_A = 0.38 $
+- **Service B**: $ P_B = 0.29 $
+- **Service C**: $ P_C = 0.33 $
+
+#### Niveau Bestemmelseskriterier og Maksimal Tokenfordelingsmængde
+
+Baseret på præstationsscoren $ P_n $, klassificeres hver service i **Niveauer 1 til 9**. Denne klassifikation bruger den **kumulative toppercentil** af alle tjenesters præstationsscorer.
+
+##### Kumulative Toppercentiler og Maksimale Tokenfordelingsmængder pr. Niveau
+
+| **Niveau** | **Kumulativ Toppercentil** | **Maksimal Tokenfordeling (Jet)** |
+|------------|----------------------------|-----------------------------------|
+| Niveau 1   | Top 4%                     | 30,000                            |
+| Niveau 2   | Top 11%                    | 25,000                            |
+| Niveau 3   | Top 23%                    | 20,000                            |
+| Niveau 4   | Top 40%                    | 15,000                            |
+| Niveau 5   | Top 60%                    | 10,000                            |
+| Niveau 6   | Top 77%                    | 7,000                             |
+| Niveau 7   | Top 89%                    | 5,000                             |
+| Niveau 8   | Top 96%                    | 3,000                             |
+| Niveau 9   | Top 100%                   | 1,000                             |
+
+##### Niveau Bestemmelsesmetode
+
+1. **Beregn Præstationsscorer**
+
+   Brug den tidligere definerede metode til at beregne hver services præstationsscore $ P_n $.
+
+2. **Bestem Service Rangeringer**
+
+   Rangér alle tjenester i **faldende rækkefølge** baseret på deres præstationsscorer.
+
+3. **Beregn Kumulative Toppercentiler**
+
+   For hver service, beregn den kumulative toppercentil:
+
+   $$
+   \text{Kumulativ Toppercentil (\%)} = \left(1 - \frac{\text{Rang} - 1}{N} \right) \times 100\%
+   $$
+
+   Hvor:
+
+    - $ \text{Rang} $: Serviceens rang (startende fra 1).
+    - $ N $: Samlet antal tjenester.
+
+4. **Tildel Niveauer**
+
+   Tildel niveauer baseret på de kumulative toppercentiler:
+
+    - **Niveau 1**: Kumulativ toppercentil > 96%
+    - **Niveau 2**: 89% < Kumulativ toppercentil ≤ 96%
+    - **Niveau 3**: 77% < Kumulativ toppercentil ≤ 89%
+    - **Niveau 4**: 60% < Kumulativ toppercentil ≤ 77%
+    - **Niveau 5**: 40% < Kumulativ toppercentil ≤ 60%
+    - **Niveau 6**: 23% < Kumulativ toppercentil ≤ 40%
+    - **Niveau 7**: 11% < Kumulativ toppercentil ≤ 23%
+    - **Niveau 8**: 4% < Kumulativ toppercentil ≤ 11%
+    - **Niveau 9**: Kumulativ toppercentil ≤ 4%
+
+**Eksempel**:
+
+Med i alt **3** tjenester:
+
+1. **Beregn Rangeringer og Kumulative Toppercentiler**
+
+    - **Service A**:
+
+        - Præstationsscore: $ P_A = 0.38 $
+        - Rang: 1
+        - Kumulativ Toppercentil:
+
+          $$
+          \text{Kumulativ Toppercentil} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Service C**:
+
+        - Præstationsscore: $ P_C = 0.33 $
+        - Rang: 2
+        - Kumulativ Toppercentil:
+
+          $$
+          \text{Kumulativ Toppercentil} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Service B**:
+
+        - Præstationsscore: $ P_B = 0.29 $
+        - Rang: 3
+        - Kumulativ Toppercentil:
+
+          $$
+          \text{Kumulativ Toppercentil} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Tildel Niveauer**
+
+    - **Service A**:
+
+        - Kumulativ Toppercentil: 100%
+        - **Niveau**: **Niveau 1** (Kumulativ Toppercentil > 96%)
+        - **Maksimal Tokenfordeling**: 30,000 Jet
+
+    - **Service C**:
+
+        - Kumulativ Toppercentil: 66.67%
+        - **Niveau**: **Niveau 4** (60% < Kumulativ Toppercentil ≤ 77%)
+        - **Maksimal Tokenfordeling**: 15,000 Jet
+
+    - **Service B**:
+
+        - Kumulativ Toppercentil: 33.33%
+        - **Niveau**: **Niveau 6** (23% < Kumulativ Toppercentil ≤ 40%)
+        - **Maksimal Tokenfordeling**: 7,000 Jet
+
+**Noter**:
+
+- **Lige Scores**: Tjenester med identiske præstationsscorer modtager samme rang. Ved beregning af kumulative toppercentiler anvendes den gennemsnitlige rang.
+- **Maksimal Tokenfordeling** refererer til den maksimale tokenmængde, en service kan modtage baseret på dens niveau.
+
+### Eksempelscenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Grundlæggende Fordelingsmængde**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Justeret Total Fordelingsmængde**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Beregning af Fordelingsmængde pr. Service**
+
+Baseret på præstationsscorerne og niveauerne:
+
+- **Samlet Præstationsscore $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Service A**:
+
+    - Forhold: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Fordelingsmængde:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Forhold: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Fordelingsmængde:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Forhold: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Fordelingsmængde:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Fordelingsresultater**
+
+- **Samlet Tokens Fordelt**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Ufordelte Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Grundlæggende Fordelingsmængde**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Overførte Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Justeret Total Fordelingsmængde**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Opdaterede Præstationsscorer og Niveauer**
+
+Antag ændringer i præstationsscorer:
+
+- **Service A**:
+
+    - Præstationsscore: $ P_A = 0.40 $
+    - Rang: 1
+    - Kumulativ Toppercentil: 100%
+    - **Niveau**: Niveau 1
+    - **Maksimal Tokenfordeling**: 30,000 Jet
+
+- **Service C**:
+
+    - Præstationsscore: $ P_C = 0.35 $
+    - Rang: 2
+    - Kumulativ Toppercentil: 66.67%
+    - **Niveau**: Niveau 4
+    - **Maksimal Tokenfordeling**: 15,000 Jet
+
+- **Service B**:
+
+    - Præstationsscore: $ P_B = 0.25 $
+    - Rang: 3
+    - Kumulativ Toppercentil: 33.33%
+    - **Niveau**: Niveau 6
+    - **Maksimal Tokenfordeling**: 7,000 Jet
+
+**Samlet Præstationsscore $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Beregning af Fordelingsmængde pr. Service**
+
+1. **Service A**:
+
+    - Forhold: $ \frac{P_A}{P} = 0.40 $
+    - Fordelingsmængde:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Forhold: $ \frac{P_C}{P} = 0.35 $
+    - Fordelingsmængde:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Forhold: $ \frac{P_B}{P} = 0.25 $
+    - Fordelingsmængde:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Fordelingsresultater**
+
+- **Samlet Tokens Fordelt**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Ufordelte Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Indvirkning af Akkumulerede Ufordelte Tokens
+
+- **Øget Service Deltagelse og Forbedret Præstation** vil gradvist reducere mængden af ufordelte tokens.
+- **Indledende tjenester kan udnytte den maksimale fordelingsmængde** til at fremme vækst.
+- Overførsel af tokens hjælper med at **opretholde værdistabilitet** og regulere cirkulation.
+
+## Brugerbelønninger og Tokenbrug
+
+### **Brugerbelønningsmekanisme**
+
+- **Aktivitetsbaserede Belønninger**: Brugere modtager JetPack tokens, når de udfører **forud aftalte aktiviteter** (f.eks. indholdsskabelse, gameplay) inden for en service.
+- **Tokenbelønningskriterier**: Mængden af tokens, der belønnes for hver aktivitet, **fastsættes gennem konsultation** mellem tjenesten og JetPack økosystemoperatøren.
+
+### **Tokenbrug Metoder**
+
+1. **Inden for Tjenesten**:
+    - **Adgang til Premium Funktioner**: Brug tokens til at få adgang til betalte funktioner eller indhold inden for tjenesten.
+    - **Køb af Varer**: Køb digitale varer eller genstande i tjenesten ved hjælp af tokens.
+
+2. **Brug af JetPack Wallet Service Exchange**:
+    - **Tokensalg**: Brugere kan bytte deres tokens til **ADA** (valutaen for **Cardano**).
+    - **Wallet Management**: JetPack wallet tillader sikker styring af tokens og overførsler til andre tjenester.
+
+### **Forventede Fordele ved Tokenværdi Stigning**
+
+- **Token Likviditet**: Handel med tokens på børser øger deres **likviditet**.
+- **Økonomiske Gevinster**: Brugere kan opnå **yderligere økonomiske fordele** ved at sælge tokens, hvis deres værdi stiger.
+
+## Tokenkøb og Omfordeling
+
+### **Yderligere Tokenkøb af Tjenester**
+
+- **Når Distribuerede Tokens Er Udtømt**: Hvis en service bruger alle sine tildelte tokens, kan den købe yderligere tokens fra **JetPack Wallet Service Exchange**.
+- **Købsvaluta**: Tokens købes ved hjælp af **ADA**.
+- **Anvendelse af Købte Tokens**: Købte tokens kan bruges til at **belønne brugere** eller **inden for tjenesten**.
+
+### **Sælgbare vs. Ikke-Sælgbare Tokens**
+
+- **Distribuerede Tokens** (**Ikke-Sælgbare**): Tokens tildelt tjenester **kan ikke videresælges** og er kun til **brugerbelønninger**.
+- **Købte Tokens og Tokens Modtaget fra Brugere** (**Sælgbare**): Tokens købt med ADA og tokens modtaget fra brugere **kan videresælges**, hvilket hjælper med **likviditetserhvervelse**.
+
+### **Token Omfordeling og Økosystemaktivering**
+
+1. **Token Cirkulationsstruktur**:
+    - Tjenester belønner brugere med tokens; brugere bruger dem inden for tjenester eller sælger dem på børser.
+    - Tjenester erhverver tokens fra brugere eller køber dem for at opretholde et **bæredygtigt belønningssystem**.
+
+2. **Økosystemaktiveringseffekter**:
+    - Token cirkulation fremmer **brugerengagement** og **serviceaktivering**.
+    - Dette bidrager til **tokenværdi stabilisering** og den **bæredygtige vækst** af økosystemet.

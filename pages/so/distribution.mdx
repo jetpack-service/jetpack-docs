@@ -1,0 +1,529 @@
+# Sida Ay U Shaqeeyaan Token-yada JetPack
+
+Nidaamka token-ka JetPack wuxuu ka kooban yahay **soo saarista iyo qaybinta token-ka ku saleysan hawlaha**, nidaam heer adeeg, abaalmarinno isticmaalaha iyo hababka isticmaalka token-ka, iyo habka iibinta iyo dib-u-qaybinta token-ka. Qaab-dhismeedkan wuxuu bixiyaa nidaam abaalmarin oo caddaalad ah oo wax ku ool ah labadaba isticmaalayaasha iyo bixiyeyaasha adeegga.
+
+## Habka Qaybinta Token-ka (Drop)
+
+### Wadarta Bixinta Token-ka iyo Mudada Qaybinta
+
+- **Wadarta Bixinta**: JetPack waxay soo saari doontaa wadarta guud ee **1 bilyan Jet** token.
+- **Mudada Qaybinta**: Token-yada waxaa la qaybin doonaa muddo **38 sano ah**, iyadoo wadarta guud ee **2,776 qaybinta** ay ka dhici doonaan isla muddada **Cardano Epoch** (1 epoch = 5 maalmood).
+
+### Qaddarka Qaybinta Token-ka ee Epoch kasta
+
+#### Xisaabinta Qaddarka Qaybinta iyadoo la adeegsanayo Shaqada Logarithmic
+
+Qaddarka token-yada ee la qaybiyo epoch kasta waxaa loogu talagalay inuu hoos u dhaco waqti ka dib. Shaqo **logarithmic** ah ayaa loo isticmaalaa in lagu xisaabiyo qaddarka qaybinta ee epoch kasta. **1 Jet wuxuu u dhigmaa 1,000,000 Pack**, sidaas darteed qaddarka qaybinta waxaa loo xisaabiyaa ilaa **lixaad meel meel** waxaana la bixiyaa si waafaqsan.
+
+1. **Qeexida Shaqada Logarithmic $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Halka:
+
+    - $ t $ uu yahay lambarka epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ waa shaqada logarithm dabiiciga ah.
+
+2. **Xisaabinta Wadarta Shaqada Log $ f(t) $ Dhammaan Epoch-yada**:
+
+   Wadarta guud ee qiimaha shaqada ee muddada qaybinta oo dhan $ S $ waa:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Xisaabinta Joogtada Miisaaminta $ A $**:
+
+   Wadarta guud ee token-ka ee **1 bilyan Jet** waxaa loo qaybiyaa wadarta $ S $ si loo hagaajiyo qaddarka qaybinta ee epoch kasta:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Xisaabinta Qaddarka Qaybinta Token-ka ee Epoch kasta**:
+
+   Qaddarka qaybinta ee epoch kasta waa:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Tusaalooyinka Qaddarka Qaybinta**:
+
+   Xisaabinta qaddarka qaybinta ee epoch-yada hore:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Qaddarka qaybinta ee epoch kasta waxaa go'aamiya qiimaha shaqada log ee u dhigma lambarka epoch.
+
+**Astaamaha Qaybinta**
+
+- Maadaama $ \ln(t + 1) $ uu kordho marka $ t $ uu kordho, qaybiyaha wuxuu noqdaa mid weyn, taasoo keenta in qaddarka qaybinta guud uu si tartiib tartiib ah u yaraado.
+- Qaddarka qaybinta ee epoch kasta wuxuu hoos u dhacaa waqti ka dib, isagoo ku dhowaanaya eber.
+- Naqshadeyntan waxay dhiirigelisaa ka qaybgalayaasha hore waxayna kordhisaa yaraanta token-ka.
+
+### Jadwalka Qaybinta Guud
+
+Hoos waxaa ku yaal jadwal kooban oo soo koobaya qaddarka qaybinta iyo taariikhaha epoch kasta.
+Wixii macluumaad faahfaahsan ee ku saabsan dhammaan epoch-yada, fadlan tixraac [document](/attach/token_allocation_per_epoch.csv) iyo [code](/attach/token_allocation_per_epoch.py).
+
+| Lambarka Epoch | Taariikhda       | Qaddarka Qaybinta (Jet) |
+|----------------|------------------|-------------------------|
+| 1              | 2025-01-01       | 3,479,788.70            |
+| 2              | 2025-01-06       | 2,195,502.227           |
+| 3              | 2025-01-11       | 1,739,894.35            |
+| ...            | ...              | ...                     |
+| 2774           | 2062-12-18       | 304,223.285             |
+| 2775           | 2062-12-23       | 304,209.4607            |
+| 2776           | 2062-12-28       | 304,195.6425            |
+
+### Shuruudaha Qaybinta Token-ka ee Adeeg kasta
+
+#### Xisaabinta Saamiyada Dhexdeeda Adeegyada
+
+Saamiga qaybinta ee adeeg kasta waxaa lagu xisaabiyaa iyadoo lagu saleynayo dhibcaha waxqabadka $ P_n $ marka loo eego wadarta dhibcaha waxqabadka $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Halka:
+
+- $ P_n $: Dhibcaha waxqabadka ee adeegga $ n $.
+- $ P $: Wadarta dhibcaha waxqabadka ee dhammaan adeegyada.
+
+#### Xisaabinta Qaddarka Qaybinta ee Adeeg kasta
+
+Qaddarka token-yada ee adeegga $ n $ uu helo epoch kasta $ S_n $ waa:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Qaddarka qaybinta guud ee la hagaajiyay ee epoch-ka.
+- $ \text{Maximum Token Distribution for Service } n $: Qaddarka ugu badan ee token-ka ee loo qoondeeyay iyadoo lagu saleynayo heerka adeegga (eeg qaybinta ugu badan ee token-ka ee ku saleysan heerka hoose).
+
+#### Maareynta Token-yada aan la Qaybin
+
+##### Qaadista Token-yada aan la Qaybin
+
+- Token-yada aan la qaybin ee epoch kasta waxaa lagu **darsadaa** qaddarka qaybinta guud ee epoch-ka xiga.
+- Tani waxay hubisaa qaybinta token-ka oo wax ku ool ah xitaa marka ka qaybgalka adeegga hore uu hooseeyo.
+
+##### Xisaabinta Qaddarka Qaybinta Guud ee la Hagaajiyay ee Epoch kasta
+
+Qaddarka qaybinta guud ee epoch-ka xiga waa:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Qaddarka qaybinta guud ee la hagaajiyay ee epoch $ t+1 $.
+- $ f(t+1) $: Qaddarka qaybinta ee ku saleysan shaqada qaybinta aasaasiga ah.
+- **Token-yada aan la Qaybin ee la Qaaday**: Tirada token-yada aan la qaybin ee epoch $ t $.
+
+#### Xisaabinta Dhibcaha Waxqabadka ($ P_n $) ee Adeeg kasta
+
+Dhibcaha waxqabadka ee adeeg kasta waxaa lagu xisaabiyaa iyadoo lagu saleynayo cabbirrada soo socda. Miisaanka cabbir kasta waxaa lagu hagaajin karaa iyada oo loo marayo maamul.
+
+1. **Isticmaalka Token-ka JetPack ($ M_{1n} $)**
+    - **Miisaanka**: $ w_1 = 50\% $
+    - **Sharaxaad**: Wadarta guud ee token-yada JetPack ee ay isticmaaleen isticmaalayaasha adeegga gudihiisa.
+
+2. **Tirada Codadka Degen Bunny ($ M_{2n} $)**
+    - **Miisaanka**: $ w_2 = 30\% $
+    - **Sharaxaad**: Tirada codadka laga helay OG Degen Bunnies.
+
+3. **Tirada Isticmaalayaasha Firfircoon ($ M_{3n} $)**
+    - **Miisaanka**: $ w_3 = 20\% $
+    - **Sharaxaad**: Tirada isticmaalayaasha gaarka ah ee helay oo firfircoon adeegga inta lagu jiro epoch-ka.
+
+Dhibcaha waxqabadka ee adeeg kasta $ P_n $ waxaa lagu xisaabiyaa sidan:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Halka:
+
+- $ M_{1n} $: Isticmaalka token-ka JetPack ee adeegga $ n $.
+- $ M_{1\text{total}} $: Wadarta isticmaalka token-ka JetPack ee dhammaan adeegyada.
+- $ M_{2n} $: Tirada codadka Degen Bunny ee adeegga $ n $.
+- $ M_{2\text{total}} $: Wadarta codadka Degen Bunny ee dhammaan adeegyada.
+- $ M_{3n} $: Tirada isticmaalayaasha firfircoon ee adeegga $ n $.
+- $ M_{3\text{total}} $: Wadarta isticmaalayaasha firfircoon ee dhammaan adeegyada.
+
+**Tusaale**:
+
+- **Adeegga A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Adeegga B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Adeegga C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Wadarta**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Miisaanka**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Xisaabinta Dhibcaha Waxqabadka ee Adeegga A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Xisaabinta Dhibcaha Waxqabadka ee Adeegga B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Xisaabinta Dhibcaha Waxqabadka ee Adeegga C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Sidaas darteed, dhibcaha waxqabadka waa:
+
+- **Adeegga A**: $ P_A = 0.38 $
+- **Adeegga B**: $ P_B = 0.29 $
+- **Adeegga C**: $ P_C = 0.33 $
+
+#### Shuruudaha Go'aaminta Heerka iyo Qaddarka Qaybinta Ugu Badan ee Token-ka
+
+Iyadoo lagu saleynayo dhibcaha waxqabadka $ P_n $, adeeg kasta waxaa loo kala saaraa **Heerarka 1 ilaa 9**. Kala soocidan waxay isticmaashaa **boqolkiiba sare ee urursan** ee dhammaan dhibcaha waxqabadka adeegyada.
+
+##### Boqolkiiba Sare ee Urursan iyo Qaddarka Qaybinta Ugu Badan ee Token-ka ee Heer kasta
+
+| **Heerka** | **Boqolkiiba Sare ee Urursan** | **Qaddarka Qaybinta Ugu Badan (Jet)** |
+|------------|-------------------------------|--------------------------------------|
+| Heerka 1   | Sare 4%                       | 30,000                               |
+| Heerka 2   | Sare 11%                      | 25,000                               |
+| Heerka 3   | Sare 23%                      | 20,000                               |
+| Heerka 4   | Sare 40%                      | 15,000                               |
+| Heerka 5   | Sare 60%                      | 10,000                               |
+| Heerka 6   | Sare 77%                      | 7,000                                |
+| Heerka 7   | Sare 89%                      | 5,000                                |
+| Heerka 8   | Sare 96%                      | 3,000                                |
+| Heerka 9   | Sare 100%                     | 1,000                                |
+
+##### Habka Go'aaminta Heerka
+
+1. **Xisaabi Dhibcaha Waxqabadka**
+
+   Isticmaal habka hore loo qeexay si aad u xisaabiso dhibcaha waxqabadka ee adeeg kasta $ P_n $.
+
+2. **Go'aami Kala-saarista Adeegyada**
+
+   Kala saar dhammaan adeegyada **si hoos u dhac ah** iyadoo lagu saleynayo dhibcaha waxqabadka.
+
+3. **Xisaabi Boqolkiiba Sare ee Urursan**
+
+   Adeeg kasta, xisaabi boqolkiiba sare ee urursan:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Halka:
+
+    - $ \text{Rank} $: Kala-saarista adeegga (laga bilaabo 1).
+    - $ N $: Wadarta tirada adeegyada.
+
+4. **U Qoondee Heerarka**
+
+   U qoondee heerarka iyadoo lagu saleynayo boqolkiiba sare ee urursan:
+
+    - **Heerka 1**: Boqolkiiba sare ee urursan > 96%
+    - **Heerka 2**: 89% < Boqolkiiba sare ee urursan ≤ 96%
+    - **Heerka 3**: 77% < Boqolkiiba sare ee urursan ≤ 89%
+    - **Heerka 4**: 60% < Boqolkiiba sare ee urursan ≤ 77%
+    - **Heerka 5**: 40% < Boqolkiiba sare ee urursan ≤ 60%
+    - **Heerka 6**: 23% < Boqolkiiba sare ee urursan ≤ 40%
+    - **Heerka 7**: 11% < Boqolkiiba sare ee urursan ≤ 23%
+    - **Heerka 8**: 4% < Boqolkiiba sare ee urursan ≤ 11%
+    - **Heerka 9**: Boqolkiiba sare ee urursan ≤ 4%
+
+**Tusaale**:
+
+Iyadoo la adeegsanayo wadarta guud ee **3** adeeg:
+
+1. **Xisaabi Kala-saarista iyo Boqolkiiba Sare ee Urursan**
+
+    - **Adeegga A**:
+
+        - Dhibcaha Waxqabadka: $ P_A = 0.38 $
+        - Kala-saarista: 1
+        - Boqolkiiba Sare ee Urursan:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Adeegga C**:
+
+        - Dhibcaha Waxqabadka: $ P_C = 0.33 $
+        - Kala-saarista: 2
+        - Boqolkiiba Sare ee Urursan:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Adeegga B**:
+
+        - Dhibcaha Waxqabadka: $ P_B = 0.29 $
+        - Kala-saarista: 3
+        - Boqolkiiba Sare ee Urursan:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **U Qoondee Heerarka**
+
+    - **Adeegga A**:
+
+        - Boqolkiiba Sare ee Urursan: 100%
+        - **Heerka**: **Heerka 1** (Boqolkiiba Sare ee Urursan > 96%)
+        - **Qaddarka Qaybinta Ugu Badan**: 30,000 Jet
+
+    - **Adeegga C**:
+
+        - Boqolkiiba Sare ee Urursan: 66.67%
+        - **Heerka**: **Heerka 4** (60% < Boqolkiiba Sare ee Urursan ≤ 77%)
+        - **Qaddarka Qaybinta Ugu Badan**: 15,000 Jet
+
+    - **Adeegga B**:
+
+        - Boqolkiiba Sare ee Urursan: 33.33%
+        - **Heerka**: **Heerka 6** (23% < Boqolkiiba Sare ee Urursan ≤ 40%)
+        - **Qaddarka Qaybinta Ugu Badan**: 7,000 Jet
+
+**Fiiro gaar ah**:
+
+- **Dhibcaha Isku Midka ah**: Adeegyada leh dhibcaha waxqabadka isku midka ah waxay helayaan kala-saaris isku mid ah. Marka la xisaabinayo boqolkiiba sare ee urursan, celceliska kala-saarista ayaa la isticmaalaa.
+- **Qaddarka Qaybinta Ugu Badan ee Token-ka** waxay tixraacdaa qaddarka ugu badan ee token-ka ee adeeggu heli karo iyadoo lagu saleynayo heerkiisa.
+
+### Tusaale Xaalad
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Qaddarka Qaybinta Aasaasiga ah**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Qaddarka Qaybinta Guud ee la Hagaajiyay**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Xisaabinta Qaddarka Qaybinta ee Adeeg kasta**
+
+Iyadoo lagu saleynayo dhibcaha waxqabadka iyo heerarka:
+
+- **Wadarta Dhibcaha Waxqabadka $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Adeegga A**:
+
+    - Saamiga: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Qaddarka Qaybinta:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Adeegga C**:
+
+    - Saamiga: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Qaddarka Qaybinta:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Adeegga B**:
+
+    - Saamiga: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Qaddarka Qaybinta:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Natiijooyinka Qaybinta**
+
+- **Wadarta Token-yada la Qaybiyay**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token-yada aan la Qaybin**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Qaddarka Qaybinta Aasaasiga ah**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Token-yada la Qaaday**: $ 3,427,788.70 \text{ Jet} $
+- **Qaddarka Qaybinta Guud ee la Hagaajiyay**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Dhibcaha Waxqabadka iyo Heerarka ee la Cusboonaysiiyay**
+
+Iyadoo la tixgelinayo isbeddelada dhibcaha waxqabadka:
+
+- **Adeegga A**:
+
+    - Dhibcaha Waxqabadka: $ P_A = 0.40 $
+    - Kala-saarista: 1
+    - Boqolkiiba Sare ee Urursan: 100%
+    - **Heerka**: Heerka 1
+    - **Qaddarka Qaybinta Ugu Badan**: 30,000 Jet
+
+- **Adeegga C**:
+
+    - Dhibcaha Waxqabadka: $ P_C = 0.35 $
+    - Kala-saarista: 2
+    - Boqolkiiba Sare ee Urursan: 66.67%
+    - **Heerka**: Heerka 4
+    - **Qaddarka Qaybinta Ugu Badan**: 15,000 Jet
+
+- **Adeegga B**:
+
+    - Dhibcaha Waxqabadka: $ P_B = 0.25 $
+    - Kala-saarista: 3
+    - Boqolkiiba Sare ee Urursan: 33.33%
+    - **Heerka**: Heerka 6
+    - **Qaddarka Qaybinta Ugu Badan**: 7,000 Jet
+
+**Wadarta Dhibcaha Waxqabadka $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Xisaabinta Qaddarka Qaybinta ee Adeeg kasta**
+
+1. **Adeegga A**:
+
+    - Saamiga: $ \frac{P_A}{P} = 0.40 $
+    - Qaddarka Qaybinta:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Adeegga C**:
+
+    - Saamiga: $ \frac{P_C}{P} = 0.35 $
+    - Qaddarka Qaybinta:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Adeegga B**:
+
+    - Saamiga: $ \frac{P_B}{P} = 0.25 $
+    - Qaddarka Qaybinta:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Natiijooyinka Qaybinta**
+
+- **Wadarta Token-yada la Qaybiyay**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Token-yada aan la Qaybin**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Saameynta Token-yada aan la Qaybin ee la Ururiyay
+
+- **Ka Qaybgalka Adeegga oo Kordhay iyo Waxqabadka oo Wanaagsan** waxay si tartiib tartiib ah u yareyn doontaa qaddarka token-yada aan la qaybin.
+- **Adeegyada hore waxay isticmaali karaan qaddarka qaybinta ugu badan** si ay u kobciyaan.
+- Qaadista token-yada waxay ka caawisaa **xasilinta qiimaha** iyo nidaaminta wareegga.
+
+## Abaalmarinta Isticmaalaha iyo Isticmaalka Token-ka
+
+### **Habka Abaalmarinta Isticmaalaha**
+
+- **Abaalmarinta Ku Saleysan Hawlaha**: Isticmaalayaasha waxay helaan token-yada JetPack marka ay qabtaan **hawlo hore loo heshiiyay** (tusaale, abuurista nuxurka, ciyaarista) adeegga gudihiisa.
+- **Shuruudaha Abaalmarinta Token-ka**: Qaddarka token-yada ee la abaalmariyo hawl kasta waxaa **go'aamiya wada-tashiga** u dhexeeya adeegga iyo hawl-wadeenka deegaanka JetPack.
+
+### **Hababka Isticmaalka Token-ka**
+
+1. **Gudaha Adeegga**:
+    - **Helitaanka Astaamaha Premium**: Isticmaal token-yada si aad u hesho astaamaha ama nuxurka lacagta leh ee adeegga gudihiisa.
+    - **Iibsashada Alaabta**: Iibso alaabta dhijitaalka ah ama alaabta adeegga gudihiisa adoo isticmaalaya token-yada.
+
+2. **Isticmaalka Is-weydaarsiga Adeegga Jeebka JetPack**:
+    - **Iibinta Token-ka**: Isticmaalayaasha waxay ku bedelan karaan token-yadooda **ADA** (lacagta **Cardano**).
+    - **Maareynta Jeebka**: Jeebka JetPack wuxuu u oggolaanayaa maareynta amniga ee token-yada iyo wareejinta adeegyada kale.
+
+### **Faa'iidooyinka La Filayo ee Ka Soo Baxay Qiimaha Token-ka oo Kordha**
+
+- **Lacagta Token-ka**: Ka ganacsiga token-yada ee is-weydaarsiga waxay kordhisaa **lacagtooda**.
+- **Faa'iidooyinka Dhaqaale**: Isticmaalayaasha waxay heli karaan **faa'iidooyin dhaqaale oo dheeri ah** iyagoo iibinaya token-yada haddii qiimahoodu kordho.
+
+## Iibsashada iyo Dib-u-qaybinta Token-ka
+
+### **Iibsashada Token-ka Dheeraadka ah ee Adeegyada**
+
+- **Marka Token-yada la Qaybiyay ay Dhamaadaan**: Haddii adeeggu isticmaalo dhammaan token-yada loo qoondeeyay, wuxuu iibsan karaa token-yada dheeraadka ah ee **Is-weydaarsiga Adeegga Jeebka JetPack**.
+- **Lacagta Iibsashada**: Token-yada waxaa lagu iibsadaa iyadoo la isticmaalayo **ADA**.
+- **Isticmaalka Token-yada la Iibsaday**: Token-yada la iibsaday waxaa loo isticmaali karaa in lagu **abaalmariyo isticmaalayaasha** ama **gudaha adeegga**.
+
+### **Token-yada Dib-u-iibsan kara iyo Token-yada aan Dib-u-iibsan karin**
+
+- **Token-yada la Qaybiyay** (**Aan Dib-u-iibsan karin**): Token-yada loo qoondeeyay adeegyada **lama iibin karo** waxaana loo isticmaalaa oo kaliya **abaalmarinta isticmaalayaasha**.
+- **Token-yada la Iibsaday iyo Token-yada laga Helay Isticmaalayaasha** (**Dib-u-iibsan kara**): Token-yada lagu iibsaday ADA iyo token-yada laga helay isticmaalayaasha **waa la iibin karaa**, taasoo ka caawinaysa **helitaanka lacagta**.
+
+### **Dib-u-qaybinta Token-ka iyo Dhaqdhaqaaqa Deegaanka**
+
+1. **Qaab-dhismeedka Wareegga Token-ka**:
+    - Adeegyada waxay abaalmariyaan isticmaalayaasha token-yada; isticmaalayaashu waxay isticmaalaan gudaha adeegyada ama waxay ku iibiyaan is-weydaarsiga.
+    - Adeegyada waxay helaan token-yada isticmaalayaasha ama waxay iibsadaan si ay u ilaaliyaan nidaam abaalmarin oo waara.
+
+2. **Saamaynta Dhaqdhaqaaqa Deegaanka**:
+    - Wareegga token-ka wuxuu dhiirigeliyaa **ka qaybgalka isticmaalayaasha** iyo **dhaqdhaqaaqa adeegga**.
+    - Tani waxay ka qaybqaadataa **xasilinta qiimaha token-ka** iyo **koritaanka waara** ee deegaanka.

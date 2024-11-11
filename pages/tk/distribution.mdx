@@ -1,0 +1,529 @@
+# JetPack Tokenlarynyň Işleýşi
+
+JetPack token ulgamy **hereket esasly token çykaryş we paýlaýyş**, **hyzmat derejesi ulgamy**, **ulanyjy sylaglary we token ulanyş usullary**, hem-de **token satyn alyş we gaýtadan paýlaýyş mehanizmi** bilen düzülendir. Bu gurluş ulanyjylar we hyzmat üpjün edijiler üçin **adalatly we netijeli sylag ulgamy** üpjün edýär.
+
+## Token Paýlaýyş (Drop) Mehanizmi
+
+### Jemi Token Mukdary we Paýlaýyş Möhleti
+
+- **Jemi Mukdar**: JetPack jemi **1 milliard Jet** token çykarar.
+- **Paýlaýyş Möhleti**: Tokenler **38 ýyl** dowamynda paýlanar, jemi **2,776 paýlaýyş** **Cardano Epoch** bilen deň aralykda (1 epoch = 5 gün) amala aşyrylar.
+
+### Her Epoch üçin Token Paýlaýyş Mukdary
+
+#### Logarifmik Funksiýa Esasynda Paýlaýyş Mukdaryny Hasaplamak
+
+Her epoch üçin paýlanýan token mukdary wagtyň geçmegi bilen azalmak üçin niýetlenendir. Her epoch üçin paýlaýyş mukdaryny hasaplamak üçin **logarifmik funksiýa** ulanylýar. **1 Jet 1,000,000 Pack** deňdir, şonuň üçin paýlaýyş mukdarlary **altynjy onluk ýere çenli** hasaplanýar we degişli görnüşde tölenýär.
+
+1. **Logarifmik Funksiýanyň $ f(t) $ Kesgitlemesi**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Bu ýerde:
+
+    - $ t $ epoch belgisi, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ tebigy logarifm funksiýasy.
+
+2. **Bütin Epochlar Üstünde Log Funksiýasynyň $ f(t) $ Jemi Hasaplamak**:
+
+   Bütin paýlaýyş döwrüniň funksiýa bahalarynyň jemi $ S $:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Ölçeg Konstanta $ A $ Hasaplamak**:
+
+   **1 milliard Jet** jemi token mukdary $ S $ bilen bölünýär, her epoch üçin paýlaýyş mukdaryny sazlamak üçin:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Her Epoch üçin Token Paýlaýyş Mukdaryny Hasaplamak**:
+
+   Her epoch üçin paýlaýyş mukdary:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Paýlaýyş Mukdarlarynyň Mysallary**:
+
+   Ilkinji epochlar üçin paýlaýyş mukdarlaryny hasaplamak:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Her epoch üçin paýlaýyş mukdary epoch belgisine laýyk log funksiýasynyň bahasy bilen kesgitlenýär.
+
+**Paýlaýyş Häsiýetleri**
+
+- $ \ln(t + 1) $ $ t $ artdygyça artýar, şonuň üçin bölüji ulalýar we umumy paýlaýyş mukdary kem-kemden azalýar.
+- Her epoch üçin paýlaýyş mukdary wagtyň geçmegi bilen azalarak, nola ýakynlaşýar.
+- Bu dizaýn irki gatnaşyjylary höweslendirýär we tokeniň gytaklaýynlygyny ýokarlandyrýar.
+
+### Umumy Paýlaýyş Tertibi
+
+Aşakda her epoch üçin paýlaýyş mukdarlaryny we senelerini jemleýän bölekleýin tablisany görüp bilersiňiz.
+Bütün epochlar baradaky jikme-jik maglumat üçin aýratyn [resminama](/attach/token_allocation_per_epoch.csv) we [kod](/attach/token_allocation_per_epoch.py) serediň.
+
+| Epoch Belgisi | Sene           | Paýlaýyş Mukdary (Jet) |
+|---------------|----------------|------------------------|
+| 1             | 2025-01-01     | 3,479,788.70           |
+| 2             | 2025-01-06     | 2,195,502.227          |
+| 3             | 2025-01-11     | 1,739,894.35           |
+| ...           | ...            | ...                    |
+| 2774          | 2062-12-18     | 304,223.285            |
+| 2775          | 2062-12-23     | 304,209.4607           |
+| 2776          | 2062-12-28     | 304,195.6425           |
+
+### Her Hyzmat üçin Token Paýlaýyş Meýilnamasy
+
+#### Hyzmatlaryň Arasyndaky Gatnaşyklary Hasaplamak
+
+Her hyzmat üçin paýlaýyş gatnaşygy, onuň umumy öndürijilik balyna $ P $ görä öndürijilik baly $ P_n $ esasynda hasaplanýar:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Bu ýerde:
+
+- $ P_n $: Hyzmat $ n $-iň öndürijilik baly.
+- $ P $: Bütün hyzmatlaryň öndürijilik balynyň jemi.
+
+#### Her Hyzmat üçin Paýlaýyş Mukdaryny Hasaplamak
+
+Her epochda hyzmat $ n $-iň alýan token mukdary $ S_n $:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Epoch üçin sazlanan umumy paýlaýyş mukdary.
+- $ \text{Maximum Token Distribution for Service } n $: Hyzmatyň derejesine görä kesgitlenen iň ýokary token mukdary (aşakdaky dereje esasly iň ýokary token paýlaýyşyna serediň).
+
+#### Paýlanmadyk Tokenleriň Dolandyrylyşy
+
+##### Paýlanmadyk Tokenleriň Geçirilmegi
+
+- Her epochdan paýlanmadyk tokenler indiki epoch üçin umumy paýlaýyş mukdaryna **goşulýar**.
+- Bu, başlangyç hyzmat gatnaşygynyň pes bolanda-da täsirli token paýlaýyşyny üpjün edýär.
+
+##### Her Epoch üçin Sazlanan Umumy Paýlaýyş Mukdaryny Hasaplamak
+
+Indiki epoch üçin umumy paýlaýyş mukdary:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Epoch $ t+1 $ üçin sazlanan umumy paýlaýyş mukdary.
+- $ f(t+1) $: Esasy paýlaýyş funksiýasyna esaslanýan paýlaýyş mukdary.
+- **Geçirilen Paýlanmadyk Tokenler**: Epoch $ t $-de paýlanmadyk tokenleriň sany.
+
+#### Her Hyzmat üçin Öndürijilik Baly ($ P_n $) Hasaplamak
+
+Her hyzmatyň öndürijilik baly aşakdaky ölçeglere esaslanýar. Her ölçegiň agramy dolandyryş arkaly sazlanýar.
+
+1. **JetPack Token Sarp Edilişi ($ M_{1n} $)**
+    - **Agram**: $ w_1 = 50\% $
+    - **Düşündiriş**: Hyzmatda ulanyjylar tarapyndan sarp edilen umumy JetPack token mukdary.
+
+2. **Degen Bunny Ses Sany ($ M_{2n} $)**
+    - **Agram**: $ w_2 = 30\% $
+    - **Düşündiriş**: OG Degen Bunnies tarapyndan alnan sesleriň sany.
+
+3. **Aktiw Ulanyjy Sany ($ M_{3n} $)**
+    - **Agram**: $ w_3 = 20\% $
+    - **Düşündiriş**: Epochda hyzmaty giren we aktiw bolan özboluşly ulanyjylaryň sany.
+
+Her hyzmatyň öndürijilik baly $ P_n $ şu şekilde hasaplanýar:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Bu ýerde:
+
+- $ M_{1n} $: Hyzmat $ n $-iň JetPack token sarp edilişi.
+- $ M_{1\text{total}} $: Bütün hyzmatlaryň JetPack token sarp edilişi.
+- $ M_{2n} $: Hyzmat $ n $ üçin Degen Bunny ses sany.
+- $ M_{2\text{total}} $: Bütün hyzmatlaryň Degen Bunny ses sany.
+- $ M_{3n} $: Hyzmat $ n $-iň aktiw ulanyjy sany.
+- $ M_{3\text{total}} $: Bütün hyzmatlaryň aktiw ulanyjy sany.
+
+**Mysal**:
+
+- **Hyzmat A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Hyzmat B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Hyzmat C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Jemler**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Agramlar**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Hyzmat A üçin Öndürijilik Baly Hasaplamak**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Hyzmat B üçin Öndürijilik Baly Hasaplamak**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Hyzmat C üçin Öndürijilik Baly Hasaplamak**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Şeýlelik bilen, öndürijilik ballary:
+
+- **Hyzmat A**: $ P_A = 0.38 $
+- **Hyzmat B**: $ P_B = 0.29 $
+- **Hyzmat C**: $ P_C = 0.33 $
+
+#### Dereje Kesgitleme Meýilnamasy we Iň ýokary Token Paýlaýyş Mukdary
+
+Öndürijilik baly $ P_n $ esasynda her hyzmat **1-den 9-a çenli Derejelere** bölünýär. Bu klassifikasiýa ähli hyzmatlaryň öndürijilik ballarynyň **jemleýji ýokary prosentili** ulanylýar.
+
+##### Jemleýji Ýokary Prosentiller we Her Dereje üçin Iň ýokary Token Paýlaýyş Mukdarlary
+
+| **Dereje** | **Jemleýji Ýokary Prosentil** | **Iň ýokary Token Paýlaýyş (Jet)** |
+|------------|-------------------------------|-----------------------------------|
+| Dereje 1   | Ýokary 4%                     | 30,000                            |
+| Dereje 2   | Ýokary 11%                    | 25,000                            |
+| Dereje 3   | Ýokary 23%                    | 20,000                            |
+| Dereje 4   | Ýokary 40%                    | 15,000                            |
+| Dereje 5   | Ýokary 60%                    | 10,000                            |
+| Dereje 6   | Ýokary 77%                    | 7,000                             |
+| Dereje 7   | Ýokary 89%                    | 5,000                             |
+| Dereje 8   | Ýokary 96%                    | 3,000                             |
+| Dereje 9   | Ýokary 100%                   | 1,000                             |
+
+##### Dereje Kesgitleme Usuly
+
+1. **Öndürijilik Ballaryny Hasaplamak**
+
+   Her hyzmatyň öndürijilik baly $ P_n $ hasaplamak üçin öň kesgitlenen usuly ulanyň.
+
+2. **Hyzmat Reýtinglerini Kesgitlemek**
+
+   Bütün hyzmatlary öndürijilik ballaryna görä **azalan tertipde** reýting ediň.
+
+3. **Jemleýji Ýokary Prosentilleri Hasaplamak**
+
+   Her hyzmat üçin jemleýji ýokary prosentili hasaplaň:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Bu ýerde:
+
+    - $ \text{Rank} $: Hyzmatyň reýtingi (1-den başlap).
+    - $ N $: Hyzmatlaryň umumy sany.
+
+4. **Derejeleri Kesgitlemek**
+
+   Jemleýji ýokary prosentiller esasynda derejeleri kesgitlemek:
+
+    - **Dereje 1**: Jemleýji ýokary prosentil > 96%
+    - **Dereje 2**: 89% < Jemleýji ýokary prosentil ≤ 96%
+    - **Dereje 3**: 77% < Jemleýji ýokary prosentil ≤ 89%
+    - **Dereje 4**: 60% < Jemleýji ýokary prosentil ≤ 77%
+    - **Dereje 5**: 40% < Jemleýji ýokary prosentil ≤ 60%
+    - **Dereje 6**: 23% < Jemleýji ýokary prosentil ≤ 40%
+    - **Dereje 7**: 11% < Jemleýji ýokary prosentil ≤ 23%
+    - **Dereje 8**: 4% < Jemleýji ýokary prosentil ≤ 11%
+    - **Dereje 9**: Jemleýji ýokary prosentil ≤ 4%
+
+**Mysal**:
+
+Jemi **3** hyzmat bilen:
+
+1. **Reýtingleri we Jemleýji Ýokary Prosentilleri Hasaplamak**
+
+    - **Hyzmat A**:
+
+        - Öndürijilik Baly: $ P_A = 0.38 $
+        - Reýting: 1
+        - Jemleýji Ýokary Prosentil:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Hyzmat C**:
+
+        - Öndürijilik Baly: $ P_C = 0.33 $
+        - Reýting: 2
+        - Jemleýji Ýokary Prosentil:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Hyzmat B**:
+
+        - Öndürijilik Baly: $ P_B = 0.29 $
+        - Reýting: 3
+        - Jemleýji Ýokary Prosentil:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Derejeleri Kesgitlemek**
+
+    - **Hyzmat A**:
+
+        - Jemleýji Ýokary Prosentil: 100%
+        - **Dereje**: **Dereje 1** (Jemleýji Ýokary Prosentil > 96%)
+        - **Iň ýokary Token Paýlaýyş**: 30,000 Jet
+
+    - **Hyzmat C**:
+
+        - Jemleýji Ýokary Prosentil: 66.67%
+        - **Dereje**: **Dereje 4** (60% < Jemleýji Ýokary Prosentil ≤ 77%)
+        - **Iň ýokary Token Paýlaýyş**: 15,000 Jet
+
+    - **Hyzmat B**:
+
+        - Jemleýji Ýokary Prosentil: 33.33%
+        - **Dereje**: **Dereje 6** (23% < Jemleýji Ýokary Prosentil ≤ 40%)
+        - **Iň ýokary Token Paýlaýyş**: 7,000 Jet
+
+**Bellikler**:
+
+- **Deň Balylar**: Deň öndürijilik ballary bolan hyzmatlar deň reýting alýar. Jemleýji ýokary prosentilleri hasaplamakda ortaça reýting ulanylýar.
+- **Iň ýokary Token Paýlaýyş** hyzmatyň derejesine görä alýan iň ýokary token mukdaryny aňladýar.
+
+### Mysal Ssenariýasy
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Esasy Paýlaýyş Mukdary**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Sazlanan Umumy Paýlaýyş Mukdary**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Her Hyzmat üçin Paýlaýyş Mukdaryny Hasaplamak**
+
+Öndürijilik ballaryna we derejelerine esaslanyp:
+
+- **Umumy Öndürijilik Baly $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Hyzmat A**:
+
+    - Gatnaşyk: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Paýlaýyş Mukdary:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Hyzmat C**:
+
+    - Gatnaşyk: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Paýlaýyş Mukdary:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Hyzmat B**:
+
+    - Gatnaşyk: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Paýlaýyş Mukdary:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Paýlaýyş Netijeleri**
+
+- **Paýlanan Jemi Tokenler**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Paýlanmadyk Tokenler**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Esasy Paýlaýyş Mukdary**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Geçirilen Tokenler**: $ 3,427,788.70 \text{ Jet} $
+- **Sazlanan Umumy Paýlaýyş Mukdary**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Täzelenen Öndürijilik Ballary we Derejeler**
+
+Öndürijilik ballarynda üýtgeşmeler bolandygyny çaklamak:
+
+- **Hyzmat A**:
+
+    - Öndürijilik Baly: $ P_A = 0.40 $
+    - Reýting: 1
+    - Jemleýji Ýokary Prosentil: 100%
+    - **Dereje**: Dereje 1
+    - **Iň ýokary Token Paýlaýyş**: 30,000 Jet
+
+- **Hyzmat C**:
+
+    - Öndürijilik Baly: $ P_C = 0.35 $
+    - Reýting: 2
+    - Jemleýji Ýokary Prosentil: 66.67%
+    - **Dereje**: Dereje 4
+    - **Iň ýokary Token Paýlaýyş**: 15,000 Jet
+
+- **Hyzmat B**:
+
+    - Öndürijilik Baly: $ P_B = 0.25 $
+    - Reýting: 3
+    - Jemleýji Ýokary Prosentil: 33.33%
+    - **Dereje**: Dereje 6
+    - **Iň ýokary Token Paýlaýyş**: 7,000 Jet
+
+**Umumy Öndürijilik Baly $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Her Hyzmat üçin Paýlaýyş Mukdaryny Hasaplamak**
+
+1. **Hyzmat A**:
+
+    - Gatnaşyk: $ \frac{P_A}{P} = 0.40 $
+    - Paýlaýyş Mukdary:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Hyzmat C**:
+
+    - Gatnaşyk: $ \frac{P_C}{P} = 0.35 $
+    - Paýlaýyş Mukdary:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Hyzmat B**:
+
+    - Gatnaşyk: $ \frac{P_B}{P} = 0.25 $
+    - Paýlaýyş Mukdary:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Paýlaýyş Netijeleri**
+
+- **Paýlanan Jemi Tokenler**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Paýlanmadyk Tokenler**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Paýlanmadyk Tokenleriň Ýygnanan Täseri
+
+- **Hyzmat Gatnaşygynyň Artmagy we Öndürijiligiň Gowulaşmagy** paýlanmadyk tokenleriň mukdaryny kem-kemden azaldar.
+- **Başlangyç hyzmatlar ösüşi höweslendirmek üçin iň ýokary paýlaýyş mukdaryny ulanyp biler**.
+- Tokenleriň geçirilmegi **gymmatlyk durnuklylygyny saklamaga** we dolanyşygy düzgünleşdirmäge kömek edýär.
+
+## Ulanyjy Sylaglary we Token Ulanylyşy
+
+### **Ulanyjy Sylag Mehanizmi**
+
+- **Hereket Esasly Sylaglar**: Ulanyjylar hyzmatda **öň ylalaşylan hereketleri** (meselem, mazmun döretmek, oýun oýnamak) ýerine ýetirenlerinde JetPack token alýarlar.
+- **Token Sylag Meýilnamasy**: Her hereket üçin sylag berilýän token mukdary hyzmat bilen JetPack ekosistemasy operatorynyň arasyndaky **gepleşikler arkaly kesgitlenýär**.
+
+### **Token Ulanylyş Usullary**
+
+1. **Hyzmatyň Içinde**:
+    - **Premium Aýratynlyklara Girmek**: Hyzmatyň içinde tölegli aýratynlyklara ýa-da mazmuna girmek üçin token ulanyň.
+    - **Haryt Satyn Almak**: Token ulanyp sanly harytlar ýa-da hyzmat içindäki zatlar satyn alyň.
+
+2. **JetPack Wallet Hyzmat Alyş-Çalyşygy Ulanyp**:
+    - **Token Satyşy**: Ulanyjylar tokenlerini **ADA** (Cardano-nyň walýutasy) bilen çalşyp bilerler.
+    - **Wallet Dolandyryşy**: JetPack wallet tokenleriň howpsuz dolandyrylyşyny we beýleki hyzmatlara geçirilmegini üpjün edýär.
+
+### **Token Gymmatynyň Artmagyndan Garaşylýan Üstünlikler**
+
+- **Token Likwidligi**: Tokenleriň alyş-çalyşlarda söwdasy olaryň **likwidligini** ýokarlandyrýar.
+- **Ykdysady Gazançlar**: Ulanyjylar tokenleriň gymmaty artan ýagdaýynda satyp, **goşmaça ykdysady peýdalar** gazanyp bilerler.
+
+## Token Satyn Alyş we Gaýtadan Paýlaýyş
+
+### **Hyzmatlar tarapyndan Goşmaça Token Satyn Alyşlar**
+
+- **Paýlanan Tokenler Gutaranda**: Hyzmat özüne bölünip berlen ähli tokenleri ulanan ýagdaýynda, **JetPack Wallet Hyzmat Alyş-Çalyşygyndan** goşmaça token satyn alyp biler.
+- **Satyn Alyş Walýutasy**: Tokenler **ADA** bilen satyn alynýar.
+- **Satyn Alnan Tokenleriň Ulanylyşy**: Satyn alnan tokenler **ulanyjylary sylaglamak** ýa-da **hyzmatyň içinde** ulanylyp bilner.
+
+### **Gaýtadan Satylýan we Gaýtadan Satylmaýan Tokenler**
+
+- **Paýlanan Tokenler** (**Gaýtadan Satylmaýan**): Hyzmatlara bölünip berlen tokenler **gaýtadan satylmaýar** we diňe **ulanyjy sylaglary** üçin ulanylýar.
+- **Satyn Alnan Tokenler we Ulanyjylardan Alnan Tokenler** (**Gaýtadan Satylýan**): ADA bilen satyn alnan tokenler we ulanyjylardan alnan tokenler **gaýtadan satylyp bilner**, bu bolsa **likwidlik gazanmagyna** kömek edýär.
+
+### **Token Gaýtadan Paýlaýyş we Ekosistemany Hereketlendirmek**
+
+1. **Token Dolanyşygy Gurluşy**:
+    - Hyzmatlar ulanyjylara token bilen sylag berýär; ulanyjylar olary hyzmatlaryň içinde ulanýarlar ýa-da alyş-çalyşlarda satýarlar.
+    - Hyzmatlar ulanyjylardan token alýarlar ýa-da durnukly sylag ulgamyny saklamak üçin satyn alýarlar.
+
+2. **Ekosistemany Hereketlendirme Täserleri**:
+    - Token dolanyşygy **ulanyjy gatnaşygyny** we **hyzmat hereketlendirmesini** höweslendirýär.
+    - Bu bolsa **token gymmatynyň durnuklaşmagyna** we ekosistemanyň **durnukly ösüşine** goşant goşýar.

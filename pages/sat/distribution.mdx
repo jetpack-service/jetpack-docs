@@ -1,0 +1,529 @@
+# JetPack Tokens katha katha
+
+JetPack token system re **activity-based token issuance and distribution**, ek **service level system**, **user rewards and token utilization methods**, ar ek **mechanism for purchasing and redistributing tokens** ache. Ehi structure re **fair ar efficient reward system** user ar service providers donhoke lagitay ache.
+
+## Token Distribution (Drop) Mechanism
+
+### Total Token Supply ar Distribution Period
+
+- **Total Supply**: JetPack **1 billion Jet** tokens issue korbe.
+- **Distribution Period**: Tokens **38 years** re distribute korbe, ar **2,776 distributions** Cardano Epoch (1 epoch = 5 days) re same intervals re hobe.
+
+### Token Distribution Amount per Epoch
+
+#### Logarithmic Function re base kore Distribution Amount calculate kora
+
+Epoch re distribute kora token amount time re decrease korbe. Ek **logarithmic function** use kore pratyek epoch re distribution amount calculate kora jaye. **1 Jet equals 1,000,000 Pack**, tai distribution amounts **sixth decimal place** re calculate kora jaye ar accordingly paid kora jaye.
+
+1. **Logarithmic Function $ f(t) $ re Definition**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Jekhane:
+
+    - $ t $ epoch number, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ natural logarithm function.
+
+2. **Log Function $ f(t) $ re Sum calculate kora Over All Epochs**:
+
+   Total sum function values over entire distribution period $ S $:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Scaling Constant $ A $ calculate kora**:
+
+   Total token supply **1 billion Jet** sum $ S $ re divide kore pratyek epoch re distribution amount adjust kora:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Token Distribution Amount per Epoch calculate kora**:
+
+   Pratyek epoch re distribution amount:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Distribution Amounts Examples**:
+
+   Initial epochs re distribution amounts calculate kora:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Pratyek epoch re distribution amount epoch number corresponding log function value re determine kora jaye.
+
+**Distribution Characteristics**
+
+- $ \ln(t + 1) $ increase korle $ t $ increase kore, denominator bara jaye, ar overall distribution amount gradually decrease kore.
+- Pratyek epoch re distribution amount time re decrease kore, zero re approach kore.
+- Ehi design early participants ke incentivize kore ar token scarcity increase kore.
+
+### Overall Distribution Schedule
+
+Niche ek partial table re pratyek epoch re distribution amounts ar dates summarize kora ache.
+Sokol epochs re detailed information lagitay, separate [document](/attach/token_allocation_per_epoch.csv) ar [code](/attach/token_allocation_per_epoch.py) refer kora jaye.
+
+| Epoch Number | Date           | Distribution Amount (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Token Distribution Criteria per Service
+
+#### Services majhe Ratios calculate kora
+
+Pratyek service re distribution ratio tar performance score $ P_n $ total performance score $ P $ relative re calculate kora jaye:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Jekhane:
+
+- $ P_n $: Service $ n $ re performance score.
+- $ P $: Sokol services re performance scores sum.
+
+#### Distribution Amount per Service calculate kora
+
+Pratyek epoch re service $ n $ receive kora token amount $ S_n $:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Epoch re adjusted total distribution amount.
+- $ \text{Maximum Token Distribution for Service } n $: Service re level base kora maximum token amount (niche level-based maximum token distribution dekha jaye).
+
+#### Undistributed Tokens handle kora
+
+##### Undistributed Tokens carry over kora
+
+- Pratyek epoch re undistributed tokens **added** next epoch re total distribution amount re.
+- Ehi ensure kore effective token distribution jodi initial service participation low thake.
+
+##### Adjusted Total Distribution Amount per Epoch calculate kora
+
+Next epoch re total distribution amount:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Epoch $ t+1 $ re adjusted total distribution amount.
+- $ f(t+1) $: Basic distribution function base kora distribution amount.
+- **Carried-over Undistributed Tokens**: Epoch $ t $ re distribute na kora tokens number.
+
+#### Performance Score ($ P_n $) per Service calculate kora
+
+Pratyek service re performance score niche metrics base kora calculate kora jaye. Pratyek metric re weight governance through adjust kora jaye.
+
+1. **JetPack Token Consumption ($ M_{1n} $)**
+    - **Weight**: $ w_1 = 50\% $
+    - **Description**: Service re user dwara consume kora total JetPack tokens amount.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Weight**: $ w_2 = 30\% $
+    - **Description**: OG Degen Bunnies dwara receive kora votes number.
+
+3. **Active User Count ($ M_{3n} $)**
+    - **Weight**: $ w_3 = 20\% $
+    - **Description**: Epoch re service access ar active kora unique users number.
+
+Pratyek service re performance score $ P_n $ calculate kora jaye:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Jekhane:
+
+- $ M_{1n} $: Service $ n $ re JetPack token consumption.
+- $ M_{1\text{total}} $: Sokol services re total JetPack token consumption.
+- $ M_{2n} $: Service $ n $ re Degen Bunny vote count.
+- $ M_{2\text{total}} $: Sokol services re total Degen Bunny votes.
+- $ M_{3n} $: Service $ n $ re active user count.
+- $ M_{3\text{total}} $: Sokol services re total active users.
+
+**Example**:
+
+- **Service A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Service B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Service C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totals**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Weights**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Service A re Performance Score calculate kora**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Service B re Performance Score calculate kora**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Service C re Performance Score calculate kora**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Tai, performance scores:
+
+- **Service A**: $ P_A = 0.38 $
+- **Service B**: $ P_B = 0.29 $
+- **Service C**: $ P_C = 0.33 $
+
+#### Level Determination Criteria ar Maximum Token Distribution Amount
+
+Performance score $ P_n $ base kora, pratyek service **Levels 1 through 9** re classified kora jaye. Ehi classification **cumulative top percentile** sokol services re performance scores use kore.
+
+##### Cumulative Top Percentiles ar Maximum Token Distribution Amounts per Level
+
+| **Level** | **Cumulative Top Percentile** | **Maximum Token Distribution (Jet)** |
+|-----------|-------------------------------|--------------------------------------|
+| Level 1   | Top 4%                        | 30,000                               |
+| Level 2   | Top 11%                       | 25,000                               |
+| Level 3   | Top 23%                       | 20,000                               |
+| Level 4   | Top 40%                       | 15,000                               |
+| Level 5   | Top 60%                       | 10,000                               |
+| Level 6   | Top 77%                       | 7,000                                |
+| Level 7   | Top 89%                       | 5,000                                |
+| Level 8   | Top 96%                       | 3,000                                |
+| Level 9   | Top 100%                      | 1,000                                |
+
+##### Level Determination Method
+
+1. **Performance Scores calculate kora**
+
+   Pratyek service re performance score $ P_n $ calculate kora lagitay previously defined method use kora.
+
+2. **Service Rankings determine kora**
+
+   Sokol services re **descending order** re rank kora based on their performance scores.
+
+3. **Cumulative Top Percentiles calculate kora**
+
+   Pratyek service lagitay cumulative top percentile calculate kora:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Jekhane:
+
+    - $ \text{Rank} $: Service re rank (1 theke start kora).
+    - $ N $: Total services number.
+
+4. **Levels assign kora**
+
+   Cumulative top percentiles base kora levels assign kora:
+
+    - **Level 1**: Cumulative top percentile > 96%
+    - **Level 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Level 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Level 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Level 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Level 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Level 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Level 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Level 9**: Cumulative top percentile ≤ 4%
+
+**Example**:
+
+Total **3** services re:
+
+1. **Rankings ar Cumulative Top Percentiles calculate kora**
+
+    - **Service A**:
+
+        - Performance Score: $ P_A = 0.38 $
+        - Rank: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Service C**:
+
+        - Performance Score: $ P_C = 0.33 $
+        - Rank: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Service B**:
+
+        - Performance Score: $ P_B = 0.29 $
+        - Rank: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Levels assign kora**
+
+    - **Service A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Level**: **Level 1** (Cumulative Top Percentile > 96%)
+        - **Maximum Token Distribution**: 30,000 Jet
+
+    - **Service C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Level**: **Level 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum Token Distribution**: 15,000 Jet
+
+    - **Service B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Level**: **Level 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum Token Distribution**: 7,000 Jet
+
+**Notes**:
+
+- **Tied Scores**: Identical performance scores thakle services same rank receive kore. Cumulative top percentiles calculate kora average rank use kora jaye.
+- **Maximum Token Distribution** service re level base kora maximum token amount refer kore.
+
+### Example Scenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basic Distribution Amount**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Distribution Amount per Service calculate kora**
+
+Performance scores ar levels base kora:
+
+- **Total Performance Score $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Service A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Distribution Amount:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Distribution Amount:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Distribution Amount:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distribution Results**
+
+- **Total Tokens Distributed**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Undistributed Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basic Distribution Amount**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Carried-over Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Updated Performance Scores ar Levels**
+
+Performance scores changes assume kora:
+
+- **Service A**:
+
+    - Performance Score: $ P_A = 0.40 $
+    - Rank: 1
+    - Cumulative Top Percentile: 100%
+    - **Level**: Level 1
+    - **Maximum Token Distribution**: 30,000 Jet
+
+- **Service C**:
+
+    - Performance Score: $ P_C = 0.35 $
+    - Rank: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Level**: Level 4
+    - **Maximum Token Distribution**: 15,000 Jet
+
+- **Service B**:
+
+    - Performance Score: $ P_B = 0.25 $
+    - Rank: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Level**: Level 6
+    - **Maximum Token Distribution**: 7,000 Jet
+
+**Total Performance Score $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Distribution Amount per Service calculate kora**
+
+1. **Service A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Distribution Amount:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Distribution Amount:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Distribution Amount:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distribution Results**
+
+- **Total Tokens Distributed**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Undistributed Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Accumulated Undistributed Tokens re Impact
+
+- **Increased Service Participation ar Improved Performance** gradually undistributed tokens amount reduce korbe.
+- **Initial services maximum distribution amount utilize kore** growth foster korbe.
+- Tokens carry over kora **value stability maintain kore** ar circulation regulate korbe.
+
+## User Rewards ar Token Usage
+
+### **User Reward Mechanism**
+
+- **Activity-Based Rewards**: Users JetPack tokens receive kore jodi tara **pre-agreed activities** (e.g., content creation, gameplay) service re perform kore.
+- **Token Reward Criteria**: Pratyek activity lagitay tokens reward amount **consultation through determine kora** service ar JetPack ecosystem operator majhe.
+
+### **Token Usage Methods**
+
+1. **Service re Within**:
+    - **Access Premium Features**: Tokens use kore paid features or content service re access kora.
+    - **Purchase Goods**: Digital goods or in-service items tokens use kore buy kora.
+
+2. **JetPack Wallet Service Exchange use kora**:
+    - **Token Sales**: Users tar tokens **ADA** (the currency of **Cardano**) re exchange kore.
+    - **Wallet Management**: JetPack wallet tokens ar transfers secure management other services re allow kore.
+
+### **Token Value Appreciation re Expected Benefits**
+
+- **Token Liquidity**: Exchanges re trading tokens tar **liquidity** increase kore.
+- **Economic Gains**: Users **additional economic benefits** achieve kore jodi tokens sell kore ar tar value appreciate kore.
+
+## Token Purchase ar Redistribution
+
+### **Services dwara Additional Token Purchases**
+
+- **Jodi Distributed Tokens Depleted hoy**: Jodi ek service tar allocated tokens sokol use kore, ta JetPack Wallet Service Exchange theke additional tokens purchase kore.
+- **Purchase Currency**: Tokens **ADA** use kore purchase kora.
+- **Purchased Tokens re Utilization**: Purchased tokens **user rewards** or **service re within** use kora jaye.
+
+### **Resellable vs. Non-Resellable Tokens**
+
+- **Distributed Tokens** (**Non-Resellable**): Services lagitay allocated tokens **resell kora jaye na** ar only **user rewards** lagitay.
+- **Purchased Tokens ar Users theke Acquired Tokens** (**Resellable**): ADA use kore bought tokens ar users theke received tokens **resell kora jaye**, liquidity acquisition aid kore.
+
+### **Token Redistribution ar Ecosystem Activation**
+
+1. **Token Circulation Structure**:
+    - Services users ke tokens reward kore; users services re within use kore or exchanges re sell kore.
+    - Services users theke tokens acquire kore or purchase kore to maintain ek **sustainable reward system**.
+
+2. **Ecosystem Activation Effects**:
+    - Token circulation **user engagement** ar **service activation** promote kore.
+    - Ehi **token value stabilization** ar ecosystem re **sustainable growth** contribute kore.

@@ -1,0 +1,529 @@
+# Penaos e labour Tokenoù JetPack
+
+Sistem token JetPack a zo savet gant **lakaat tokenoù e-serr an oberiantiz hag o rannañ**, ur **sistem live servij**, **prizioù implijerien ha doareoù implij tokenoù**, hag ur **mekanism evit prenañ ha rannañ tokenoù en-dro**. Ar struktuur-mañ a ginnig ur **sistem prizioù reizh ha efedus** evit an implijerien hag ar fornierien servij.
+
+## Mekanism Rannañ Tokenoù (Drop)
+
+### Kementad Tokenoù Hollek ha Prantad Rannañ
+
+- **Kementad Hollek**: JetPack a vo o lakaat e-serr un hollad a **1 miliard Jet** tokenoù.
+- **Prantad Rannañ**: Tokenoù a vo rannet war-hed **38 vloaz**, gant un hollad a **2,776 rannadenn** o c'hoarvezout d'an hevelep amzervezh evel an **Cardano Epoch** (1 epoch = 5 devezh).
+
+### Kementad Rannañ Tokenoù dre Epoch
+
+#### Kalkuliñ Kementad Rannañ Hervez ur Fonktion Logaritmek
+
+Kementad tokenoù rannet dre epoch a zo bet krouet evit digreskiñ a-hed an amzer. Ur **fonktion logaritmek** a vez implijet evit kalkuliñ kementad ar rannadenn evit pep epoch. **1 Jet a zo kevatal da 1,000,000 Pack**, neuze e vez kalkulet ar c'hementadoù rannadenn betek ar **c'hwec'hvet lec'h disterañ** hag e vezont paeet hervez-se.
+
+1. **Deskrivadur ar Fonktion Logaritmek $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   E-lec'h:
+
+    - $ t $ eo niver an epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ eo ar fonktion logaritm naturel.
+
+2. **Kalkuliñ Sammad ar Fonktion Log $ f(t) $ War an Holl Epochoù**:
+
+   Sammad hollek talvoudoù ar fonktion war an holl brantad rannañ $ S $ a zo:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Kalkuliñ ar C'honstant Skaladur $ A $**:
+
+   Kementad tokenoù hollek **1 miliard Jet** a zo rannet dre ar samm $ S $ evit reizhañ kementad ar rannadenn evit pep epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Kalkuliñ Kementad Rannañ Tokenoù dre Epoch**:
+
+   Kementad ar rannadenn evit pep epoch a zo:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Skouerioù a Vez Rannet**:
+
+   Kalkuliñ ar c'hementadoù rannadenn evit an epochoù kentañ:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Kementad ar rannadenn evit pep epoch a vez termenet gant talvoud ar fonktion log a glot gant niver an epoch.
+
+**Perzhioù Rannañ**
+
+- Peogwir e kresk $ \ln(t + 1) $ pa gresk $ t $, e teu an denominator da vezañ brasoc'h, o lakaat kementad hollek ar rannadenn da zigreskiñ tamm-ha-tamm.
+- Kementad ar rannadenn dre epoch a zigresk a-hed an amzer, o tostaat ouzh zero.
+- Ar c'hinnig-mañ a ro un dalvoudegezh d'ar c'hentañ perzhidi hag a gresk ar rariezh eus an token.
+
+### Skedul Rannañ Hollek
+
+A-is emañ un daolenn lodennel o tiskouez kementadoù rannadenn ha deiziadoù dre epoch.
+Evit titouroù munut war an holl epochoù, kit da welout ar [teul](/attach/token_allocation_per_epoch.csv) hag ar [kod](/attach/token_allocation_per_epoch.py).
+
+| Niver Epoch | Deiziad        | Kementad Rannañ (Jet)     |
+|-------------|----------------|---------------------------|
+| 1           | 2025-01-01     | 3,479,788.70              |
+| 2           | 2025-01-06     | 2,195,502.227             |
+| 3           | 2025-01-11     | 1,739,894.35              |
+| ...         | ...            | ...                       |
+| 2774        | 2062-12-18     | 304,223.285               |
+| 2775        | 2062-12-23     | 304,209.4607              |
+| 2776        | 2062-12-28     | 304,195.6425              |
+
+### Kritérioù Rannañ Tokenoù dre Servij
+
+#### Kalkuliñ Ratoioù E-touez ar Servijoù
+
+Ar ratio rannadenn evit pep servij a vez kalkulet hervez e skor perzhiañ $ P_n $ e-keñver ar skor perzhiañ hollek $ P $:
+
+$$
+\text{Ratio evit Servij } n = \frac{P_n}{P}
+$$
+
+E-lec'h:
+
+- $ P_n $: Skor perzhiañ ar servij $ n $.
+- $ P $: Sammad ar skorioù perzhiañ eus an holl servijoù.
+
+#### Kalkuliñ Kementad Rannañ dre Servij
+
+Kementad tokenoù a resev servij $ n $ e pep epoch $ S_n $ a zo:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Kementad rannadenn hollek reizhet evit an epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Kementad tokenoù brasañ a zo bet roet hervez live ar servij (sellit ouzh ar rannadenn tokenoù brasañ hervez al live dindan).
+
+#### Mererezh Tokenoù Nann-Rannet
+
+##### Kas Tokenoù Nann-Rannet
+
+- Tokenoù nann-rannet eus pep epoch a vez **ouzhpennet** d'ar c'hementad rannadenn hollek evit an epoch da-heul.
+- Se a ziwall rannañ efedus tokenoù zoken pa vez izel perzhiañ ar servijoù da gentañ.
+
+##### Kalkuliñ Kementad Rannañ Hollek Reizhet dre Epoch
+
+Kementad rannadenn hollek evit an epoch da-heul a zo:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Kementad rannadenn hollek reizhet evit an epoch $ t+1 $.
+- $ f(t+1) $: Kementad rannadenn hervez ar fonktion rannadenn diazez.
+- **Tokenoù Nann-Rannet Kaset**: Niver a tokenoù nann-rannet en epoch $ t $.
+
+#### Kalkuliñ Skor Perzhiañ ($ P_n $) dre Servij
+
+Skor perzhiañ pep servij a vez kalkulet hervez ar metrikoù da-heul. Pouezh pep metrik a c'hall bezañ reizhet dre c'houarnerezh.
+
+1. **Konsom Token JetPack ($ M_{1n} $)**
+    - **Pouezh**: $ w_1 = 50\% $
+    - **Deskrivadur**: Kementad hollek a tokenoù JetPack implijet gant an implijerien e-barzh ar servij.
+
+2. **Niver Votoù Degen Bunny ($ M_{2n} $)**
+    - **Pouezh**: $ w_2 = 30\% $
+    - **Deskrivadur**: Niver a votoù resevet digant OG Degen Bunnies.
+
+3. **Niver Implijerien Oberiant ($ M_{3n} $)**
+    - **Pouezh**: $ w_3 = 20\% $
+    - **Deskrivadur**: Niver a implijerien unvan o deus tapet ha bet oberiant er servij e-pad an epoch.
+
+Skor perzhiañ pep servij $ P_n $ a vez kalkulet evel-henn:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+E-lec'h:
+
+- $ M_{1n} $: Konsom token JetPack ar servij $ n $.
+- $ M_{1\text{total}} $: Konsom token JetPack hollek war an holl servijoù.
+- $ M_{2n} $: Niver votoù Degen Bunny evit ar servij $ n $.
+- $ M_{2\text{total}} $: Niver votoù Degen Bunny hollek war an holl servijoù.
+- $ M_{3n} $: Niver implijerien oberiant ar servij $ n $.
+- $ M_{3\text{total}} $: Niver implijerien oberiant hollek war an holl servijoù.
+
+**Skouer**:
+
+- **Servij A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Servij B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Servij C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Hollek**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Pouezhioù**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Kalkuliñ Skor Perzhiañ evit Servij A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Kalkuliñ Skor Perzhiañ evit Servij B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Kalkuliñ Skor Perzhiañ evit Servij C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Evel-se, ar skorioù perzhiañ a zo:
+
+- **Servij A**: $ P_A = 0.38 $
+- **Servij B**: $ P_B = 0.29 $
+- **Servij C**: $ P_C = 0.33 $
+
+#### Kritérioù Termeniñ al Live ha Kementad Rannañ Tokenoù Brasañ
+
+Hervez ar skor perzhiañ $ P_n $, pep servij a vez klaset e **Liveoù 1 betek 9**. Ar c'hlasadur-mañ a implij ar **c'hantvedenn uhelañ kummet** eus holl skorioù perzhiañ ar servijoù.
+
+##### C'hantvedennoù Uhelañ Kummet ha Kementadoù Rannañ Tokenoù Brasañ dre Live
+
+| **Live** | **C'hantvedenn Uhelañ Kummet** | **Kementad Rannañ Brasañ (Jet)** |
+|----------|-------------------------------|----------------------------------|
+| Live 1   | Uhelañ 4%                     | 30,000                           |
+| Live 2   | Uhelañ 11%                    | 25,000                           |
+| Live 3   | Uhelañ 23%                    | 20,000                           |
+| Live 4   | Uhelañ 40%                    | 15,000                           |
+| Live 5   | Uhelañ 60%                    | 10,000                           |
+| Live 6   | Uhelañ 77%                    | 7,000                            |
+| Live 7   | Uhelañ 89%                    | 5,000                            |
+| Live 8   | Uhelañ 96%                    | 3,000                            |
+| Live 9   | Uhelañ 100%                   | 1,000                            |
+
+##### Fazi Termeniñ al Live
+
+1. **Kalkuliñ Skorioù Perzhiañ**
+
+   Implijit ar metod termenet a-raok evit kalkuliñ skor perzhiañ pep servij $ P_n $.
+
+2. **Termeniñ Renkadurioù Servijoù**
+
+   Renkit an holl servijoù en **urzh diskenn** hervez o skorioù perzhiañ.
+
+3. **Kalkuliñ C'hantvedennoù Uhelañ Kummet**
+
+   Evit pep servij, kalkulit ar c'hantvedenn uhelañ kummet:
+
+   $$
+   \text{C'hantvedenn Uhelañ Kummet (\%)} = \left(1 - \frac{\text{Renk} - 1}{N} \right) \times 100\%
+   $$
+
+   E-lec'h:
+
+    - $ \text{Renk} $: Renk ar servij (o kregiñ gant 1).
+    - $ N $: Niver hollek a servijoù.
+
+4. **Rannañ Liveoù**
+
+   Rannit al liveoù hervez ar c'hantvedennoù uhelañ kummet:
+
+    - **Live 1**: C'hantvedenn uhelañ kummet > 96%
+    - **Live 2**: 89% < C'hantvedenn uhelañ kummet ≤ 96%
+    - **Live 3**: 77% < C'hantvedenn uhelañ kummet ≤ 89%
+    - **Live 4**: 60% < C'hantvedenn uhelañ kummet ≤ 77%
+    - **Live 5**: 40% < C'hantvedenn uhelañ kummet ≤ 60%
+    - **Live 6**: 23% < C'hantvedenn uhelañ kummet ≤ 40%
+    - **Live 7**: 11% < C'hantvedenn uhelañ kummet ≤ 23%
+    - **Live 8**: 4% < C'hantvedenn uhelañ kummet ≤ 11%
+    - **Live 9**: C'hantvedenn uhelañ kummet ≤ 4%
+
+**Skouer**:
+
+Gant un hollad a **3** servij:
+
+1. **Kalkuliñ Renkadurioù ha C'hantvedennoù Uhelañ Kummet**
+
+    - **Servij A**:
+
+        - Skor Perzhiañ: $ P_A = 0.38 $
+        - Renk: 1
+        - C'hantvedenn Uhelañ Kummet:
+
+          $$
+          \text{C'hantvedenn Uhelañ Kummet} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Servij C**:
+
+        - Skor Perzhiañ: $ P_C = 0.33 $
+        - Renk: 2
+        - C'hantvedenn Uhelañ Kummet:
+
+          $$
+          \text{C'hantvedenn Uhelañ Kummet} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Servij B**:
+
+        - Skor Perzhiañ: $ P_B = 0.29 $
+        - Renk: 3
+        - C'hantvedenn Uhelañ Kummet:
+
+          $$
+          \text{C'hantvedenn Uhelañ Kummet} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Rannañ Liveoù**
+
+    - **Servij A**:
+
+        - C'hantvedenn Uhelañ Kummet: 100%
+        - **Live**: **Live 1** (C'hantvedenn Uhelañ Kummet > 96%)
+        - **Kementad Rannañ Brasañ**: 30,000 Jet
+
+    - **Servij C**:
+
+        - C'hantvedenn Uhelañ Kummet: 66.67%
+        - **Live**: **Live 4** (60% < C'hantvedenn Uhelañ Kummet ≤ 77%)
+        - **Kementad Rannañ Brasañ**: 15,000 Jet
+
+    - **Servij B**:
+
+        - C'hantvedenn Uhelañ Kummet: 33.33%
+        - **Live**: **Live 6** (23% < C'hantvedenn Uhelañ Kummet ≤ 40%)
+        - **Kementad Rannañ Brasañ**: 7,000 Jet
+
+**Notennoù**:
+
+- **Skorioù Kevatal**: Servijoù gant skorioù perzhiañ heñvel a resev ar memes renk. E kalkuliñ c'hantvedennoù uhelañ kummet, ar renk keitat a vez implijet.
+- **Kementad Rannañ Brasañ Tokenoù** a ra dave d'ar c'hementad tokenoù brasañ a c'hall ur servij resev hervez e live.
+
+### Skouer Senario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Kementad Rannañ Diazez**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Kementad Rannañ Hollek Reizhet**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Kalkuliñ Kementad Rannañ dre Servij**
+
+Hervez ar skorioù perzhiañ ha liveoù:
+
+- **Skor Perzhiañ Hollek $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Servij A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Kementad Rannañ:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servij C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Kementad Rannañ:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servij B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Kementad Rannañ:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Disoc'hoù Rannañ**
+
+- **Tokenoù Rannet Hollek**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokenoù Nann-Rannet**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Kementad Rannañ Diazez**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokenoù Kaset**: $ 3,427,788.70 \text{ Jet} $
+- **Kementad Rannañ Hollek Reizhet**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Skorioù Perzhiañ ha Liveoù Nevez**
+
+Ober gant cheñchamantoù er skorioù perzhiañ:
+
+- **Servij A**:
+
+    - Skor Perzhiañ: $ P_A = 0.40 $
+    - Renk: 1
+    - C'hantvedenn Uhelañ Kummet: 100%
+    - **Live**: Live 1
+    - **Kementad Rannañ Brasañ**: 30,000 Jet
+
+- **Servij C**:
+
+    - Skor Perzhiañ: $ P_C = 0.35 $
+    - Renk: 2
+    - C'hantvedenn Uhelañ Kummet: 66.67%
+    - **Live**: Live 4
+    - **Kementad Rannañ Brasañ**: 15,000 Jet
+
+- **Servij B**:
+
+    - Skor Perzhiañ: $ P_B = 0.25 $
+    - Renk: 3
+    - C'hantvedenn Uhelañ Kummet: 33.33%
+    - **Live**: Live 6
+    - **Kementad Rannañ Brasañ**: 7,000 Jet
+
+**Skor Perzhiañ Hollek $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Kalkuliñ Kementad Rannañ dre Servij**
+
+1. **Servij A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Kementad Rannañ:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servij C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Kementad Rannañ:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servij B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Kementad Rannañ:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Disoc'hoù Rannañ**
+
+- **Tokenoù Rannet Hollek**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokenoù Nann-Rannet**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Levezon Tokenoù Nann-Rannet Dastumet
+
+- **Kresk Perzhiañ Servij ha Gwellaat Perzhiañ** a zigresko tamm-ha-tamm niver an tokenoù nann-rannet.
+- **Servijoù kentañ a c'hall implijout ar c'hementad rannañ brasañ** evit sevel.
+- Kas tokenoù a sikour da **zerc'hel stabilder ar gwerzh** ha da reizhañ an darempred.
+
+## Prizioù Implijerien ha Implij Tokenoù
+
+### **Mekanism Prizioù Implijerien**
+
+- **Prizioù Diazezet war an Oberiantiz**: Implijerien a resev tokenoù JetPack pa reont **obererezhioù a zo bet aotreet a-raok** (da skouer, krouiñ danvez, c'hoari) e-barzh ur servij.
+- **Kritérioù Prizioù Tokenoù**: Kementad tokenoù a vez roet evit pep obererezh a zo **termenet dre gonsult** etre ar servij hag ar merour JetPack.
+
+### **Doareoù Implij Tokenoù**
+
+1. **E-barzh ar Servij**:
+    - **Mont e-barzh Perzhioù Priz**: Implij tokenoù evit mont e-barzh perzhioù pe danvez paeet e-barzh ar servij.
+    - **Prenañ Madoù**: Prenañ madou niverel pe elfennoù e-barzh ar servij gant tokenoù.
+
+2. **Ober gant Arloezh JetPack Wallet Service Exchange**:
+    - **Gwerzh Tokenoù**: Implijerien a c'hall eskemm o tokenoù evit **ADA** (moneiz **Cardano**).
+    - **Mererezh Arloezh**: Arloezh JetPack a ro ur mererezh sur evit tokenoù ha treuzkas d'ar servijoù all.
+
+### **Gounezadennoù Gortozet eus Kresk Talvoudegezh Tokenoù**
+
+- **Liker Tokenoù**: Eskemmoù tokenoù war marc'hadoù a gresk o **liker**.
+- **Gounezadennoù Ekonomikel**: Implijerien a c'hall tapout **gounezadennoù ekonomikel ouzhpenn** dre werzhañ tokenoù ma kresk o talvoudegezh.
+
+## Prenañ ha Rannañ Tokenoù
+
+### **Prenadennoù Tokenoù Ouzhpenn gant Servijoù**
+
+- **Pa vez Tokenoù Rannet Dispar**: Ma implij ur servij an holl tokenoù a zo bet roet dezhañ, e c'hall prenañ tokenoù ouzhpenn digant ar **JetPack Wallet Service Exchange**.
+- **Moneiz Prenañ**: Tokenoù a vez prenet gant **ADA**.
+- **Implij Tokenoù Prenet**: Tokenoù prenet a c'hall bezañ implijet evit **prizioù implijerien** pe **e-barzh ar servij**.
+
+### **Tokenoù Gwerzhet ha Tokenoù Nann-Gwerzhet**
+
+- **Tokenoù Rannet** (**Nann-Gwerzhet**): Tokenoù roet d'ar servijoù **ne c'hallont ket bezañ gwerzhet** ha n'int nemet evit **prizioù implijerien**.
+- **Tokenoù Prenet ha Tokenoù Tapet digant Implijerien** (**Gwerzhet**): Tokenoù prenet gant ADA ha tokenoù resevet digant implijerien **a c'hall bezañ gwerzhet**, o sikour da **tapout liker**.
+
+### **Rannañ Tokenoù ha Krouiñ Ekosistem**
+
+1. **Struktur Darempred Tokenoù**:
+    - Servijoù a ro tokenoù d'an implijerien; implijerien a implij anezho e-barzh ar servijoù pe o gwerzhañ war marc'hadoù.
+    - Servijoù a bren tokenoù digant implijerien pe o prenañ evit derc'hel ur **sistem prizioù padus**.
+
+2. **Levezon Krouiñ Ekosistem**:
+    - Darempred tokenoù a ro lañs d'ar **perzhiañ implijerien** ha d'ar **servijoù krouiñ**.
+    - Se a ro da **stabilaat talvoudegezh tokenoù** ha da **grediñ padus an ekosistem**.

@@ -1,0 +1,529 @@
+# JetPack Tokenlar qanday ishlaydi
+
+JetPack token tizimi **faoliyatga asoslangan token chiqarish va taqsimlash**, **xizmat darajasi tizimi**, **foydalanuvchi mukofotlari va tokenlardan foydalanish usullari**, va **tokenlarni sotib olish va qayta taqsimlash mexanizmi**dan iborat. Ushbu tuzilma foydalanuvchilar va xizmat ko'rsatuvchilar uchun **adolatli va samarali mukofot tizimi**ni ta'minlaydi.
+
+## Tokenlarni taqsimlash (Drop) mexanizmi
+
+### Umumiy token miqdori va taqsimlash davri
+
+- **Umumiy miqdor**: JetPack jami **1 milliard Jet** token chiqaradi.
+- **Taqsimlash davri**: Tokenlar **38 yil** davomida taqsimlanadi, jami **2,776 taqsimot** **Cardano Epoch** bilan bir xil intervallarda amalga oshiriladi (1 epoch = 5 kun).
+
+### Har bir Epoch uchun token taqsimlash miqdori
+
+#### Logarifmik funksiya asosida taqsimlash miqdorini hisoblash
+
+Har bir epochda taqsimlanadigan token miqdori vaqt o'tishi bilan kamayib borish uchun mo'ljallangan. Har bir epoch uchun taqsimlash miqdorini hisoblash uchun **logarifmik funksiya** qo'llaniladi. **1 Jet 1,000,000 Pack** ga teng, shuning uchun taqsimlash miqdorlari **oltinchi o'nlik raqamgacha** hisoblanadi va to'lanadi.
+
+1. **Logarifmik funksiya $ f(t) $ ta'rifi**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Bu yerda:
+
+    - $ t $ epoch raqami, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ tabiiy logarifm funksiyasi.
+
+2. **Barcha epochlar bo'yicha log funksiyasi $ f(t) $ yig'indisini hisoblash**:
+
+   Butun taqsimlash davri bo'yicha funksiya qiymatlarining umumiy yig'indisi $ S $:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Masshtablash konstantasi $ A $ ni hisoblash**:
+
+   **1 milliard Jet** umumiy token miqdori $ S $ ga bo'linadi, har bir epoch uchun taqsimlash miqdorini moslashtirish uchun:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Har bir epoch uchun token taqsimlash miqdorini hisoblash**:
+
+   Har bir epoch uchun taqsimlash miqdori:
+
+   $$
+   \text{Taqsimlash miqdori}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Taqsimlash miqdorlari misollari**:
+
+   Dastlabki epochlar uchun taqsimlash miqdorlarini hisoblash:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Taqsimlash miqdori}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Taqsimlash miqdori}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Taqsimlash miqdori}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Har bir epoch uchun taqsimlash miqdori epoch raqamiga mos keladigan log funksiyasi qiymati bilan belgilanadi.
+
+**Taqsimlash xususiyatlari**
+
+- $ \ln(t + 1) $ $ t $ oshgani sayin oshadi, bu esa maxrajni kattalashtiradi va umumiy taqsimlash miqdorini asta-sekin kamaytiradi.
+- Har bir epoch uchun taqsimlash miqdori vaqt o'tishi bilan kamayib boradi va nolga yaqinlashadi.
+- Ushbu dizayn dastlabki ishtirokchilarni rag'batlantiradi va tokenning kamyobligini oshiradi.
+
+### Umumiy taqsimlash jadvali
+
+Quyida har bir epoch uchun taqsimlash miqdorlari va sanalarini umumlashtiruvchi qisman jadval keltirilgan.
+Barcha epochlar bo'yicha batafsil ma'lumot uchun alohida [hujjat](/attach/token_allocation_per_epoch.csv) va [kod](/attach/token_allocation_per_epoch.py) ga murojaat qiling.
+
+| Epoch raqami | Sana           | Taqsimlash miqdori (Jet) |
+|--------------|----------------|--------------------------|
+| 1            | 2025-01-01     | 3,479,788.70             |
+| 2            | 2025-01-06     | 2,195,502.227            |
+| 3            | 2025-01-11     | 1,739,894.35             |
+| ...          | ...            | ...                      |
+| 2774         | 2062-12-18     | 304,223.285              |
+| 2775         | 2062-12-23     | 304,209.4607             |
+| 2776         | 2062-12-28     | 304,195.6425             |
+
+### Xizmat bo'yicha token taqsimlash mezonlari
+
+#### Xizmatlar orasidagi nisbatlarni hisoblash
+
+Har bir xizmat uchun taqsimlash nisbati uning samaradorlik balli $ P_n $ ning umumiy samaradorlik balliga $ P $ nisbati asosida hisoblanadi:
+
+$$
+\text{Xizmat uchun nisbati } n = \frac{P_n}{P}
+$$
+
+Bu yerda:
+
+- $ P_n $: $ n $ xizmatining samaradorlik balli.
+- $ P $: Barcha xizmatlarning samaradorlik ballari yig'indisi.
+
+#### Xizmat bo'yicha taqsimlash miqdorini hisoblash
+
+Har bir epochda $ n $ xizmati oladigan tokenlar miqdori $ S_n $:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Xizmat uchun maksimal token taqsimlash}\right)
+$$
+
+- $ f_{\text{total}}(t) $: Epoch uchun moslashtirilgan umumiy taqsimlash miqdori.
+- $ \text{Xizmat uchun maksimal token taqsimlash} $: Xizmat darajasiga asoslangan maksimal token miqdori (quyida darajaga asoslangan maksimal token taqsimlashga qarang).
+
+#### Taqsimlanmagan tokenlarni boshqarish
+
+##### Taqsimlanmagan tokenlarni o'tkazish
+
+- Har bir epochdan taqsimlanmagan tokenlar keyingi epoch uchun umumiy taqsimlash miqdoriga **qo'shiladi**.
+- Bu dastlabki xizmat ishtiroki past bo'lganda ham samarali token taqsimlashni ta'minlaydi.
+
+##### Har bir epoch uchun moslashtirilgan umumiy taqsimlash miqdorini hisoblash
+
+Keyingi epoch uchun umumiy taqsimlash miqdori:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Oldingi epochdan taqsimlanmagan tokenlar}
+$$
+
+- $ f_{\text{total}}(t+1) $: $ t+1 $ epoch uchun moslashtirilgan umumiy taqsimlash miqdori.
+- $ f(t+1) $: Asosiy taqsimlash funksiyasiga asoslangan taqsimlash miqdori.
+- **O'tkazilgan taqsimlanmagan tokenlar**: $ t $ epochda taqsimlanmagan tokenlar soni.
+
+#### Xizmat bo'yicha samaradorlik ballini ($ P_n $) hisoblash
+
+Har bir xizmatning samaradorlik balli quyidagi metrikalar asosida hisoblanadi. Har bir metrika og'irligi boshqaruv orqali moslashtirilishi mumkin.
+
+1. **JetPack token iste'moli ($ M_{1n} $)**
+    - **Og'irlik**: $ w_1 = 50\% $
+    - **Tavsif**: Xizmat ichida foydalanuvchilar tomonidan iste'mol qilingan JetPack tokenlarining umumiy miqdori.
+
+2. **Degen Bunny ovozlar soni ($ M_{2n} $)**
+    - **Og'irlik**: $ w_2 = 30\% $
+    - **Tavsif**: OG Degen Bunnies tomonidan olingan ovozlar soni.
+
+3. **Faol foydalanuvchilar soni ($ M_{3n} $)**
+    - **Og'irlik**: $ w_3 = 20\% $
+    - **Tavsif**: Epoch davomida xizmatga kirgan va faol bo'lgan noyob foydalanuvchilar soni.
+
+Har bir xizmatning samaradorlik balli $ P_n $ quyidagicha hisoblanadi:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Bu yerda:
+
+- $ M_{1n} $: $ n $ xizmatining JetPack token iste'moli.
+- $ M_{1\text{total}} $: Barcha xizmatlar bo'yicha umumiy JetPack token iste'moli.
+- $ M_{2n} $: $ n $ xizmatining Degen Bunny ovozlar soni.
+- $ M_{2\text{total}} $: Barcha xizmatlar bo'yicha umumiy Degen Bunny ovozlari.
+- $ M_{3n} $: $ n $ xizmatining faol foydalanuvchilar soni.
+- $ M_{3\text{total}} $: Barcha xizmatlar bo'yicha umumiy faol foydalanuvchilar.
+
+**Misol**:
+
+- **Xizmat A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Xizmat B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Xizmat C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Umumiylar**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Og'irliklar**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Xizmat A uchun samaradorlik ballini hisoblash**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Xizmat B uchun samaradorlik ballini hisoblash**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Xizmat C uchun samaradorlik ballini hisoblash**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Shunday qilib, samaradorlik ballari:
+
+- **Xizmat A**: $ P_A = 0.38 $
+- **Xizmat B**: $ P_B = 0.29 $
+- **Xizmat C**: $ P_C = 0.33 $
+
+#### Daraja aniqlash mezonlari va maksimal token taqsimlash miqdori
+
+Samaradorlik balli $ P_n $ asosida har bir xizmat **1 dan 9 gacha darajalarga** tasniflanadi. Ushbu tasniflash barcha xizmatlarning samaradorlik ballarining **kumulativ yuqori foizli** qismidan foydalanadi.
+
+##### Kumulativ yuqori foizlar va daraja bo'yicha maksimal token taqsimlash miqdorlari
+
+| **Daraja** | **Kumulativ yuqori foiz** | **Maksimal token taqsimlash (Jet)** |
+|------------|---------------------------|-------------------------------------|
+| Daraja 1   | Yuqori 4%                 | 30,000                              |
+| Daraja 2   | Yuqori 11%                | 25,000                              |
+| Daraja 3   | Yuqori 23%                | 20,000                              |
+| Daraja 4   | Yuqori 40%                | 15,000                              |
+| Daraja 5   | Yuqori 60%                | 10,000                              |
+| Daraja 6   | Yuqori 77%                | 7,000                               |
+| Daraja 7   | Yuqori 89%                | 5,000                               |
+| Daraja 8   | Yuqori 96%                | 3,000                               |
+| Daraja 9   | Yuqori 100%               | 1,000                               |
+
+##### Daraja aniqlash usuli
+
+1. **Samaradorlik ballarini hisoblash**
+
+   Har bir xizmatning samaradorlik balli $ P_n $ ni oldindan belgilangan usuldan foydalanib hisoblang.
+
+2. **Xizmat reytinglarini aniqlash**
+
+   Barcha xizmatlarni samaradorlik ballari bo'yicha **kamayish tartibida** reytinglang.
+
+3. **Kumulativ yuqori foizlarni hisoblash**
+
+   Har bir xizmat uchun kumulativ yuqori foizni hisoblang:
+
+   $$
+   \text{Kumulativ yuqori foiz (\%)} = \left(1 - \frac{\text{Reyting} - 1}{N} \right) \times 100\%
+   $$
+
+   Bu yerda:
+
+    - $ \text{Reyting} $: Xizmatning reytingi (1 dan boshlab).
+    - $ N $: Xizmatlar soni.
+
+4. **Darajalarni belgilash**
+
+   Kumulativ yuqori foizlar asosida darajalarni belgilang:
+
+    - **Daraja 1**: Kumulativ yuqori foiz > 96%
+    - **Daraja 2**: 89% < Kumulativ yuqori foiz ≤ 96%
+    - **Daraja 3**: 77% < Kumulativ yuqori foiz ≤ 89%
+    - **Daraja 4**: 60% < Kumulativ yuqori foiz ≤ 77%
+    - **Daraja 5**: 40% < Kumulativ yuqori foiz ≤ 60%
+    - **Daraja 6**: 23% < Kumulativ yuqori foiz ≤ 40%
+    - **Daraja 7**: 11% < Kumulativ yuqori foiz ≤ 23%
+    - **Daraja 8**: 4% < Kumulativ yuqori foiz ≤ 11%
+    - **Daraja 9**: Kumulativ yuqori foiz ≤ 4%
+
+**Misol**:
+
+Jami **3** xizmat bilan:
+
+1. **Reytinglar va kumulativ yuqori foizlarni hisoblash**
+
+    - **Xizmat A**:
+
+        - Samaradorlik balli: $ P_A = 0.38 $
+        - Reyting: 1
+        - Kumulativ yuqori foiz:
+
+          $$
+          \text{Kumulativ yuqori foiz} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Xizmat C**:
+
+        - Samaradorlik balli: $ P_C = 0.33 $
+        - Reyting: 2
+        - Kumulativ yuqori foiz:
+
+          $$
+          \text{Kumulativ yuqori foiz} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Xizmat B**:
+
+        - Samaradorlik balli: $ P_B = 0.29 $
+        - Reyting: 3
+        - Kumulativ yuqori foiz:
+
+          $$
+          \text{Kumulativ yuqori foiz} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Darajalarni belgilash**
+
+    - **Xizmat A**:
+
+        - Kumulativ yuqori foiz: 100%
+        - **Daraja**: **Daraja 1** (Kumulativ yuqori foiz > 96%)
+        - **Maksimal token taqsimlash**: 30,000 Jet
+
+    - **Xizmat C**:
+
+        - Kumulativ yuqori foiz: 66.67%
+        - **Daraja**: **Daraja 4** (60% < Kumulativ yuqori foiz ≤ 77%)
+        - **Maksimal token taqsimlash**: 15,000 Jet
+
+    - **Xizmat B**:
+
+        - Kumulativ yuqori foiz: 33.33%
+        - **Daraja**: **Daraja 6** (23% < Kumulativ yuqori foiz ≤ 40%)
+        - **Maksimal token taqsimlash**: 7,000 Jet
+
+**Eslatmalar**:
+
+- **Teng ballar**: Bir xil samaradorlik balliga ega xizmatlar bir xil reytingni oladi. Kumulativ yuqori foizlarni hisoblashda o'rtacha reyting qo'llaniladi.
+- **Maksimal token taqsimlash** xizmat darajasiga asoslangan maksimal token miqdorini anglatadi.
+
+### Misol stsenariy
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Asosiy taqsimlash miqdori**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Moslashtirilgan umumiy taqsimlash miqdori**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Xizmat bo'yicha taqsimlash miqdorini hisoblash**
+
+Samaradorlik ballari va darajalarga asoslangan holda:
+
+- **Umumiy samaradorlik balli $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Xizmat A**:
+
+    - Nisbat: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Taqsimlash miqdori:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Xizmat C**:
+
+    - Nisbat: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Taqsimlash miqdori:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Xizmat B**:
+
+    - Nisbat: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Taqsimlash miqdori:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Taqsimlash natijalari**
+
+- **Umumiy taqsimlangan tokenlar**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Taqsimlanmagan tokenlar**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Asosiy taqsimlash miqdori**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **O'tkazilgan tokenlar**: $ 3,427,788.70 \text{ Jet} $
+- **Moslashtirilgan umumiy taqsimlash miqdori**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Yangilangan samaradorlik ballari va darajalari**
+
+Samaradorlik ballaridagi o'zgarishlarni hisobga olgan holda:
+
+- **Xizmat A**:
+
+    - Samaradorlik balli: $ P_A = 0.40 $
+    - Reyting: 1
+    - Kumulativ yuqori foiz: 100%
+    - **Daraja**: Daraja 1
+    - **Maksimal token taqsimlash**: 30,000 Jet
+
+- **Xizmat C**:
+
+    - Samaradorlik balli: $ P_C = 0.35 $
+    - Reyting: 2
+    - Kumulativ yuqori foiz: 66.67%
+    - **Daraja**: Daraja 4
+    - **Maksimal token taqsimlash**: 15,000 Jet
+
+- **Xizmat B**:
+
+    - Samaradorlik balli: $ P_B = 0.25 $
+    - Reyting: 3
+    - Kumulativ yuqori foiz: 33.33%
+    - **Daraja**: Daraja 6
+    - **Maksimal token taqsimlash**: 7,000 Jet
+
+**Umumiy samaradorlik balli $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Xizmat bo'yicha taqsimlash miqdorini hisoblash**
+
+1. **Xizmat A**:
+
+    - Nisbat: $ \frac{P_A}{P} = 0.40 $
+    - Taqsimlash miqdori:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Xizmat C**:
+
+    - Nisbat: $ \frac{P_C}{P} = 0.35 $
+    - Taqsimlash miqdori:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Xizmat B**:
+
+    - Nisbat: $ \frac{P_B}{P} = 0.25 $
+    - Taqsimlash miqdori:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Taqsimlash natijalari**
+
+- **Umumiy taqsimlangan tokenlar**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Taqsimlanmagan tokenlar**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Taqsimlanmagan tokenlarning to'planish ta'siri
+
+- **Xizmat ishtiroki va samaradorlikning oshishi** taqsimlanmagan tokenlar miqdorini asta-sekin kamaytiradi.
+- **Dastlabki xizmatlar maksimal taqsimlash miqdoridan foydalanishi mumkin** o'sishni rag'batlantirish uchun.
+- Tokenlarni o'tkazish **qiymat barqarorligini saqlash** va aylanishni tartibga solishga yordam beradi.
+
+## Foydalanuvchi mukofotlari va tokenlardan foydalanish
+
+### **Foydalanuvchi mukofot mexanizmi**
+
+- **Faoliyatga asoslangan mukofotlar**: Foydalanuvchilar xizmat ichida **oldindan kelishilgan faoliyatlarni** (masalan, kontent yaratish, o'yin o'ynash) bajarganlarida JetPack tokenlarini olishadi.
+- **Token mukofot mezonlari**: Har bir faoliyat uchun mukofotlanadigan tokenlar miqdori xizmat va JetPack ekotizimi operatori o'rtasida **konsultatsiya orqali belgilanadi**.
+
+### **Tokenlardan foydalanish usullari**
+
+1. **Xizmat ichida**:
+    - **Premium xususiyatlarga kirish**: Tokenlardan foydalanib xizmat ichidagi pullik xususiyatlar yoki kontentga kirish.
+    - **Tovarlarni sotib olish**: Tokenlardan foydalanib raqamli tovarlar yoki xizmat ichidagi narsalarni sotib olish.
+
+2. **JetPack Wallet Service Exchange orqali foydalanish**:
+    - **Token savdosi**: Foydalanuvchilar tokenlarini **ADA** (Cardano valyutasi) ga almashtirishlari mumkin.
+    - **Hamyon boshqaruvi**: JetPack hamyoni tokenlarni xavfsiz boshqarish va boshqa xizmatlarga o'tkazish imkonini beradi.
+
+### **Token qiymatining oshishidan kutilayotgan foydalar**
+
+- **Token likvidligi**: Tokenlarni birjalarda savdo qilish ularning **likvidligini** oshiradi.
+- **Iqtisodiy foydalar**: Foydalanuvchilar tokenlarni sotish orqali **qo'shimcha iqtisodiy foyda** olishlari mumkin, agar ularning qiymati oshsa.
+
+## Token sotib olish va qayta taqsimlash
+
+### **Xizmatlar tomonidan qo'shimcha token sotib olish**
+
+- **Taqsimlangan tokenlar tugagach**: Agar xizmat o'ziga ajratilgan barcha tokenlarni ishlatib yuborsa, u **JetPack Wallet Service Exchange** dan qo'shimcha tokenlar sotib olishi mumkin.
+- **Sotib olish valyutasi**: Tokenlar **ADA** yordamida sotib olinadi.
+- **Sotib olingan tokenlardan foydalanish**: Sotib olingan tokenlar **foydalanuvchilarni mukofotlash** yoki **xizmat ichida** foydalanish uchun ishlatilishi mumkin.
+
+### **Qayta sotiladigan va qayta sotilmaydigan tokenlar**
+
+- **Taqsimlangan tokenlar** (**Qayta sotilmaydigan**): Xizmatlarga ajratilgan tokenlar **qayta sotilishi mumkin emas** va faqat **foydalanuvchilarni mukofotlash** uchun mo'ljallangan.
+- **Sotib olingan tokenlar va foydalanuvchilardan olingan tokenlar** (**Qayta sotiladigan**): ADA bilan sotib olingan tokenlar va foydalanuvchilardan olingan tokenlar **qayta sotilishi mumkin**, bu **likvidlikni olishga** yordam beradi.
+
+### **Tokenlarni qayta taqsimlash va ekotizimni faollashtirish**
+
+1. **Token aylanish tuzilmasi**:
+    - Xizmatlar foydalanuvchilarni tokenlar bilan mukofotlaydi; foydalanuvchilar ularni xizmatlar ichida ishlatadi yoki birjalarda sotadi.
+    - Xizmatlar foydalanuvchilardan tokenlar oladi yoki ularni sotib oladi, **barqaror mukofot tizimini** saqlash uchun.
+
+2. **Ekotizimni faollashtirish ta'siri**:
+    - Token aylanishi **foydalanuvchi ishtirokini** va **xizmat faolligini** rag'batlantiradi.
+    - Bu **token qiymatini barqarorlashtirish** va ekotizimning **barqaror o'sishiga** hissa qo'shadi.

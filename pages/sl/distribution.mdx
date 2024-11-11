@@ -1,0 +1,529 @@
+# Kako delujejo JetPack žetoni
+
+Sistem žetonov JetPack vključuje **izdajanje in distribucijo žetonov na podlagi aktivnosti**, **sistem ravni storitev**, **nagrade za uporabnike in metode uporabe žetonov** ter **mehanizem za nakup in prerazporeditev žetonov**. Ta struktura zagotavlja **pošten in učinkovit sistem nagrajevanja** za uporabnike in ponudnike storitev.
+
+## Mehanizem distribucije žetonov (Drop)
+
+### Skupna zaloga žetonov in obdobje distribucije
+
+- **Skupna zaloga**: JetPack bo izdal skupno **1 milijardo Jet** žetonov.
+- **Obdobje distribucije**: Žetoni bodo razdeljeni v obdobju **38 let**, s skupno **2,776 distribucijami**, ki bodo potekale v enakih intervalih kot **Cardano Epoch** (1 epoha = 5 dni).
+
+### Količina distribucije žetonov na epoho
+
+#### Izračun količine distribucije na podlagi logaritmične funkcije
+
+Količina žetonov, razdeljenih na epoho, je zasnovana tako, da se sčasoma zmanjšuje. Za izračun količine distribucije za vsako epoho se uporablja **logaritmična funkcija**. **1 Jet je enak 1,000,000 Pack**, zato so količine distribucije izračunane do **šeste decimalke** in izplačane ustrezno.
+
+1. **Definicija logaritmične funkcije $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kjer:
+
+    - $ t $ je številka epohe, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ je naravna logaritmična funkcija.
+
+2. **Izračun vsote log funkcije $ f(t) $ za vse epohe**:
+
+   Skupna vsota vrednosti funkcije v celotnem obdobju distribucije $ S $ je:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Izračun konstante skaliranja $ A $**:
+
+   Skupna zaloga žetonov **1 milijarda Jet** je deljena z vsoto $ S $ za prilagoditev količine distribucije za vsako epoho:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Izračun količine distribucije žetonov na epoho**:
+
+   Količina distribucije za vsako epoho je:
+
+   $$
+   \text{Količina distribucije}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Primeri količin distribucije**:
+
+   Izračun količin distribucije za začetne epohe:
+
+    - **Epoha 1**:
+
+      $$
+      \text{Količina distribucije}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoha 2**:
+
+      $$
+      \text{Količina distribucije}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoha 3**:
+
+      $$
+      \text{Količina distribucije}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Količina distribucije za vsako epoho je določena z vrednostjo log funkcije, ki ustreza številki epohe.
+
+**Značilnosti distribucije**
+
+- Ker $ \ln(t + 1) $ narašča, ko $ t $ narašča, postane imenovalec večji, kar povzroči, da se skupna količina distribucije postopoma zmanjšuje.
+- Količina distribucije na epoho se sčasoma zmanjšuje in se približuje ničli.
+- Ta zasnova spodbuja zgodnje udeležence in povečuje redkost žetona.
+
+### Celoten razpored distribucije
+
+Spodaj je delna tabela, ki povzema količine distribucije in datume na epoho.
+Za podrobne informacije o vseh epohah si oglejte ločen [dokument](/attach/token_allocation_per_epoch.csv) in [kodo](/attach/token_allocation_per_epoch.py).
+
+| Številka epohe | Datum         | Količina distribucije (Jet) |
+|----------------|---------------|-----------------------------|
+| 1              | 2025-01-01    | 3,479,788.70                |
+| 2              | 2025-01-06    | 2,195,502.227               |
+| 3              | 2025-01-11    | 1,739,894.35                |
+| ...            | ...           | ...                         |
+| 2774           | 2062-12-18    | 304,223.285                 |
+| 2775           | 2062-12-23    | 304,209.4607                |
+| 2776           | 2062-12-28    | 304,195.6425                |
+
+### Merila za distribucijo žetonov na storitev
+
+#### Izračun razmerij med storitvami
+
+Razmerje distribucije za vsako storitev se izračuna na podlagi njene ocene uspešnosti $ P_n $ glede na skupno oceno uspešnosti $ P $:
+
+$$
+\text{Razmerje za storitev } n = \frac{P_n}{P}
+$$
+
+Kjer:
+
+- $ P_n $: Ocena uspešnosti storitve $ n $.
+- $ P $: Vsota ocen uspešnosti vseh storitev.
+
+#### Izračun količine distribucije na storitev
+
+Količina žetonov, ki jih storitev $ n $ prejme v vsaki epohi $ S_n $, je:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Največja distribucija žetonov za storitev } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Prilagojena skupna količina distribucije za epoho.
+- $ \text{Največja distribucija žetonov za storitev } n $: Največja količina žetonov, dodeljena na podlagi ravni storitve (glej največjo distribucijo žetonov na podlagi ravni spodaj).
+
+#### Ravnanje z nerazdeljenimi žetoni
+
+##### Prenos nerazdeljenih žetonov
+
+- Nerazdeljeni žetoni iz vsake epohe se **dodajo** skupni količini distribucije za naslednjo epoho.
+- To zagotavlja učinkovito distribucijo žetonov, tudi ko je začetna udeležba storitev nizka.
+
+##### Izračun prilagojene skupne količine distribucije na epoho
+
+Skupna količina distribucije za naslednjo epoho je:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Nerazdeljeni žetoni iz prejšnje epohe}
+$$
+
+- $ f_{\text{total}}(t+1) $: Prilagojena skupna količina distribucije za epoho $ t+1 $.
+- $ f(t+1) $: Količina distribucije na podlagi osnovne distribucijske funkcije.
+- **Preneseni nerazdeljeni žetoni**: Število žetonov, ki niso bili razdeljeni v epohi $ t $.
+
+#### Izračun ocene uspešnosti ($ P_n $) na storitev
+
+Ocena uspešnosti vsake storitve se izračuna na podlagi naslednjih meril. Teža vsakega merila se lahko prilagodi prek upravljanja.
+
+1. **Poraba JetPack žetonov ($ M_{1n} $)**
+    - **Teža**: $ w_1 = 50\% $
+    - **Opis**: Skupna količina JetPack žetonov, ki jih uporabniki porabijo znotraj storitve.
+
+2. **Število glasov Degen Bunny ($ M_{2n} $)**
+    - **Teža**: $ w_2 = 30\% $
+    - **Opis**: Število glasov, prejetih od OG Degen Bunnies.
+
+3. **Število aktivnih uporabnikov ($ M_{3n} $)**
+    - **Teža**: $ w_3 = 20\% $
+    - **Opis**: Število edinstvenih uporabnikov, ki so dostopali do storitve in bili aktivni v epohi.
+
+Ocena uspešnosti vsake storitve $ P_n $ se izračuna kot:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kjer:
+
+- $ M_{1n} $: Poraba JetPack žetonov storitve $ n $.
+- $ M_{1\text{total}} $: Skupna poraba JetPack žetonov v vseh storitvah.
+- $ M_{2n} $: Število glasov Degen Bunny za storitev $ n $.
+- $ M_{2\text{total}} $: Skupno število glasov Degen Bunny v vseh storitvah.
+- $ M_{3n} $: Število aktivnih uporabnikov storitve $ n $.
+- $ M_{3\text{total}} $: Skupno število aktivnih uporabnikov v vseh storitvah.
+
+**Primer**:
+
+- **Storitev A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Storitev B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Storitev C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Skupaj**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Teže**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Izračun ocene uspešnosti za storitev A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Izračun ocene uspešnosti za storitev B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Izračun ocene uspešnosti za storitev C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Tako so ocene uspešnosti:
+
+- **Storitev A**: $ P_A = 0.38 $
+- **Storitev B**: $ P_B = 0.29 $
+- **Storitev C**: $ P_C = 0.33 $
+
+#### Merila za določanje ravni in največja količina distribucije žetonov
+
+Na podlagi ocene uspešnosti $ P_n $ je vsaka storitev razvrščena v **ravni od 1 do 9**. Ta razvrstitev uporablja **kumulativni zgornji percentil** vseh ocen uspešnosti storitev.
+
+##### Kumulativni zgornji percentili in največje količine distribucije žetonov na ravni
+
+| **Raven** | **Kumulativni zgornji percentil** | **Največja distribucija žetonov (Jet)** |
+|-----------|-----------------------------------|----------------------------------------|
+| Raven 1   | Zgornjih 4%                       | 30,000                                 |
+| Raven 2   | Zgornjih 11%                      | 25,000                                 |
+| Raven 3   | Zgornjih 23%                      | 20,000                                 |
+| Raven 4   | Zgornjih 40%                      | 15,000                                 |
+| Raven 5   | Zgornjih 60%                      | 10,000                                 |
+| Raven 6   | Zgornjih 77%                      | 7,000                                  |
+| Raven 7   | Zgornjih 89%                      | 5,000                                  |
+| Raven 8   | Zgornjih 96%                      | 3,000                                  |
+| Raven 9   | Zgornjih 100%                     | 1,000                                  |
+
+##### Metoda določanja ravni
+
+1. **Izračun ocen uspešnosti**
+
+   Uporabite prej definirano metodo za izračun ocene uspešnosti vsake storitve $ P_n $.
+
+2. **Določanje uvrstitev storitev**
+
+   Razvrstite vse storitve v **padajočem vrstnem redu** glede na njihove ocene uspešnosti.
+
+3. **Izračun kumulativnih zgornjih percentilov**
+
+   Za vsako storitev izračunajte kumulativni zgornji percentil:
+
+   $$
+   \text{Kumulativni zgornji percentil (\%)} = \left(1 - \frac{\text{Uvrstitev} - 1}{N} \right) \times 100\%
+   $$
+
+   Kjer:
+
+    - $ \text{Uvrstitev} $: Uvrstitev storitve (začne se z 1).
+    - $ N $: Skupno število storitev.
+
+4. **Dodeljevanje ravni**
+
+   Dodelite ravni na podlagi kumulativnih zgornjih percentilov:
+
+    - **Raven 1**: Kumulativni zgornji percentil > 96%
+    - **Raven 2**: 89% < Kumulativni zgornji percentil ≤ 96%
+    - **Raven 3**: 77% < Kumulativni zgornji percentil ≤ 89%
+    - **Raven 4**: 60% < Kumulativni zgornji percentil ≤ 77%
+    - **Raven 5**: 40% < Kumulativni zgornji percentil ≤ 60%
+    - **Raven 6**: 23% < Kumulativni zgornji percentil ≤ 40%
+    - **Raven 7**: 11% < Kumulativni zgornji percentil ≤ 23%
+    - **Raven 8**: 4% < Kumulativni zgornji percentil ≤ 11%
+    - **Raven 9**: Kumulativni zgornji percentil ≤ 4%
+
+**Primer**:
+
+S skupno **3** storitvami:
+
+1. **Izračun uvrstitev in kumulativnih zgornjih percentilov**
+
+    - **Storitev A**:
+
+        - Ocena uspešnosti: $ P_A = 0.38 $
+        - Uvrstitev: 1
+        - Kumulativni zgornji percentil:
+
+          $$
+          \text{Kumulativni zgornji percentil} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Storitev C**:
+
+        - Ocena uspešnosti: $ P_C = 0.33 $
+        - Uvrstitev: 2
+        - Kumulativni zgornji percentil:
+
+          $$
+          \text{Kumulativni zgornji percentil} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Storitev B**:
+
+        - Ocena uspešnosti: $ P_B = 0.29 $
+        - Uvrstitev: 3
+        - Kumulativni zgornji percentil:
+
+          $$
+          \text{Kumulativni zgornji percentil} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Dodeljevanje ravni**
+
+    - **Storitev A**:
+
+        - Kumulativni zgornji percentil: 100%
+        - **Raven**: **Raven 1** (Kumulativni zgornji percentil > 96%)
+        - **Največja distribucija žetonov**: 30,000 Jet
+
+    - **Storitev C**:
+
+        - Kumulativni zgornji percentil: 66.67%
+        - **Raven**: **Raven 4** (60% < Kumulativni zgornji percentil ≤ 77%)
+        - **Največja distribucija žetonov**: 15,000 Jet
+
+    - **Storitev B**:
+
+        - Kumulativni zgornji percentil: 33.33%
+        - **Raven**: **Raven 6** (23% < Kumulativni zgornji percentil ≤ 40%)
+        - **Največja distribucija žetonov**: 7,000 Jet
+
+**Opombe**:
+
+- **Enake ocene**: Storitve z enakimi ocenami uspešnosti prejmejo enako uvrstitev. Pri izračunu kumulativnih zgornjih percentilov se uporablja povprečna uvrstitev.
+- **Največja distribucija žetonov** se nanaša na največjo količino žetonov, ki jih storitev lahko prejme na podlagi svoje ravni.
+
+### Primer scenarija
+
+#### Epoha 1 ($ t = 1 $)
+
+- **Osnovna količina distribucije**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Prilagojena skupna količina distribucije**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Izračun količine distribucije na storitev**
+
+Na podlagi ocen uspešnosti in ravni:
+
+- **Skupna ocena uspešnosti $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Storitev A**:
+
+    - Razmerje: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Količina distribucije:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Storitev C**:
+
+    - Razmerje: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Količina distribucije:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Storitev B**:
+
+    - Razmerje: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Količina distribucije:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultati distribucije**
+
+- **Skupno razdeljeni žetoni**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nerazdeljeni žetoni**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoha 2 ($ t = 2 $)
+
+- **Osnovna količina distribucije**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Preneseni žetoni**: $ 3,427,788.70 \text{ Jet} $
+- **Prilagojena skupna količina distribucije**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Posodobljene ocene uspešnosti in ravni**
+
+Ob predpostavki sprememb v ocenah uspešnosti:
+
+- **Storitev A**:
+
+    - Ocena uspešnosti: $ P_A = 0.40 $
+    - Uvrstitev: 1
+    - Kumulativni zgornji percentil: 100%
+    - **Raven**: Raven 1
+    - **Največja distribucija žetonov**: 30,000 Jet
+
+- **Storitev C**:
+
+    - Ocena uspešnosti: $ P_C = 0.35 $
+    - Uvrstitev: 2
+    - Kumulativni zgornji percentil: 66.67%
+    - **Raven**: Raven 4
+    - **Največja distribucija žetonov**: 15,000 Jet
+
+- **Storitev B**:
+
+    - Ocena uspešnosti: $ P_B = 0.25 $
+    - Uvrstitev: 3
+    - Kumulativni zgornji percentil: 33.33%
+    - **Raven**: Raven 6
+    - **Največja distribucija žetonov**: 7,000 Jet
+
+**Skupna ocena uspešnosti $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Izračun količine distribucije na storitev**
+
+1. **Storitev A**:
+
+    - Razmerje: $ \frac{P_A}{P} = 0.40 $
+    - Količina distribucije:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Storitev C**:
+
+    - Razmerje: $ \frac{P_C}{P} = 0.35 $
+    - Količina distribucije:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Storitev B**:
+
+    - Razmerje: $ \frac{P_B}{P} = 0.25 $
+    - Količina distribucije:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultati distribucije**
+
+- **Skupno razdeljeni žetoni**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nerazdeljeni žetoni**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Vpliv akumuliranih nerazdeljenih žetonov
+
+- **Povečana udeležba storitev in izboljšana uspešnost** bo postopoma zmanjšala količino nerazdeljenih žetonov.
+- **Začetne storitve lahko izkoristijo največjo količino distribucije** za spodbujanje rasti.
+- Prenos žetonov pomaga **ohranjati stabilnost vrednosti** in uravnavati kroženje.
+
+## Nagrade za uporabnike in uporaba žetonov
+
+### **Mehanizem nagrajevanja uporabnikov**
+
+- **Nagrade na podlagi aktivnosti**: Uporabniki prejmejo JetPack žetone, ko izvajajo **vnaprej dogovorjene aktivnosti** (npr. ustvarjanje vsebine, igranje iger) znotraj storitve.
+- **Merila za nagrajevanje z žetoni**: Količina žetonov, nagrajenih za vsako aktivnost, je **določena v posvetovanju** med storitvijo in operaterjem ekosistema JetPack.
+
+### **Metode uporabe žetonov**
+
+1. **Znotraj storitve**:
+    - **Dostop do premium funkcij**: Uporabite žetone za dostop do plačljivih funkcij ali vsebin znotraj storitve.
+    - **Nakup blaga**: Kupite digitalno blago ali predmete v storitvi z uporabo žetonov.
+
+2. **Uporaba storitve izmenjave JetPack Wallet**:
+    - **Prodaja žetonov**: Uporabniki lahko zamenjajo svoje žetone za **ADA** (valuta **Cardano**).
+    - **Upravljanje denarnice**: Denarnica JetPack omogoča varno upravljanje žetonov in prenose na druge storitve.
+
+### **Pričakovane koristi od povečanja vrednosti žetonov**
+
+- **Likvidnost žetonov**: Trgovanje z žetoni na borzah povečuje njihovo **likvidnost**.
+- **Ekonomski dobički**: Uporabniki lahko dosežejo **dodatne ekonomske koristi** s prodajo žetonov, če se njihova vrednost poveča.
+
+## Nakup in prerazporeditev žetonov
+
+### **Dodatni nakupi žetonov s strani storitev**
+
+- **Ko so razdeljeni žetoni izčrpani**: Če storitev porabi vse dodeljene žetone, lahko kupi dodatne žetone iz **JetPack Wallet Service Exchange**.
+- **Valuta nakupa**: Žetoni se kupujejo z uporabo **ADA**.
+- **Uporaba kupljenih žetonov**: Kupljeni žetoni se lahko uporabijo za **nagrajevanje uporabnikov** ali **znotraj storitve**.
+
+### **Žetoni, ki jih je mogoče preprodati, in žetoni, ki jih ni mogoče preprodati**
+
+- **Razdeljeni žetoni** (**Ni jih mogoče preprodati**): Žetoni, dodeljeni storitvam, **ni jih mogoče preprodati** in so namenjeni samo za **nagrade uporabnikom**.
+- **Kupljeni žetoni in žetoni, pridobljeni od uporabnikov** (**Lahko jih je preprodati**): Žetoni, kupljeni z ADA, in žetoni, prejeti od uporabnikov, **se lahko preprodajo**, kar pomaga pri **pridobivanju likvidnosti**.
+
+### **Prerazporeditev žetonov in aktivacija ekosistema**
+
+1. **Struktura kroženja žetonov**:
+    - Storitve nagrajujejo uporabnike z žetoni; uporabniki jih uporabljajo znotraj storitev ali jih prodajajo na borzah.
+    - Storitve pridobivajo žetone od uporabnikov ali jih kupujejo za ohranjanje **trajnostnega sistema nagrajevanja**.
+
+2. **Učinki aktivacije ekosistema**:
+    - Kroženje žetonov spodbuja **vključenost uporabnikov** in **aktivacijo storitev**.
+    - To prispeva k **stabilizaciji vrednosti žetonov** in **trajnostni rasti** ekosistema.

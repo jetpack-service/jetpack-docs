@@ -1,0 +1,529 @@
+# Wéi JetPack Tokens funktionéieren
+
+D'JetPack Token System ëmfaasst **aktivitéitsbaséiert Token Emissioun an Verdeelung**, e **Service Niveau System**, **Benotzer Belounungen an Token Notzungsmethoden**, an e **Mechanismus fir Tokens ze kafen an ze verdeelen**. Dës Struktur bitt e **gerechte an effiziente Belounungssystem** fir béid Benotzer a Service Ubidder.
+
+## Token Verdeelungsmechanismus (Drop)
+
+### Total Token Offer an Verdeelungsperiod
+
+- **Total Offer**: JetPack wäert insgesamt **1 Milliard Jet** Tokens erausginn.
+- **Verdeelungsperiod**: Tokens ginn iwwer **38 Joer** verdeelt, mat insgesamt **2,776 Verdeelungen**, déi zu de selwechte Intervalle wéi d'**Cardano Epoch** stattfannen (1 Epoch = 5 Deeg).
+
+### Token Verdeelungsbetrag pro Epoch
+
+#### Berechnung vum Verdeelungsbetrag baséiert op enger Logarithmescher Funktioun
+
+D'Zuel vun Tokens, déi pro Epoch verdeelt ginn, ass entworf fir mat der Zäit ze reduzéieren. Eng **logarithmesch Funktioun** gëtt benotzt fir de Verdeelungsbetrag fir all Epoch ze berechnen. **1 Jet entsprécht 1,000,000 Pack**, sou datt d'Verdeelungsbeträg op déi **sechste Dezimalplaz** berechent a bezuelt ginn.
+
+1. **Definitioun vun der Logarithmescher Funktioun $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Wou:
+
+    - $ t $ ass d'Epoch Nummer, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ ass d'natierlech Logarithmusfunktioun.
+
+2. **Berechnung vun der Zomm vun der Log Funktioun $ f(t) $ iwwer all Epochs**:
+
+   D'total Zomm vun de Funktiounswäerter iwwer déi ganz Verdeelungsperiod $ S $ ass:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Berechnung vun der Skaléierungskonstant $ A $**:
+
+   D'total Token Offer vun **1 Milliard Jet** gëtt duerch d'Zomm $ S $ gedeelt fir de Verdeelungsbetrag fir all Epoch unzepassen:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Berechnung vum Token Verdeelungsbetrag pro Epoch**:
+
+   De Verdeelungsbetrag fir all Epoch ass:
+
+   $$
+   \text{Verdeelungsbetrag}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Beispiller vu Verdeelungsbeträg**:
+
+   Berechnung vun de Verdeelungsbeträg fir déi initial Epochs:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Verdeelungsbetrag}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Verdeelungsbetrag}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Verdeelungsbetrag}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   De Verdeelungsbetrag fir all Epoch gëtt duerch de Wäert vun der Log Funktioun bestëmmt, déi der Epoch Nummer entsprécht.
+
+**Verdeelungscharakteristiken**
+
+- Well $ \ln(t + 1) $ eropgeet wéi $ t $ eropgeet, gëtt den Nenner méi grouss, wat de Gesamtverdeelungsbetrag graduell reduzéiert.
+- De Verdeelungsbetrag pro Epoch reduzéiert sech mat der Zäit a geet op Null zou.
+- Dësen Design incentivéiert fréi Participanten an erhéicht d'Skarsitéit vum Token.
+
+### Gesamtverdeelungsplang
+
+Hei drënner ass eng partiell Tabell, déi d'Verdeelungsbeträg an Datumen pro Epoch zesummefaasst.
+Fir detailléiert Informatiounen iwwer all Epochs, kuckt w.e.g. op dat separat [Dokument](/attach/token_allocation_per_epoch.csv) an [Code](/attach/token_allocation_per_epoch.py).
+
+| Epoch Nummer | Datum          | Verdeelungsbetrag (Jet) |
+|--------------|----------------|-------------------------|
+| 1            | 2025-01-01     | 3,479,788.70            |
+| 2            | 2025-01-06     | 2,195,502.227           |
+| 3            | 2025-01-11     | 1,739,894.35            |
+| ...          | ...            | ...                     |
+| 2774         | 2062-12-18     | 304,223.285             |
+| 2775         | 2062-12-23     | 304,209.4607            |
+| 2776         | 2062-12-28     | 304,195.6425            |
+
+### Token Verdeelungskriterien pro Service
+
+#### Berechnung vun de Verhältnisser tëscht Servicer
+
+D'Verdeelungsverhältnis fir all Service gëtt berechent baséiert op sengem Leeschtungsscore $ P_n $ am Verglach zum totalen Leeschtungsscore $ P $:
+
+$$
+\text{Verhältnis fir Service } n = \frac{P_n}{P}
+$$
+
+Wou:
+
+- $ P_n $: Leeschtungsscore vum Service $ n $.
+- $ P $: Zomm vun de Leeschtungsscoren vun allen Servicer.
+
+#### Berechnung vum Verdeelungsbetrag pro Service
+
+D'Zuel vun Tokens, déi de Service $ n $ an all Epoch $ S_n $ kritt, ass:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Verdeelung fir Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Ugepassten totalen Verdeelungsbetrag fir d'Epoch.
+- $ \text{Maximum Token Verdeelung fir Service } n $: Maximum Token Betrag zougewisen baséiert op dem Service sengem Niveau (kuckt Niveau-baséiert Maximum Token Verdeelung hei drënner).
+
+#### Handhabung vun net verdeelten Tokens
+
+##### Iwwerdroe vun net verdeelten Tokens
+
+- Net verdeelten Tokens vun all Epoch ginn **bäigefüügt** zum totalen Verdeelungsbetrag fir déi nächst Epoch.
+- Dëst garantéiert eng effektiv Token Verdeelung och wann d'initial Service Participatioun niddereg ass.
+
+##### Berechnung vum ugepassten totalen Verdeelungsbetrag pro Epoch
+
+Den totalen Verdeelungsbetrag fir déi nächst Epoch ass:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Net verdeelten Tokens vun der viregter Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Ugepassten totalen Verdeelungsbetrag fir Epoch $ t+1 $.
+- $ f(t+1) $: Verdeelungsbetrag baséiert op der Basisverdeelungsfunktioun.
+- **Iwwerdroe net verdeelten Tokens**: Zuel vun Tokens net verdeelt an Epoch $ t $.
+
+#### Berechnung vum Leeschtungsscore ($ P_n $) pro Service
+
+De Leeschtungsscore vun all Service gëtt berechent baséiert op de folgende Metriken. D'Gewiicht vun all Metrik kann duerch Gouvernance ugepasst ginn.
+
+1. **JetPack Token Konsum ($ M_{1n} $)**
+    - **Gewiicht**: $ w_1 = 50\% $
+    - **Beschreiwung**: Total Betrag vun JetPack Tokens, déi vun de Benotzer bannent dem Service konsuméiert ginn.
+
+2. **Degen Bunny Vote Count ($ M_{2n} $)**
+    - **Gewiicht**: $ w_2 = 30\% $
+    - **Beschreiwung**: Zuel vun de Stëmmen, déi vun OG Degen Bunnies kritt ginn.
+
+3. **Aktiv Benotzerzuel ($ M_{3n} $)**
+    - **Gewiicht**: $ w_3 = 20\% $
+    - **Beschreiwung**: Zuel vun eenzegaartege Benotzer, déi de Service während der Epoch zougänglech gemaach hunn an aktiv waren.
+
+De Leeschtungsscore vun all Service $ P_n $ gëtt berechent als:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Wou:
+
+- $ M_{1n} $: JetPack Token Konsum vum Service $ n $.
+- $ M_{1\text{total}} $: Total JetPack Token Konsum iwwer all Servicer.
+- $ M_{2n} $: Degen Bunny Vote Count fir Service $ n $.
+- $ M_{2\text{total}} $: Total Degen Bunny Stëmmen iwwer all Servicer.
+- $ M_{3n} $: Aktiv Benotzerzuel vum Service $ n $.
+- $ M_{3\text{total}} $: Total aktiv Benotzer iwwer all Servicer.
+
+**Beispill**:
+
+- **Service A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Service B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Service C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totalen**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Gewiichter**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Berechnung vum Leeschtungsscore fir Service A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Berechnung vum Leeschtungsscore fir Service B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Berechnung vum Leeschtungsscore fir Service C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Dofir sinn d'Leeschtungsscoren:
+
+- **Service A**: $ P_A = 0.38 $
+- **Service B**: $ P_B = 0.29 $
+- **Service C**: $ P_C = 0.33 $
+
+#### Niveau Bestëmmungskriterien an Maximum Token Verdeelungsbetrag
+
+Baséiert op dem Leeschtungsscore $ P_n $, gëtt all Service an **Niveauen 1 bis 9** klasséiert. Dës Klassifikatioun benotzt den **kumulativen Top Prozentsaz** vun allen Servicer hir Leeschtungsscoren.
+
+##### Kumulativ Top Prozentsätz an Maximum Token Verdeelungsbeträg pro Niveau
+
+| **Niveau** | **Kumulativ Top Prozentsaz** | **Maximum Token Verdeelung (Jet)** |
+|------------|------------------------------|------------------------------------|
+| Niveau 1   | Top 4%                       | 30,000                             |
+| Niveau 2   | Top 11%                      | 25,000                             |
+| Niveau 3   | Top 23%                      | 20,000                             |
+| Niveau 4   | Top 40%                      | 15,000                             |
+| Niveau 5   | Top 60%                      | 10,000                             |
+| Niveau 6   | Top 77%                      | 7,000                              |
+| Niveau 7   | Top 89%                      | 5,000                              |
+| Niveau 8   | Top 96%                      | 3,000                              |
+| Niveau 9   | Top 100%                     | 1,000                              |
+
+##### Niveau Bestëmmungsmethod
+
+1. **Berechnung vun Leeschtungsscoren**
+
+   Benotzt déi virdru definéiert Method fir de Leeschtungsscore vun all Service $ P_n $ ze berechnen.
+
+2. **Bestëmmung vun Service Rankings**
+
+   Rangéiert all Servicer an **ofsteigender Reiefolleg** baséiert op hire Leeschtungsscoren.
+
+3. **Berechnung vun kumulativen Top Prozentsätz**
+
+   Fir all Service, berechent de kumulativen Top Prozentsaz:
+
+   $$
+   \text{Kumulativ Top Prozentsaz (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Wou:
+
+    - $ \text{Rank} $: De Rank vum Service (ufänkt bei 1).
+    - $ N $: Total Zuel vun Servicer.
+
+4. **Zouweisung vun Niveauen**
+
+   Weist Niveauen zou baséiert op de kumulativen Top Prozentsätz:
+
+    - **Niveau 1**: Kumulativ Top Prozentsaz > 96%
+    - **Niveau 2**: 89% < Kumulativ Top Prozentsaz ≤ 96%
+    - **Niveau 3**: 77% < Kumulativ Top Prozentsaz ≤ 89%
+    - **Niveau 4**: 60% < Kumulativ Top Prozentsaz ≤ 77%
+    - **Niveau 5**: 40% < Kumulativ Top Prozentsaz ≤ 60%
+    - **Niveau 6**: 23% < Kumulativ Top Prozentsaz ≤ 40%
+    - **Niveau 7**: 11% < Kumulativ Top Prozentsaz ≤ 23%
+    - **Niveau 8**: 4% < Kumulativ Top Prozentsaz ≤ 11%
+    - **Niveau 9**: Kumulativ Top Prozentsaz ≤ 4%
+
+**Beispill**:
+
+Mat engem Total vun **3** Servicer:
+
+1. **Berechnung vun Rankings an kumulativen Top Prozentsätz**
+
+    - **Service A**:
+
+        - Leeschtungsscore: $ P_A = 0.38 $
+        - Rank: 1
+        - Kumulativ Top Prozentsaz:
+
+          $$
+          \text{Kumulativ Top Prozentsaz} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Service C**:
+
+        - Leeschtungsscore: $ P_C = 0.33 $
+        - Rank: 2
+        - Kumulativ Top Prozentsaz:
+
+          $$
+          \text{Kumulativ Top Prozentsaz} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Service B**:
+
+        - Leeschtungsscore: $ P_B = 0.29 $
+        - Rank: 3
+        - Kumulativ Top Prozentsaz:
+
+          $$
+          \text{Kumulativ Top Prozentsaz} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Zouweisung vun Niveauen**
+
+    - **Service A**:
+
+        - Kumulativ Top Prozentsaz: 100%
+        - **Niveau**: **Niveau 1** (Kumulativ Top Prozentsaz > 96%)
+        - **Maximum Token Verdeelung**: 30,000 Jet
+
+    - **Service C**:
+
+        - Kumulativ Top Prozentsaz: 66.67%
+        - **Niveau**: **Niveau 4** (60% < Kumulativ Top Prozentsaz ≤ 77%)
+        - **Maximum Token Verdeelung**: 15,000 Jet
+
+    - **Service B**:
+
+        - Kumulativ Top Prozentsaz: 33.33%
+        - **Niveau**: **Niveau 6** (23% < Kumulativ Top Prozentsaz ≤ 40%)
+        - **Maximum Token Verdeelung**: 7,000 Jet
+
+**Notizen**:
+
+- **Gleiche Scoren**: Servicer mat identesche Leeschtungsscoren kréien de selwechte Rank. Bei der Berechnung vun kumulativen Top Prozentsätz gëtt den duerchschnëttleche Rank benotzt.
+- **Maximum Token Verdeelung** bezitt sech op de Maximum Token Betrag, deen e Service baséiert op sengem Niveau kréie kann.
+
+### Beispill Szenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basis Verdeelungsbetrag**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Ugepassten totalen Verdeelungsbetrag**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Berechnung vum Verdeelungsbetrag pro Service**
+
+Baséiert op de Leeschtungsscoren an Niveauen:
+
+- **Total Leeschtungsscore $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Service A**:
+
+    - Verhältnis: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Verdeelungsbetrag:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Verhältnis: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Verdeelungsbetrag:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Verhältnis: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Verdeelungsbetrag:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Verdeelungsresultater**
+
+- **Total Tokens verdeelt**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Net verdeelten Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basis Verdeelungsbetrag**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Iwwerdroe Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Ugepassten totalen Verdeelungsbetrag**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Aktualiséiert Leeschtungsscoren an Niveauen**
+
+Ugeholl Ännerungen an Leeschtungsscoren:
+
+- **Service A**:
+
+    - Leeschtungsscore: $ P_A = 0.40 $
+    - Rank: 1
+    - Kumulativ Top Prozentsaz: 100%
+    - **Niveau**: Niveau 1
+    - **Maximum Token Verdeelung**: 30,000 Jet
+
+- **Service C**:
+
+    - Leeschtungsscore: $ P_C = 0.35 $
+    - Rank: 2
+    - Kumulativ Top Prozentsaz: 66.67%
+    - **Niveau**: Niveau 4
+    - **Maximum Token Verdeelung**: 15,000 Jet
+
+- **Service B**:
+
+    - Leeschtungsscore: $ P_B = 0.25 $
+    - Rank: 3
+    - Kumulativ Top Prozentsaz: 33.33%
+    - **Niveau**: Niveau 6
+    - **Maximum Token Verdeelung**: 7,000 Jet
+
+**Total Leeschtungsscore $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Berechnung vum Verdeelungsbetrag pro Service**
+
+1. **Service A**:
+
+    - Verhältnis: $ \frac{P_A}{P} = 0.40 $
+    - Verdeelungsbetrag:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Verhältnis: $ \frac{P_C}{P} = 0.35 $
+    - Verdeelungsbetrag:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Verhältnis: $ \frac{P_B}{P} = 0.25 $
+    - Verdeelungsbetrag:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Verdeelungsresultater**
+
+- **Total Tokens verdeelt**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Net verdeelten Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impakt vun akkumuléierten net verdeelten Tokens
+
+- **Erhéicht Service Participatioun an verbessert Leeschtung** wäert d'Zuel vun net verdeelten Tokens graduell reduzéieren.
+- **Initial Servicer kënnen de maximalen Verdeelungsbetrag notzen** fir Wuesstem ze förderen.
+- D'Iwwerdroe vun Tokens hëlleft **Wäertstabilitéit ze erhalen** an d'Zirkulatioun ze reguléieren.
+
+## Benotzer Belounungen an Token Notzung
+
+### **Benotzer Belounungsmechanismus**
+
+- **Aktivitéitsbaséiert Belounungen**: Benotzer kréien JetPack Tokens wann se **viragestëmmt Aktivitéiten** (z.B. Inhaltserstellung, Spillspill) bannent engem Service ausféieren.
+- **Token Belounungskriterien**: D'Zuel vun Tokens, déi fir all Aktivitéit belount ginn, gëtt **duerch Konsultatioun** tëscht dem Service an dem JetPack Ecosystem Operateur bestëmmt.
+
+### **Token Notzungsmethoden**
+
+1. **Bannent dem Service**:
+    - **Zougang zu Premium Features**: Benotzt Tokens fir bezuelte Features oder Inhalt bannent dem Service zougänglech ze maachen.
+    - **Kaf vu Wueren**: Kaaft digital Wueren oder In-Service Artikelen mat Tokens.
+
+2. **Benotzung vum JetPack Wallet Service Exchange**:
+    - **Token Verkaf**: Benotzer kënnen hir Tokens fir **ADA** (d'Währung vun **Cardano**) austauschen.
+    - **Wallet Management**: De JetPack Wallet erlaabt sécher Gestioun vun Tokens an Transferten op aner Servicer.
+
+### **Erwaart Virdeeler vun Token Wäert Erhéijung**
+
+- **Token Liquiditéit**: Handel mat Tokens op Austausch erhéicht hir **Liquiditéit**.
+- **Wirtschaftlech Gewënn**: Benotzer kënnen **zousätzlech wirtschaftlech Virdeeler** erreechen andeems se Tokens verkafen, wann hire Wäert eropgeet.
+
+## Token Kaf an Ëmverdeelung
+
+### **Zousätzlech Token Kaf duerch Servicer**
+
+- **Wann verdeelt Tokens erschöpft sinn**: Wann e Service all seng zougewisen Tokens benotzt, kann et zousätzlech Tokens vum **JetPack Wallet Service Exchange** kafen.
+- **Kafwährung**: Tokens ginn mat **ADA** kaaft.
+- **Notzung vun kaafte Tokens**: Kaafte Tokens kënnen benotzt ginn fir **Benotzer ze belounen** oder **bannent dem Service**.
+
+### **Verkafbar vs. Net-Verkafbar Tokens**
+
+- **Verdeelt Tokens** (**Net-Verkafbar**): Tokens, déi un Servicer zougewisen ginn, **kënnen net verkaaft ginn** a sinn nëmme fir **Benotzer Belounungen**.
+- **Kaafte Tokens an Tokens vun Benotzer kritt** (**Verkafbar**): Tokens, déi mat ADA kaaft ginn an Tokens, déi vun Benotzer kritt ginn, **kënnen verkaaft ginn**, wat hëlleft bei der **Liquiditéitsbeschaffung**.
+
+### **Token Ëmverdeelung an Ecosystem Aktivatioun**
+
+1. **Token Zirkulatiounsstruktur**:
+    - Servicer belounen Benotzer mat Tokens; Benotzer benotzen se bannent Servicer oder verkafen se op Austausch.
+    - Servicer kréien Tokens vun Benotzer oder kafen se fir e **nohaltege Belounungssystem** ze erhalen.
+
+2. **Ecosystem Aktivatiounseffekter**:
+    - Token Zirkulatioun fördert **Benotzer Engagement** an **Service Aktivatioun**.
+    - Dëst dréit zur **Token Wäertstabiliséierung** an dem **nohaltege Wuesstem** vum Ecosystem bäi.

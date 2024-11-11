@@ -1,0 +1,529 @@
+# Yadda Tsarin Token na JetPack Yake Aiki
+
+Tsarin token na JetPack ya ƙunshi **fitarwa da rarraba token bisa ayyuka**, **tsarin matakin sabis**, **lada ga masu amfani da hanyoyin amfani da token**, da kuma **tsarin saye da sake rarraba token**. Wannan tsari yana bayar da **tsarin lada mai adalci da inganci** ga masu amfani da masu samar da sabis.
+
+## Tsarin Rarraba Token (Drop)
+
+### Jimlar Adadin Token da Lokacin Rarraba
+
+- **Jimlar Adadin**: JetPack zai fitar da jimlar **biliyan 1 na Jet** tokens.
+- **Lokacin Rarraba**: Za a rarraba tokens a tsawon **shekaru 38**, tare da jimlar **rarrabawa 2,776** da za su faru a lokaci guda da **Cardano Epoch** (1 epoch = kwanaki 5).
+
+### Adadin Rarraba Token a kowane Epoch
+
+#### Lissafin Adadin Rarraba Bisa Ga Ayyukan Logarithmic
+
+Adadin tokens da za a rarraba a kowane epoch an tsara shi ne don ya ragu a lokaci. Ana amfani da **ayyukan logarithmic** don lissafin adadin rarraba a kowane epoch. **1 Jet yana daidai da 1,000,000 Pack**, don haka ana lissafin adadin rarraba zuwa **wurin goma na shida** kuma ana biyan su daidai.
+
+1. **Ma'anar Ayyukan Logarithmic $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Inda:
+
+    - $ t $ shine lambar epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ shine aikin logarithm na halitta.
+
+2. **Lissafin Jimlar Ayyukan Log $ f(t) $ A Duk Epochs**:
+
+   Jimlar jimlar ƙimar aikin a duk lokacin rarraba $ S $ shine:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Lissafin Kafaffen Scaling $ A $**:
+
+   Jimlar adadin token na **biliyan 1 na Jet** an raba shi da jimlar $ S $ don daidaita adadin rarraba a kowane epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Lissafin Adadin Rarraba Token a kowane Epoch**:
+
+   Adadin rarraba a kowane epoch shine:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Misalan Adadin Rarraba**:
+
+   Lissafin adadin rarraba don epochs na farko:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Adadin rarraba a kowane epoch ana ƙayyade shi ne ta ƙimar aikin log da ya dace da lambar epoch.
+
+**Halayen Rarraba**
+
+- Tun da $ \ln(t + 1) $ yana ƙaruwa yayin da $ t $ ke ƙaruwa, mai rarraba yana zama babba, yana haifar da adadin rarraba gaba ɗaya ya ragu a hankali.
+- Adadin rarraba a kowane epoch yana raguwa a lokaci, yana kusantar sifili.
+- Wannan tsari yana ƙarfafa mahalarta na farko kuma yana ƙara ƙarancin token.
+
+### Tsarin Rarraba Gabaɗaya
+
+A ƙasa akwai tebur mai taƙaitaccen bayani game da adadin rarraba da kwanakin a kowane epoch.
+Don cikakken bayani akan duk epochs, da fatan za a koma zuwa [takarda](/attach/token_allocation_per_epoch.csv) da [lambar](/attach/token_allocation_per_epoch.py).
+
+| Lambar Epoch | Kwanan Wata     | Adadin Rarraba (Jet) |
+|--------------|-----------------|----------------------|
+| 1            | 2025-01-01      | 3,479,788.70         |
+| 2            | 2025-01-06      | 2,195,502.227        |
+| 3            | 2025-01-11      | 1,739,894.35         |
+| ...          | ...             | ...                  |
+| 2774         | 2062-12-18      | 304,223.285          |
+| 2775         | 2062-12-23      | 304,209.4607         |
+| 2776         | 2062-12-28      | 304,195.6425         |
+
+### Ka'idodin Rarraba Token a kowane Sabis
+
+#### Lissafin Rabon Tsakanin Sabis
+
+Rabon rarraba ga kowane sabis ana lissafa shi ne bisa ga ƙimar aikinsa $ P_n $ dangane da jimlar ƙimar aiki $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Inda:
+
+- $ P_n $: Ƙimar aiki na sabis $ n $.
+- $ P $: Jimlar ƙimar aiki na duk sabis.
+
+#### Lissafin Adadin Rarraba a kowane Sabis
+
+Adadin tokens da sabis $ n $ ke karɓa a kowane epoch $ S_n $ shine:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Daidaitaccen adadin rarraba gaba ɗaya don epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Matsakaicin adadin token da aka ware bisa ga matakin sabis (duba matsakaicin rarraba token bisa matakin a ƙasa).
+
+#### Sarrafa Tokens da Ba a Rarraba ba
+
+##### Ɗaukar Tokens da Ba a Rarraba ba
+
+- Tokens da ba a rarraba ba daga kowane epoch ana **ƙara** su zuwa adadin rarraba gaba ɗaya don epoch na gaba.
+- Wannan yana tabbatar da ingantaccen rarraba token koda lokacin da halartar sabis na farko ya yi ƙasa.
+
+##### Lissafin Daidaitaccen Adadin Rarraba Gaba ɗaya a kowane Epoch
+
+Adadin rarraba gaba ɗaya don epoch na gaba shine:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Daidaitaccen adadin rarraba gaba ɗaya don epoch $ t+1 $.
+- $ f(t+1) $: Adadin rarraba bisa ga aikin rarraba na asali.
+- **Tokens da Ba a Rarraba ba da Aka Ɗauka**: Adadin tokens da ba a rarraba a epoch $ t $.
+
+#### Lissafin Ƙimar Aiki ($ P_n $) a kowane Sabis
+
+Ƙimar aiki na kowane sabis ana lissafa shi ne bisa ga waɗannan ma'auni. Ana iya daidaita nauyin kowane ma'auni ta hanyar gudanarwa.
+
+1. **Cin Token na JetPack ($ M_{1n} $)**
+    - **Nauyi**: $ w_1 = 50\% $
+    - **Bayani**: Jimlar adadin tokens na JetPack da masu amfani suka cinye a cikin sabis.
+
+2. **Adadin Kuri'un Degen Bunny ($ M_{2n} $)**
+    - **Nauyi**: $ w_2 = 30\% $
+    - **Bayani**: Adadin kuri'un da aka samu daga OG Degen Bunnies.
+
+3. **Adadin Masu Amfani da Aiki ($ M_{3n} $)**
+    - **Nauyi**: $ w_3 = 20\% $
+    - **Bayani**: Adadin masu amfani na musamman da suka shiga kuma suka yi aiki a cikin sabis a lokacin epoch.
+
+Ƙimar aiki na kowane sabis $ P_n $ ana lissafa shi ne:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Inda:
+
+- $ M_{1n} $: Cin token na JetPack na sabis $ n $.
+- $ M_{1\text{total}} $: Jimlar cin token na JetPack a duk sabis.
+- $ M_{2n} $: Adadin kuri'un Degen Bunny na sabis $ n $.
+- $ M_{2\text{total}} $: Jimlar kuri'un Degen Bunny a duk sabis.
+- $ M_{3n} $: Adadin masu amfani da aiki na sabis $ n $.
+- $ M_{3\text{total}} $: Jimlar masu amfani da aiki a duk sabis.
+
+**Misali**:
+
+- **Sabis A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Sabis B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Sabis C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Jimloli**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Nauyi**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Lissafin Ƙimar Aiki na Sabis A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Lissafin Ƙimar Aiki na Sabis B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Lissafin Ƙimar Aiki na Sabis C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Don haka, ƙimar aikin su shine:
+
+- **Sabis A**: $ P_A = 0.38 $
+- **Sabis B**: $ P_B = 0.29 $
+- **Sabis C**: $ P_C = 0.33 $
+
+#### Ka'idodin Ƙayyade Mataki da Matsakaicin Adadin Rarraba Token
+
+Bisa ga ƙimar aiki $ P_n $, kowane sabis ana rarraba shi zuwa **Matakai 1 zuwa 9**. Wannan rarrabuwa yana amfani da **cumulative top percentile** na duk ƙimar aikin sabis.
+
+##### Cumulative Top Percentiles da Matsakaicin Adadin Rarraba Token a kowane Mataki
+
+| **Mataki** | **Cumulative Top Percentile** | **Matsakaicin Rarraba Token (Jet)** |
+|------------|-------------------------------|-------------------------------------|
+| Mataki 1   | Top 4%                        | 30,000                              |
+| Mataki 2   | Top 11%                       | 25,000                              |
+| Mataki 3   | Top 23%                       | 20,000                              |
+| Mataki 4   | Top 40%                       | 15,000                              |
+| Mataki 5   | Top 60%                       | 10,000                              |
+| Mataki 6   | Top 77%                       | 7,000                               |
+| Mataki 7   | Top 89%                       | 5,000                               |
+| Mataki 8   | Top 96%                       | 3,000                               |
+| Mataki 9   | Top 100%                      | 1,000                               |
+
+##### Hanyar Ƙayyade Mataki
+
+1. **Lissafin Ƙimar Aiki**
+
+   Yi amfani da hanyar da aka bayyana a baya don lissafin ƙimar aiki na kowane sabis $ P_n $.
+
+2. **Ƙayyade Matsayin Sabis**
+
+   Yi jerin duk sabis a **tsari mai sauƙi** bisa ga ƙimar aikin su.
+
+3. **Lissafin Cumulative Top Percentiles**
+
+   Don kowane sabis, lissafa cumulative top percentile:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Inda:
+
+    - $ \text{Rank} $: Matsayin sabis (fara daga 1).
+    - $ N $: Jimlar adadin sabis.
+
+4. **Rarraba Matakai**
+
+   Rarraba matakai bisa ga cumulative top percentiles:
+
+    - **Mataki 1**: Cumulative top percentile > 96%
+    - **Mataki 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Mataki 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Mataki 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Mataki 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Mataki 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Mataki 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Mataki 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Mataki 9**: Cumulative top percentile ≤ 4%
+
+**Misali**:
+
+Tare da jimlar **3** sabis:
+
+1. **Lissafin Matsayi da Cumulative Top Percentiles**
+
+    - **Sabis A**:
+
+        - Ƙimar Aiki: $ P_A = 0.38 $
+        - Matsayi: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Sabis C**:
+
+        - Ƙimar Aiki: $ P_C = 0.33 $
+        - Matsayi: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Sabis B**:
+
+        - Ƙimar Aiki: $ P_B = 0.29 $
+        - Matsayi: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Rarraba Matakai**
+
+    - **Sabis A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Mataki**: **Mataki 1** (Cumulative Top Percentile > 96%)
+        - **Matsakaicin Rarraba Token**: 30,000 Jet
+
+    - **Sabis C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Mataki**: **Mataki 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Matsakaicin Rarraba Token**: 15,000 Jet
+
+    - **Sabis B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Mataki**: **Mataki 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Matsakaicin Rarraba Token**: 7,000 Jet
+
+**Lura**:
+
+- **Ƙimar Daidaitawa**: Sabis da ke da ƙimar aiki iri ɗaya suna samun matsayi iri ɗaya. A cikin lissafin cumulative top percentiles, ana amfani da matsakaicin matsayi.
+- **Matsakaicin Rarraba Token** yana nufin matsakaicin adadin token da sabis zai iya karɓa bisa ga matakinsa.
+
+### Misalin Yanayi
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Adadin Rarraba Asali**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Daidaitaccen Adadin Rarraba Gaba ɗaya**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Lissafin Adadin Rarraba a kowane Sabis**
+
+Bisa ga ƙimar aiki da matakai:
+
+- **Jimlar Ƙimar Aiki $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Sabis A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Adadin Rarraba:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Sabis C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Adadin Rarraba:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Sabis B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Adadin Rarraba:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Sakamakon Rarraba**
+
+- **Jimlar Tokens da Aka Rarraba**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens da Ba a Rarraba ba**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Adadin Rarraba Asali**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokens da Aka Ɗauka**: $ 3,427,788.70 \text{ Jet} $
+- **Daidaitaccen Adadin Rarraba Gaba ɗaya**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Sabbin Ƙimar Aiki da Matakai**
+
+Idan aka yi la'akari da canje-canje a cikin ƙimar aiki:
+
+- **Sabis A**:
+
+    - Ƙimar Aiki: $ P_A = 0.40 $
+    - Matsayi: 1
+    - Cumulative Top Percentile: 100%
+    - **Mataki**: Mataki 1
+    - **Matsakaicin Rarraba Token**: 30,000 Jet
+
+- **Sabis C**:
+
+    - Ƙimar Aiki: $ P_C = 0.35 $
+    - Matsayi: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Mataki**: Mataki 4
+    - **Matsakaicin Rarraba Token**: 15,000 Jet
+
+- **Sabis B**:
+
+    - Ƙimar Aiki: $ P_B = 0.25 $
+    - Matsayi: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Mataki**: Mataki 6
+    - **Matsakaicin Rarraba Token**: 7,000 Jet
+
+**Jimlar Ƙimar Aiki $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Lissafin Adadin Rarraba a kowane Sabis**
+
+1. **Sabis A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Adadin Rarraba:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Sabis C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Adadin Rarraba:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Sabis B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Adadin Rarraba:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Sakamakon Rarraba**
+
+- **Jimlar Tokens da Aka Rarraba**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens da Ba a Rarraba ba**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Tasirin Tokens da Ba a Rarraba ba da Aka Tara
+
+- **Ƙara Halartar Sabis da Ingantaccen Aiki** zai rage adadin tokens da ba a rarraba ba a hankali.
+- **Sabis na farko na iya amfani da matsakaicin adadin rarraba** don haɓaka ci gaba.
+- Ɗaukar tokens yana taimakawa **tsare darajar** da kuma daidaita yawan juyawa.
+
+## Lada ga Masu Amfani da Amfani da Token
+
+### **Tsarin Lada ga Masu Amfani**
+
+- **Lada Bisa Ayyuka**: Masu amfani suna karɓar tokens na JetPack lokacin da suka yi **ayyuka da aka amince da su** (misali, ƙirƙirar abun ciki, wasa) a cikin sabis.
+- **Ka'idodin Lada Token**: Adadin tokens da za a bayar don kowane aiki ana **ƙayyade shi ta hanyar tattaunawa** tsakanin sabis da mai gudanar da tsarin JetPack.
+
+### **Hanyoyin Amfani da Token**
+
+1. **A Cikin Sabis**:
+    - **Samun Abubuwan Farko**: Yi amfani da tokens don samun abubuwan da aka biya ko abun ciki a cikin sabis.
+    - **Sayi Kayayyaki**: Sayi kayayyakin dijital ko abubuwan sabis ta amfani da tokens.
+
+2. **Amfani da Musayar Sabis na JetPack Wallet**:
+    - **Sayen Token**: Masu amfani na iya musanya tokens ɗin su don **ADA** (kuɗin **Cardano**).
+    - **Gudanar da Wallet**: JetPack wallet yana ba da damar sarrafa tokens cikin aminci da canja wurin su zuwa wasu sabis.
+
+### **Fa'idodin da Ake Sa Ran Samu Daga Ƙimar Token**
+
+- **Liquidity na Token**: Kasuwancin tokens a kan musayar yana ƙara **liquidity** ɗin su.
+- **Ribobi na Tattalin Arziki**: Masu amfani na iya samun **ƙarin ribobi na tattalin arziki** ta hanyar sayar da tokens idan ƙimar su ta ƙaru.
+
+## Saye da Sake Rarraba Token
+
+### **Saye na Ƙarin Token ta Sabis**
+
+- **Lokacin da Aka Ƙare da Tokens da Aka Rarraba**: Idan sabis ya yi amfani da duk tokens da aka ware masa, zai iya sayen ƙarin tokens daga **Musayar Sabis na JetPack Wallet**.
+- **Kuɗin Saye**: Ana sayen tokens ta amfani da **ADA**.
+- **Amfani da Tokens da Aka Saye**: Tokens da aka saya za a iya amfani da su don **lada ga masu amfani** ko **a cikin sabis**.
+
+### **Tokens da Za a Iya Sake Sayarwa da Waɗanda Ba Za a Iya Sake Sayarwa ba**
+
+- **Tokens da Aka Rarraba** (**Ba Za a Iya Sake Sayarwa ba**): Tokens da aka ware wa sabis **ba za a iya sake sayar da su ba** kuma suna ne kawai don **lada ga masu amfani**.
+- **Tokens da Aka Saye da Tokens da Aka Samu daga Masu Amfani** (**Za a Iya Sake Sayarwa**): Tokens da aka saya da ADA da tokens da aka samu daga masu amfani **za a iya sake sayar da su**, suna taimakawa wajen **samuwa liquidity**.
+
+### **Sake Rarraba Token da Ƙaddamar da Tsarin**
+
+1. **Tsarin Juyawa na Token**:
+    - Sabis suna ba da lada ga masu amfani da tokens; masu amfani suna amfani da su a cikin sabis ko sayar da su a kan musayar.
+    - Sabis suna samun tokens daga masu amfani ko sayen su don kula da **tsarin lada mai dorewa**.
+
+2. **Tasirin Ƙaddamar da Tsarin**:
+    - Juyawar token yana haɓaka **halartar masu amfani** da **ƙaddamar da sabis**.
+    - Wannan yana taimakawa wajen **tsare ƙimar token** da **ci gaban tsarin mai dorewa**.

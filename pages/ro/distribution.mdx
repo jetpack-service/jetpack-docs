@@ -1,0 +1,529 @@
+# Cum Funcționează Tokenurile JetPack
+
+Sistemul de tokenuri JetPack cuprinde **emiterea și distribuirea de tokenuri bazate pe activitate**, un **sistem de nivel de servicii**, **recompense pentru utilizatori și metode de utilizare a tokenurilor**, și un **mecanism de achiziție și redistribuire a tokenurilor**. Această structură oferă un **sistem de recompense echitabil și eficient** atât pentru utilizatori, cât și pentru furnizorii de servicii.
+
+## Mecanismul de Distribuire a Tokenurilor (Drop)
+
+### Oferta Totală de Tokenuri și Perioada de Distribuire
+
+- **Oferta Totală**: JetPack va emite un total de **1 miliard de Jet** tokenuri.
+- **Perioada de Distribuire**: Tokenurile vor fi distribuite pe parcursul a **38 de ani**, cu un total de **2,776 distribuiri** care vor avea loc la aceleași intervale ca și **Epoca Cardano** (1 epocă = 5 zile).
+
+### Cantitatea de Tokenuri Distribuite pe Epocă
+
+#### Calcularea Cantității de Distribuire pe Baza unei Funcții Logaritmice
+
+Cantitatea de tokenuri distribuite pe epocă este concepută să scadă în timp. O **funcție logaritmică** este utilizată pentru a calcula cantitatea de distribuire pentru fiecare epocă. **1 Jet este egal cu 1,000,000 Pack**, astfel încât cantitățile de distribuire sunt calculate până la **a șasea zecimală** și plătite în consecință.
+
+1. **Definiția Funcției Logaritmice $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Unde:
+
+    - $ t $ este numărul epocii, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ este funcția logaritmului natural.
+
+2. **Calcularea Sumei Funcției Logaritmice $ f(t) $ pe Toate Epocile**:
+
+   Suma totală a valorilor funcției pe întreaga perioadă de distribuire $ S $ este:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Calcularea Constantei de Scalare $ A $**:
+
+   Oferta totală de tokenuri de **1 miliard Jet** este împărțită la suma $ S $ pentru a ajusta cantitatea de distribuire pentru fiecare epocă:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Calcularea Cantității de Distribuire a Tokenurilor pe Epocă**:
+
+   Cantitatea de distribuire pentru fiecare epocă este:
+
+   $$
+   \text{Cantitatea de Distribuire}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Exemple de Cantități de Distribuire**:
+
+   Calcularea cantităților de distribuire pentru epocile inițiale:
+
+    - **Epoca 1**:
+
+      $$
+      \text{Cantitatea de Distribuire}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoca 2**:
+
+      $$
+      \text{Cantitatea de Distribuire}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoca 3**:
+
+      $$
+      \text{Cantitatea de Distribuire}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Cantitatea de distribuire pentru fiecare epocă este determinată de valoarea funcției logaritmice corespunzătoare numărului epocii.
+
+**Caracteristicile Distribuirii**
+
+- Deoarece $ \ln(t + 1) $ crește pe măsură ce $ t $ crește, numitorul devine mai mare, determinând ca cantitatea totală de distribuire să scadă treptat.
+- Cantitatea de distribuire pe epocă scade în timp, apropiindu-se de zero.
+- Acest design stimulează participanții timpurii și crește raritatea tokenului.
+
+### Programul General de Distribuire
+
+Mai jos este un tabel parțial care rezumă cantitățile de distribuire și datele pe epocă.
+Pentru informații detaliate despre toate epocile, vă rugăm să consultați [documentul](/attach/token_allocation_per_epoch.csv) și [codul](/attach/token_allocation_per_epoch.py).
+
+| Numărul Epocii | Data           | Cantitatea de Distribuire (Jet) |
+|----------------|----------------|---------------------------------|
+| 1              | 2025-01-01     | 3,479,788.70                    |
+| 2              | 2025-01-06     | 2,195,502.227                   |
+| 3              | 2025-01-11     | 1,739,894.35                    |
+| ...            | ...            | ...                             |
+| 2774           | 2062-12-18     | 304,223.285                     |
+| 2775           | 2062-12-23     | 304,209.4607                    |
+| 2776           | 2062-12-28     | 304,195.6425                    |
+
+### Criterii de Distribuire a Tokenurilor pe Serviciu
+
+#### Calcularea Raporturilor Între Servicii
+
+Raportul de distribuire pentru fiecare serviciu este calculat pe baza scorului său de performanță $ P_n $ în raport cu scorul total de performanță $ P $:
+
+$$
+\text{Raport pentru Serviciul } n = \frac{P_n}{P}
+$$
+
+Unde:
+
+- $ P_n $: Scorul de performanță al serviciului $ n $.
+- $ P $: Suma scorurilor de performanță ale tuturor serviciilor.
+
+#### Calcularea Cantității de Distribuire pe Serviciu
+
+Cantitatea de tokenuri pe care serviciul $ n $ o primește în fiecare epocă $ S_n $ este:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Distribuția Maximă de Tokenuri pentru Serviciul } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Cantitatea totală ajustată de distribuire pentru epocă.
+- $ \text{Distribuția Maximă de Tokenuri pentru Serviciul } n $: Cantitatea maximă de tokenuri alocată pe baza nivelului serviciului (vezi distribuția maximă de tokenuri pe nivel mai jos).
+
+#### Gestionarea Tokenurilor Nedistribuite
+
+##### Reportarea Tokenurilor Nedistribuite
+
+- Tokenurile nedistribuite din fiecare epocă sunt **adăugate** la cantitatea totală de distribuire pentru epoca următoare.
+- Acest lucru asigură o distribuire eficientă a tokenurilor chiar și atunci când participarea inițială a serviciului este scăzută.
+
+##### Calcularea Cantității Totale Ajustate de Distribuire pe Epocă
+
+Cantitatea totală de distribuire pentru epoca următoare este:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Tokenuri Nedistribuite din Epoca Anterioară}
+$$
+
+- $ f_{\text{total}}(t+1) $: Cantitatea totală ajustată de distribuire pentru epoca $ t+1 $.
+- $ f(t+1) $: Cantitatea de distribuire pe baza funcției de distribuire de bază.
+- **Tokenuri Nedistribuite Reportate**: Numărul de tokenuri nedistribuite în epoca $ t $.
+
+#### Calcularea Scorului de Performanță ($ P_n $) pe Serviciu
+
+Scorul de performanță al fiecărui serviciu este calculat pe baza următoarelor metrici. Ponderea fiecărei metrici poate fi ajustată prin guvernanță.
+
+1. **Consum de Tokenuri JetPack ($ M_{1n} $)**
+    - **Pondere**: $ w_1 = 50\% $
+    - **Descriere**: Cantitatea totală de tokenuri JetPack consumate de utilizatori în cadrul serviciului.
+
+2. **Numărul de Voturi Degen Bunny ($ M_{2n} $)**
+    - **Pondere**: $ w_2 = 30\% $
+    - **Descriere**: Numărul de voturi primite de la OG Degen Bunnies.
+
+3. **Numărul de Utilizatori Activi ($ M_{3n} $)**
+    - **Pondere**: $ w_3 = 20\% $
+    - **Descriere**: Numărul de utilizatori unici care au accesat și au fost activi în serviciu în timpul epocii.
+
+Scorul de performanță al fiecărui serviciu $ P_n $ este calculat astfel:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Unde:
+
+- $ M_{1n} $: Consum de tokenuri JetPack al serviciului $ n $.
+- $ M_{1\text{total}} $: Consum total de tokenuri JetPack în toate serviciile.
+- $ M_{2n} $: Numărul de voturi Degen Bunny pentru serviciul $ n $.
+- $ M_{2\text{total}} $: Totalul voturilor Degen Bunny în toate serviciile.
+- $ M_{3n} $: Numărul de utilizatori activi al serviciului $ n $.
+- $ M_{3\text{total}} $: Totalul utilizatorilor activi în toate serviciile.
+
+**Exemplu**:
+
+- **Serviciul A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Serviciul B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Serviciul C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totaluri**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Ponderi**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Calcularea Scorului de Performanță pentru Serviciul A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Calcularea Scorului de Performanță pentru Serviciul B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Calcularea Scorului de Performanță pentru Serviciul C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Astfel, scorurile de performanță sunt:
+
+- **Serviciul A**: $ P_A = 0.38 $
+- **Serviciul B**: $ P_B = 0.29 $
+- **Serviciul C**: $ P_C = 0.33 $
+
+#### Criterii de Determinare a Nivelului și Cantitatea Maximă de Distribuire a Tokenurilor
+
+Pe baza scorului de performanță $ P_n $, fiecare serviciu este clasificat în **Niveluri de la 1 la 9**. Această clasificare folosește **percentila cumulativă de top** a scorurilor de performanță ale tuturor serviciilor.
+
+##### Percentile Cumulative de Top și Cantități Maxime de Distribuire a Tokenurilor pe Nivel
+
+| **Nivel** | **Percentila Cumulativă de Top** | **Distribuția Maximă de Tokenuri (Jet)** |
+|-----------|----------------------------------|-----------------------------------------|
+| Nivel 1   | Top 4%                           | 30,000                                  |
+| Nivel 2   | Top 11%                          | 25,000                                  |
+| Nivel 3   | Top 23%                          | 20,000                                  |
+| Nivel 4   | Top 40%                          | 15,000                                  |
+| Nivel 5   | Top 60%                          | 10,000                                  |
+| Nivel 6   | Top 77%                          | 7,000                                   |
+| Nivel 7   | Top 89%                          | 5,000                                   |
+| Nivel 8   | Top 96%                          | 3,000                                   |
+| Nivel 9   | Top 100%                         | 1,000                                   |
+
+##### Metoda de Determinare a Nivelului
+
+1. **Calcularea Scorurilor de Performanță**
+
+   Utilizați metoda definită anterior pentru a calcula scorul de performanță al fiecărui serviciu $ P_n $.
+
+2. **Determinarea Clasamentelor Serviciilor**
+
+   Clasificați toate serviciile în **ordine descrescătoare** pe baza scorurilor lor de performanță.
+
+3. **Calcularea Percentilelor Cumulative de Top**
+
+   Pentru fiecare serviciu, calculați percentila cumulativă de top:
+
+   $$
+   \text{Percentila Cumulativă de Top (\%)} = \left(1 - \frac{\text{Clasament} - 1}{N} \right) \times 100\%
+   $$
+
+   Unde:
+
+    - $ \text{Clasament} $: Clasamentul serviciului (începând de la 1).
+    - $ N $: Numărul total de servicii.
+
+4. **Atribuirea Nivelurilor**
+
+   Atribuiți niveluri pe baza percentilelor cumulative de top:
+
+    - **Nivel 1**: Percentila cumulativă de top > 96%
+    - **Nivel 2**: 89% < Percentila cumulativă de top ≤ 96%
+    - **Nivel 3**: 77% < Percentila cumulativă de top ≤ 89%
+    - **Nivel 4**: 60% < Percentila cumulativă de top ≤ 77%
+    - **Nivel 5**: 40% < Percentila cumulativă de top ≤ 60%
+    - **Nivel 6**: 23% < Percentila cumulativă de top ≤ 40%
+    - **Nivel 7**: 11% < Percentila cumulativă de top ≤ 23%
+    - **Nivel 8**: 4% < Percentila cumulativă de top ≤ 11%
+    - **Nivel 9**: Percentila cumulativă de top ≤ 4%
+
+**Exemplu**:
+
+Cu un total de **3** servicii:
+
+1. **Calcularea Clasamentelor și Percentilelor Cumulative de Top**
+
+    - **Serviciul A**:
+
+        - Scor de Performanță: $ P_A = 0.38 $
+        - Clasament: 1
+        - Percentila Cumulativă de Top:
+
+          $$
+          \text{Percentila Cumulativă de Top} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Serviciul C**:
+
+        - Scor de Performanță: $ P_C = 0.33 $
+        - Clasament: 2
+        - Percentila Cumulativă de Top:
+
+          $$
+          \text{Percentila Cumulativă de Top} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Serviciul B**:
+
+        - Scor de Performanță: $ P_B = 0.29 $
+        - Clasament: 3
+        - Percentila Cumulativă de Top:
+
+          $$
+          \text{Percentila Cumulativă de Top} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Atribuirea Nivelurilor**
+
+    - **Serviciul A**:
+
+        - Percentila Cumulativă de Top: 100%
+        - **Nivel**: **Nivel 1** (Percentila Cumulativă de Top > 96%)
+        - **Distribuția Maximă de Tokenuri**: 30,000 Jet
+
+    - **Serviciul C**:
+
+        - Percentila Cumulativă de Top: 66.67%
+        - **Nivel**: **Nivel 4** (60% < Percentila Cumulativă de Top ≤ 77%)
+        - **Distribuția Maximă de Tokenuri**: 15,000 Jet
+
+    - **Serviciul B**:
+
+        - Percentila Cumulativă de Top: 33.33%
+        - **Nivel**: **Nivel 6** (23% < Percentila Cumulativă de Top ≤ 40%)
+        - **Distribuția Maximă de Tokenuri**: 7,000 Jet
+
+**Note**:
+
+- **Scoruri Egale**: Serviciile cu scoruri de performanță identice primesc același clasament. În calcularea percentilelor cumulative de top, se folosește clasamentul mediu.
+- **Distribuția Maximă de Tokenuri** se referă la cantitatea maximă de tokenuri pe care un serviciu o poate primi pe baza nivelului său.
+
+### Scenariu Exemplu
+
+#### Epoca 1 ($ t = 1 $)
+
+- **Cantitatea de Distribuire de Bază**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Cantitatea Totală Ajustată de Distribuire**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Calcularea Cantității de Distribuire pe Serviciu**
+
+Pe baza scorurilor de performanță și a nivelurilor:
+
+- **Scorul Total de Performanță $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Serviciul A**:
+
+    - Raport: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Cantitatea de Distribuire:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Serviciul C**:
+
+    - Raport: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Cantitatea de Distribuire:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Serviciul B**:
+
+    - Raport: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Cantitatea de Distribuire:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultatele Distribuirii**
+
+- **Totalul Tokenurilor Distribuite**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokenuri Nedistribuite**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoca 2 ($ t = 2 $)
+
+- **Cantitatea de Distribuire de Bază**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokenuri Reportate**: $ 3,427,788.70 \text{ Jet} $
+- **Cantitatea Totală Ajustată de Distribuire**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Scoruri de Performanță și Niveluri Actualizate**
+
+Presupunând schimbări în scorurile de performanță:
+
+- **Serviciul A**:
+
+    - Scor de Performanță: $ P_A = 0.40 $
+    - Clasament: 1
+    - Percentila Cumulativă de Top: 100%
+    - **Nivel**: Nivel 1
+    - **Distribuția Maximă de Tokenuri**: 30,000 Jet
+
+- **Serviciul C**:
+
+    - Scor de Performanță: $ P_C = 0.35 $
+    - Clasament: 2
+    - Percentila Cumulativă de Top: 66.67%
+    - **Nivel**: Nivel 4
+    - **Distribuția Maximă de Tokenuri**: 15,000 Jet
+
+- **Serviciul B**:
+
+    - Scor de Performanță: $ P_B = 0.25 $
+    - Clasament: 3
+    - Percentila Cumulativă de Top: 33.33%
+    - **Nivel**: Nivel 6
+    - **Distribuția Maximă de Tokenuri**: 7,000 Jet
+
+**Scorul Total de Performanță $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Calcularea Cantității de Distribuire pe Serviciu**
+
+1. **Serviciul A**:
+
+    - Raport: $ \frac{P_A}{P} = 0.40 $
+    - Cantitatea de Distribuire:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Serviciul C**:
+
+    - Raport: $ \frac{P_C}{P} = 0.35 $
+    - Cantitatea de Distribuire:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Serviciul B**:
+
+    - Raport: $ \frac{P_B}{P} = 0.25 $
+    - Cantitatea de Distribuire:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultatele Distribuirii**
+
+- **Totalul Tokenurilor Distribuite**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokenuri Nedistribuite**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impactul Tokenurilor Nedistribuite Acumulate
+
+- **Creșterea Participării Serviciilor și Îmbunătățirea Performanței** va reduce treptat cantitatea de tokenuri nedistribuite.
+- **Serviciile inițiale pot utiliza cantitatea maximă de distribuire** pentru a stimula creșterea.
+- Reportarea tokenurilor ajută la **menținerea stabilității valorii** și la reglementarea circulației.
+
+## Recompense pentru Utilizatori și Utilizarea Tokenurilor
+
+### **Mecanismul de Recompensare a Utilizatorilor**
+
+- **Recompense Bazate pe Activitate**: Utilizatorii primesc tokenuri JetPack atunci când efectuează **activități convenite anterior** (de exemplu, crearea de conținut, jocuri) în cadrul unui serviciu.
+- **Criterii de Recompensare a Tokenurilor**: Cantitatea de tokenuri recompensată pentru fiecare activitate este **determinată prin consultare** între serviciu și operatorul ecosistemului JetPack.
+
+### **Metode de Utilizare a Tokenurilor**
+
+1. **În cadrul Serviciului**:
+    - **Acces la Funcții Premium**: Utilizați tokenuri pentru a accesa funcții sau conținut plătit în cadrul serviciului.
+    - **Achiziționarea de Bunuri**: Cumpărați bunuri digitale sau articole în cadrul serviciului folosind tokenuri.
+
+2. **Utilizând Serviciul de Schimb al Portofelului JetPack**:
+    - **Vânzarea de Tokenuri**: Utilizatorii își pot schimba tokenurile pentru **ADA** (moneda **Cardano**).
+    - **Gestionarea Portofelului**: Portofelul JetPack permite gestionarea sigură a tokenurilor și transferurile către alte servicii.
+
+### **Beneficii Așteptate din Aprecierea Valorii Tokenurilor**
+
+- **Lichiditatea Tokenurilor**: Tranzacționarea tokenurilor pe burse le crește **lichiditatea**.
+- **Câștiguri Economice**: Utilizatorii pot obține **beneficii economice suplimentare** prin vânzarea tokenurilor dacă valoarea lor crește.
+
+## Achiziția și Redistribuirea Tokenurilor
+
+### **Achiziții Suplimentare de Tokenuri de către Servicii**
+
+- **Când Tokenurile Distribuite Sunt Epuizate**: Dacă un serviciu își folosește toate tokenurile alocate, poate achiziționa tokenuri suplimentare de la **Serviciul de Schimb al Portofelului JetPack**.
+- **Moneda de Achiziție**: Tokenurile sunt achiziționate folosind **ADA**.
+- **Utilizarea Tokenurilor Achiziționate**: Tokenurile achiziționate pot fi utilizate pentru a **recompensa utilizatorii** sau **în cadrul serviciului**.
+
+### **Tokenuri Revânzabile vs. Tokenuri Non-Revânzabile**
+
+- **Tokenuri Distribuite** (**Non-Revânzabile**): Tokenurile alocate serviciilor **nu pot fi revândute** și sunt destinate doar pentru **recompensele utilizatorilor**.
+- **Tokenuri Achiziționate și Tokenuri Obținute de la Utilizatori** (**Revânzabile**): Tokenurile cumpărate cu ADA și tokenurile primite de la utilizatori **pot fi revândute**, ajutând la **achiziția de lichiditate**.
+
+### **Redistribuirea Tokenurilor și Activarea Ecosistemului**
+
+1. **Structura de Circulație a Tokenurilor**:
+    - Serviciile recompensează utilizatorii cu tokenuri; utilizatorii le folosesc în cadrul serviciilor sau le vând pe burse.
+    - Serviciile achiziționează tokenuri de la utilizatori sau le cumpără pentru a menține un **sistem de recompense sustenabil**.
+
+2. **Efectele Activării Ecosistemului**:
+    - Circulația tokenurilor promovează **implicarea utilizatorilor** și **activarea serviciilor**.
+    - Acest lucru contribuie la **stabilizarea valorii tokenurilor** și la **creșterea sustenabilă** a ecosistemului.

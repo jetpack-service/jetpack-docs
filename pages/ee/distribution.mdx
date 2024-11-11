@@ -1,0 +1,528 @@
+# Ɖe Nyateƒe ƒe JetPack Tokens ƒe Nuŋɔŋlɔ
+
+JetPack token ƒe nuŋɔŋlɔ le **nu siwo katã wɔm le nuŋɔŋlɔ kple token ƒe dzɔdzɔe**, **service level system**, **user rewards kple token ƒe nuŋɔŋlɔ siwo wɔm**, kple **nu siwo wɔm le token ƒe dzɔdzɔe kple dzɔdzɔe aɖe siwo wɔm**. Nuŋɔŋlɔ sia nye **nyateƒe kple nuŋɔŋlɔ siwo wɔm** na users kple service providers katã.
+
+## Token ƒe Dzɔdzɔe (Drop) ƒe Nuŋɔŋlɔ
+
+### Total Token ƒe Dzɔdzɔe kple Dzɔdzɔe ƒe Ŋkeke
+
+- **Total Dzɔdzɔe**: JetPack be yewoakpe ɖe **1 billion Jet** tokens.
+- **Dzɔdzɔe ƒe Ŋkeke**: Tokens be yewoakpe ɖe **38 ƒe** me, eye yewoakpe ɖe **2,776 dzɔdzɔe** siwo wɔm le **Cardano Epoch** (1 epoch = 5 ŋkeke) ƒe ŋkeke.
+
+### Token ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ le Epoch aɖe me
+
+#### Dzɔdzɔe ƒe Nuŋɔŋlɔ ƒe Ɣeʋu le Logarithmic Function me
+
+Dzɔdzɔe ƒe nuŋɔŋlɔ le epoch aɖe me nye be yewoakpe ɖe nu siwo wɔm le ŋkeke me. **Logarithmic function** aɖe le be yewoakpe ɖe dzɔdzɔe ƒe nuŋɔŋlɔ le epoch aɖe me. **1 Jet nye 1,000,000 Pack**, eye dzɔdzɔe ƒe nuŋɔŋlɔ le **sixth decimal place** me eye yewoakpe ɖe nu siwo wɔm.
+
+1. **Logarithmic Function $ f(t) $ ƒe Nuŋɔŋlɔ**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Ne wòle:
+
+    - $ t $ nye epoch ƒe xexlẽ, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ nye natural logarithm function.
+
+2. **Log Function $ f(t) $ ƒe Ɣeʋu le Epoch katã me**:
+
+   Ɣeʋu katã ƒe function ƒe xexlẽ le dzɔdzɔe ƒe ŋkeke katã $ S $ nye:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Scaling Constant $ A $ ƒe Ɣeʋu**:
+
+   Total token ƒe dzɔdzɔe ƒe **1 billion Jet** le Ɣeʋu $ S $ me be yewoakpe ɖe dzɔdzɔe ƒe nuŋɔŋlɔ le epoch aɖe me:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Token ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ le Epoch aɖe me**:
+
+   Dzɔdzɔe ƒe nuŋɔŋlɔ le epoch aɖe me nye:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Dzɔdzɔe ƒe Nuŋɔŋlɔ ƒe Nuŋɔŋlɔ siwo wɔm**:
+
+   Dzɔdzɔe ƒe nuŋɔŋlɔ ƒe nuŋɔŋlɔ le epoch siwo wɔm:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Dzɔdzɔe ƒe nuŋɔŋlɔ le epoch aɖe me le log function ƒe xexlẽ si le epoch ƒe xexlẽ me.
+
+**Dzɔdzɔe ƒe Nuŋɔŋlɔ siwo wɔm**
+
+- Ne $ \ln(t + 1) $ le be yewoakpe ɖe $ t $ me, denominator le be yewoakpe, eye dzɔdzɔe ƒe nuŋɔŋlɔ katã le be yewoakpe.
+- Dzɔdzɔe ƒe nuŋɔŋlɔ le epoch aɖe me le be yewoakpe, eye le be yewoakpe ɖe zero.
+- Nuŋɔŋlɔ sia le be yewoakpe ɖe nu siwo wɔm le nuŋɔŋlɔ kple token ƒe nuŋɔŋlɔ.
+
+### Dzɔdzɔe ƒe Ŋkeke Katã
+
+Miawoe nye partial table aɖe si le dzɔdzɔe ƒe nuŋɔŋlɔ kple ŋkeke le epoch aɖe me. Na nu siwo wɔm le epoch katã me, miawoe le separate [document](/attach/token_allocation_per_epoch.csv) kple [code](/attach/token_allocation_per_epoch.py).
+
+| Epoch Number | Date           | Distribution Amount (Jet) |
+|--------------|----------------|---------------------------|
+| 1            | 2025-01-01     | 3,479,788.70              |
+| 2            | 2025-01-06     | 2,195,502.227             |
+| 3            | 2025-01-11     | 1,739,894.35              |
+| ...          | ...            | ...                       |
+| 2774         | 2062-12-18     | 304,223.285               |
+| 2775         | 2062-12-23     | 304,209.4607              |
+| 2776         | 2062-12-28     | 304,195.6425              |
+
+### Token ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ le Service aɖe me
+
+#### Ɣeʋu ƒe Ratios le Services me
+
+Dzɔdzɔe ratio le service aɖe me le be yewoakpe ɖe performance score $ P_n $ le total performance score $ P $ me:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Ne wòle:
+
+- $ P_n $: Performance score le service $ n $ me.
+- $ P $: Performance scores katã ƒe Ɣeʋu le services katã me.
+
+#### Dzɔdzɔe ƒe Nuŋɔŋlɔ le Service aɖe me
+
+Dzɔdzɔe ƒe nuŋɔŋlɔ si service $ n $ le epoch aɖe me $ S_n $ nye:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Dzɔdzɔe ƒe nuŋɔŋlɔ si le epoch aɖe me.
+- $ \text{Maximum Token Distribution for Service } n $: Maximum token ƒe nuŋɔŋlɔ si le service ƒe level me (nɔ level-based maximum token distribution si le eme).
+
+#### Undistributed Tokens ƒe Nuŋɔŋlɔ
+
+##### Undistributed Tokens ƒe Dzɔdzɔe
+
+- Undistributed tokens le epoch aɖe me le **dzɔdzɔe** le dzɔdzɔe ƒe nuŋɔŋlɔ le epoch siwo wɔm me.
+- Nuŋɔŋlɔ sia le be yewoakpe ɖe token ƒe dzɔdzɔe le service ƒe nuŋɔŋlɔ siwo wɔm le nu siwo wɔm.
+
+##### Dzɔdzɔe ƒe Nuŋɔŋlɔ le Epoch aɖe me
+
+Dzɔdzɔe ƒe nuŋɔŋlɔ le epoch siwo wɔm me nye:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Dzɔdzɔe ƒe nuŋɔŋlɔ le epoch $ t+1 $ me.
+- $ f(t+1) $: Dzɔdzɔe ƒe nuŋɔŋlɔ le basic distribution function me.
+- **Carried-over Undistributed Tokens**: Tokens siwo wɔm le epoch $ t $ me.
+
+#### Performance Score ($ P_n $) ƒe Ɣeʋu le Service aɖe me
+
+Service aɖe me ƒe performance score le metrics siwo wɔm me. Metrics siwo wɔm ƒe nuŋɔŋlɔ le governance me.
+
+1. **JetPack Token ƒe Nuŋɔŋlɔ ($ M_{1n} $)**
+    - **Weight**: $ w_1 = 50\% $
+    - **Description**: JetPack tokens ƒe nuŋɔŋlɔ siwo wɔm le service me.
+
+2. **Degen Bunny ƒe Vote Count ($ M_{2n} $)**
+    - **Weight**: $ w_2 = 30\% $
+    - **Description**: Votes siwo wɔm le OG Degen Bunnies.
+
+3. **Active User ƒe Count ($ M_{3n} $)**
+    - **Weight**: $ w_3 = 20\% $
+    - **Description**: Users siwo wɔm le service me le epoch aɖe me.
+
+Service aɖe me ƒe performance score $ P_n $ le be yewoakpe:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Ne wòle:
+
+- $ M_{1n} $: JetPack token ƒe nuŋɔŋlɔ le service $ n $ me.
+- $ M_{1\text{total}} $: JetPack token ƒe nuŋɔŋlɔ le services katã me.
+- $ M_{2n} $: Degen Bunny ƒe vote count le service $ n $ me.
+- $ M_{2\text{total}} $: Degen Bunny votes le services katã me.
+- $ M_{3n} $: Active user ƒe count le service $ n $ me.
+- $ M_{3\text{total}} $: Active users le services katã me.
+
+**Example**:
+
+- **Service A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Service B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Service C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totals**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Weights**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Performance Score ƒe Ɣeʋu le Service A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Performance Score ƒe Ɣeʋu le Service B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Performance Score ƒe Ɣeʋu le Service C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Nu siwo wɔm le performance scores me nye:
+
+- **Service A**: $ P_A = 0.38 $
+- **Service B**: $ P_B = 0.29 $
+- **Service C**: $ P_C = 0.33 $
+
+#### Level ƒe Nuŋɔŋlɔ kple Maximum Token ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ
+
+Le performance score $ P_n $ me, service aɖe me le **Levels 1 kple 9** me. Nuŋɔŋlɔ sia le **cumulative top percentile** le services katã ƒe performance scores me.
+
+##### Cumulative Top Percentiles kple Maximum Token ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ le Level aɖe me
+
+| **Level** | **Cumulative Top Percentile** | **Maximum Token Distribution (Jet)** |
+|-----------|-------------------------------|--------------------------------------|
+| Level 1   | Top 4%                        | 30,000                               |
+| Level 2   | Top 11%                       | 25,000                               |
+| Level 3   | Top 23%                       | 20,000                               |
+| Level 4   | Top 40%                       | 15,000                               |
+| Level 5   | Top 60%                       | 10,000                               |
+| Level 6   | Top 77%                       | 7,000                                |
+| Level 7   | Top 89%                       | 5,000                                |
+| Level 8   | Top 96%                       | 3,000                                |
+| Level 9   | Top 100%                      | 1,000                                |
+
+##### Level ƒe Nuŋɔŋlɔ ƒe Ɣeʋu
+
+1. **Performance Scores ƒe Ɣeʋu**
+
+   Ɣeʋu ƒe nuŋɔŋlɔ si le service aɖe me ƒe performance score $ P_n $.
+
+2. **Service ƒe Rankings ƒe Ɣeʋu**
+
+   Rank services katã le **descending order** le performance scores me.
+
+3. **Cumulative Top Percentiles ƒe Ɣeʋu**
+
+   Le service aɖe me, Ɣeʋu cumulative top percentile:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Ne wòle:
+
+    - $ \text{Rank} $: Service ƒe rank (le 1 me).
+    - $ N $: Services katã ƒe xexlẽ.
+
+4. **Levels ƒe Ɣeʋu**
+
+   Ɣeʋu levels le cumulative top percentiles me:
+
+    - **Level 1**: Cumulative top percentile > 96%
+    - **Level 2**: 89% < Cumulative top percentile ≤ 96%
+    - **Level 3**: 77% < Cumulative top percentile ≤ 89%
+    - **Level 4**: 60% < Cumulative top percentile ≤ 77%
+    - **Level 5**: 40% < Cumulative top percentile ≤ 60%
+    - **Level 6**: 23% < Cumulative top percentile ≤ 40%
+    - **Level 7**: 11% < Cumulative top percentile ≤ 23%
+    - **Level 8**: 4% < Cumulative top percentile ≤ 11%
+    - **Level 9**: Cumulative top percentile ≤ 4%
+
+**Example**:
+
+Le services katã ƒe xexlẽ **3**:
+
+1. **Rankings kple Cumulative Top Percentiles ƒe Ɣeʋu**
+
+    - **Service A**:
+
+        - Performance Score: $ P_A = 0.38 $
+        - Rank: 1
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Service C**:
+
+        - Performance Score: $ P_C = 0.33 $
+        - Rank: 2
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Service B**:
+
+        - Performance Score: $ P_B = 0.29 $
+        - Rank: 3
+        - Cumulative Top Percentile:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Levels ƒe Ɣeʋu**
+
+    - **Service A**:
+
+        - Cumulative Top Percentile: 100%
+        - **Level**: **Level 1** (Cumulative Top Percentile > 96%)
+        - **Maximum Token Distribution**: 30,000 Jet
+
+    - **Service C**:
+
+        - Cumulative Top Percentile: 66.67%
+        - **Level**: **Level 4** (60% < Cumulative Top Percentile ≤ 77%)
+        - **Maximum Token Distribution**: 15,000 Jet
+
+    - **Service B**:
+
+        - Cumulative Top Percentile: 33.33%
+        - **Level**: **Level 6** (23% < Cumulative Top Percentile ≤ 40%)
+        - **Maximum Token Distribution**: 7,000 Jet
+
+**Notes**:
+
+- **Tied Scores**: Services siwo wɔm le performance scores me le rank aɖe me. Le cumulative top percentiles ƒe Ɣeʋu me, average rank le eme.
+- **Maximum Token Distribution** nye maximum token ƒe nuŋɔŋlɔ si service aɖe me le level me.
+
+### Example Scenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basic Distribution Amount**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Dzɔdzɔe ƒe Nuŋɔŋlɔ le Service aɖe me**
+
+Le performance scores kple levels me:
+
+- **Total Performance Score $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Service A**:
+
+    - Ratio: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Dzɔdzɔe ƒe Nuŋɔŋlɔ:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Ratio: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Dzɔdzɔe ƒe Nuŋɔŋlɔ:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Ratio: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Dzɔdzɔe ƒe Nuŋɔŋlɔ:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Dzɔdzɔe ƒe Nuŋɔŋlɔ siwo wɔm**
+
+- **Total Tokens ƒe Dzɔdzɔe**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Undistributed Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basic Distribution Amount**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Carried-over Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Adjusted Total Distribution Amount**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Performance Scores kple Levels ƒe Nuŋɔŋlɔ siwo wɔm**
+
+Le performance scores ƒe nuŋɔŋlɔ siwo wɔm:
+
+- **Service A**:
+
+    - Performance Score: $ P_A = 0.40 $
+    - Rank: 1
+    - Cumulative Top Percentile: 100%
+    - **Level**: Level 1
+    - **Maximum Token Distribution**: 30,000 Jet
+
+- **Service C**:
+
+    - Performance Score: $ P_C = 0.35 $
+    - Rank: 2
+    - Cumulative Top Percentile: 66.67%
+    - **Level**: Level 4
+    - **Maximum Token Distribution**: 15,000 Jet
+
+- **Service B**:
+
+    - Performance Score: $ P_B = 0.25 $
+    - Rank: 3
+    - Cumulative Top Percentile: 33.33%
+    - **Level**: Level 6
+    - **Maximum Token Distribution**: 7,000 Jet
+
+**Total Performance Score $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Dzɔdzɔe ƒe Nuŋɔŋlɔ le Service aɖe me**
+
+1. **Service A**:
+
+    - Ratio: $ \frac{P_A}{P} = 0.40 $
+    - Dzɔdzɔe ƒe Nuŋɔŋlɔ:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Service C**:
+
+    - Ratio: $ \frac{P_C}{P} = 0.35 $
+    - Dzɔdzɔe ƒe Nuŋɔŋlɔ:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Service B**:
+
+    - Ratio: $ \frac{P_B}{P} = 0.25 $
+    - Dzɔdzɔe ƒe Nuŋɔŋlɔ:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Dzɔdzɔe ƒe Nuŋɔŋlɔ siwo wɔm**
+
+- **Total Tokens ƒe Dzɔdzɔe**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Undistributed Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Undistributed Tokens ƒe Nuŋɔŋlɔ ƒe Nuŋɔŋlɔ
+
+- **Service ƒe Nuŋɔŋlɔ kple Performance ƒe Nuŋɔŋlɔ** le be yewoakpe undistributed tokens ƒe nuŋɔŋlɔ.
+- **Initial services le maximum distribution amount** le be yewoakpe nuŋɔŋlɔ.
+- Tokens ƒe dzɔdzɔe le be yewoakpe value stability kple circulation ƒe nuŋɔŋlɔ.
+
+## User Rewards kple Token ƒe Nuŋɔŋlɔ
+
+### **User Reward ƒe Nuŋɔŋlɔ**
+
+- **Activity-Based Rewards**: Users le JetPack tokens le **nu siwo wɔm le nuŋɔŋlɔ** (e.g., content creation, gameplay) le service aɖe me.
+- **Token Reward Criteria**: Tokens ƒe nuŋɔŋlɔ le **consultation** le service kple JetPack ecosystem operator me.
+
+### **Token ƒe Nuŋɔŋlɔ ƒe Nuŋɔŋlɔ**
+
+1. **Le Service me**:
+    - **Access Premium Features**: Tokens le be yewoakpe features siwo wɔm le service me.
+    - **Purchase Goods**: Digital goods kple in-service items le tokens le be yewoakpe.
+
+2. **Using the JetPack Wallet Service Exchange**:
+    - **Token Sales**: Users le tokens le **ADA** (Cardano ƒe currency).
+    - **Wallet Management**: JetPack wallet le tokens kple transfers le services siwo wɔm.
+
+### **Token Value ƒe Nuŋɔŋlɔ ƒe Nuŋɔŋlɔ ƒe Nuŋɔŋlɔ**
+
+- **Token Liquidity**: Tokens le exchanges le liquidity ƒe nuŋɔŋlɔ.
+- **Economic Gains**: Users le economic benefits le tokens le be yewoakpe value ƒe nuŋɔŋlɔ.
+
+## Token ƒe Dzɔdzɔe kple Dzɔdzɔe ƒe Nuŋɔŋlɔ
+
+### **Services ƒe Additional Token ƒe Dzɔdzɔe**
+
+- **Ne Distributed Tokens ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ**: Ne service le tokens katã, le additional tokens le **JetPack Wallet Service Exchange** le be yewoakpe.
+- **Purchase Currency**: Tokens le **ADA** le be yewoakpe.
+- **Purchased Tokens ƒe Nuŋɔŋlɔ**: Purchased tokens le **user rewards** kple **service me** le be yewoakpe.
+
+### **Resellable kple Non-Resellable Tokens**
+
+- **Distributed Tokens** (**Non-Resellable**): Tokens le services le **user rewards** le be yewoakpe.
+- **Purchased Tokens kple Tokens siwo wɔm le Users** (**Resellable**): Tokens le ADA kple tokens le users le **resellable**, liquidity ƒe nuŋɔŋlɔ.
+
+### **Token ƒe Dzɔdzɔe kple Ecosystem ƒe Nuŋɔŋlɔ**
+
+1. **Token ƒe Dzɔdzɔe ƒe Nuŋɔŋlɔ**:
+    - Services le users le tokens; users le services le be yewoakpe.
+    - Services le users le tokens le be yewoakpe sustainable reward system.
+
+2. **Ecosystem ƒe Nuŋɔŋlɔ ƒe Nuŋɔŋlɔ**:
+    - Token ƒe dzɔdzɔe le **user engagement** kple **service ƒe nuŋɔŋlɔ**.
+    - Nuŋɔŋlɔ sia le **token value stabilization** kple ecosystem ƒe nuŋɔŋlɔ.

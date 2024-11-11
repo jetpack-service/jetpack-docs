@@ -1,0 +1,529 @@
+# Nola Funtzionatzen Duten JetPack Tokenek
+
+JetPack token sistema **jarduera-oinarritutako token igorpen eta banaketa**, **zerbitzu maila sistema**, **erabiltzaile sariak eta token erabilera metodoak**, eta **tokenak erosteko eta birbanatzeko mekanismoa** osatzen dute. Egitura honek **sari sistema bidezko eta eraginkorra** eskaintzen die bai erabiltzaileei bai zerbitzu hornitzaileei.
+
+## Token Banaketa (Drop) Mekanismoa
+
+### Token Kopuru Osoa eta Banaketa Epea
+
+- **Kopuru Osoa**: JetPack-ek guztira **1.000 milioi Jet** token igorriko ditu.
+- **Banaketa Epea**: Tokenak **38 urte**an zehar banatuko dira, guztira **2.776 banaketa** egingo dira **Cardano Epoch**-aren tarte berdinetan (1 epoch = 5 egun).
+
+### Token Banaketa Kopurua Epoch bakoitzeko
+
+#### Banaketa Kopurua Logaritmiko Funtzio batean Oinarrituta Kalkulatzea
+
+Epoch bakoitzeko banatutako token kopurua denborarekin murrizteko diseinatuta dago. **Logaritmiko funtzio** bat erabiltzen da epoch bakoitzeko banaketa kopurua kalkulatzeko. **1 Jet 1.000.000 Pack** berdina da, beraz, banaketa kopuruak **seigarren hamartar lekuraino** kalkulatzen dira eta horren arabera ordaintzen dira.
+
+1. **Logaritmiko Funtzioaren $ f(t) $ Definizioa**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Non:
+
+    - $ t $ epoch zenbakia da, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ logaritmo naturalaren funtzioa da.
+
+2. **Funtzio Logaren $ f(t) $ Batura Epoch Guztietan Kalkulatzea**:
+
+   Banaketa epe osoan funtzio balioen batura osoa $ S $ da:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Eskalatze Konstantea $ A $ Kalkulatzea**:
+
+   **1.000 milioi Jet**-en token kopuru osoa $ S $-rekin zatitzen da epoch bakoitzeko banaketa kopurua doitzeko:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Token Banaketa Kopurua Epoch bakoitzeko Kalkulatzea**:
+
+   Epoch bakoitzeko banaketa kopurua honakoa da:
+
+   $$
+   \text{Banaketa Kopurua}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Banaketa Kopuruen Adibideak**:
+
+   Hasierako epoch-etan banaketa kopuruak kalkulatzea:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Banaketa Kopurua}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Banaketa Kopurua}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Banaketa Kopurua}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Epoch bakoitzeko banaketa kopurua epoch zenbakiari dagokion log funtzioaren balioak zehazten du.
+
+**Banaketa Ezaugarriak**
+
+- $ \ln(t + 1) $ handitzen den heinean $ t $ handitzen denean, izendatzailea handiagoa bihurtzen da, eta horrek banaketa kopuru orokorra pixkanaka murrizten du.
+- Epoch bakoitzeko banaketa kopurua denborarekin murrizten da, zero hurbilduz.
+- Diseinu honek parte-hartzaile goiztiarrak pizten ditu eta tokenaren eskasia handitzen du.
+
+### Banaketa Orokorraren Egutegia
+
+Hona hemen epoch bakoitzeko banaketa kopuruak eta datak laburbiltzen dituen taula partziala.
+Epoch guztiei buruzko informazio zehatza lortzeko, kontsultatu [dokumentu](/attach/token_allocation_per_epoch.csv) eta [kode](/attach/token_allocation_per_epoch.py) bereiziak.
+
+| Epoch Zenbakia | Data           | Banaketa Kopurua (Jet) |
+|----------------|----------------|------------------------|
+| 1              | 2025-01-01     | 3,479,788.70           |
+| 2              | 2025-01-06     | 2,195,502.227          |
+| 3              | 2025-01-11     | 1,739,894.35           |
+| ...            | ...            | ...                    |
+| 2774           | 2062-12-18     | 304,223.285            |
+| 2775           | 2062-12-23     | 304,209.4607           |
+| 2776           | 2062-12-28     | 304,195.6425           |
+
+### Zerbitzu bakoitzeko Token Banaketa Irizpideak
+
+#### Zerbitzuen Arteko Ehunkiak Kalkulatzea
+
+Zerbitzu bakoitzeko banaketa ehunekoa bere errendimendu puntuazioa $ P_n $-ren arabera kalkulatzen da, errendimendu puntuazio osoarekiko $ P $:
+
+$$
+\text{Zerbitzuaren Ehunekoa } n = \frac{P_n}{P}
+$$
+
+Non:
+
+- $ P_n $: Zerbitzuaren $ n $ errendimendu puntuazioa.
+- $ P $: Zerbitzu guztien errendimendu puntuazioen batura.
+
+#### Zerbitzu bakoitzeko Banaketa Kopurua Kalkulatzea
+
+Zerbitzuak $ n $ epoch bakoitzean jasotzen duen token kopurua $ S_n $ da:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Zerbitzuaren Gehienezko Token Banaketa } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Epoch-eko doitutako banaketa kopuru osoa.
+- $ \text{Zerbitzuaren Gehienezko Token Banaketa } n $: Zerbitzuaren mailaren arabera esleitutako gehienezko token kopurua (ikus beheko maila-oinarritutako gehienezko token banaketa).
+
+#### Banatu Gabeko Tokenen Kudeaketa
+
+##### Banatu Gabeko Tokenak Eramatea
+
+- Epoch bakoitzeko banatu gabeko tokenak hurrengo epoch-eko banaketa kopuru osoari **gehitzen** zaizkio.
+- Honek token banaketa eraginkorra bermatzen du hasierako zerbitzu parte-hartzea baxua denean ere.
+
+##### Epoch bakoitzeko Doitutako Banaketa Kopuru Osoa Kalkulatzea
+
+Hurrengo epoch-eko banaketa kopuru osoa da:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + Aurreko Epoch-eko Banatu Gabeko Tokenak
+$$
+
+- $ f_{\text{total}}(t+1) $: Epoch-eko $ t+1 $ doitutako banaketa kopuru osoa.
+- $ f(t+1) $: Oinarrizko banaketa funtzioaren arabera banaketa kopurua.
+- **Eramandako Banatu Gabeko Tokenak**: Epoch-eko $ t $-n banatu ez diren token kopurua.
+
+#### Zerbitzu bakoitzeko Errendimendu Puntuazioa ($ P_n $) Kalkulatzea
+
+Zerbitzu bakoitzaren errendimendu puntuazioa hurrengo metriketan oinarrituta kalkulatzen da. Metrika bakoitzaren pisua gobernantzaren bidez doitu daiteke.
+
+1. **JetPack Token Kontsumoa ($ M_{1n} $)**
+    - **Pisua**: $ w_1 = 50\% $
+    - **Deskribapena**: Zerbitzu barruan erabiltzaileek kontsumitutako JetPack token kopuru osoa.
+
+2. **Degen Bunny Bozka Kopurua ($ M_{2n} $)**
+    - **Pisua**: $ w_2 = 30\% $
+    - **Deskribapena**: OG Degen Bunnies-etik jasotako bozken kopurua.
+
+3. **Erabiltzaile Aktibo Kopurua ($ M_{3n} $)**
+    - **Pisua**: $ w_3 = 20\% $
+    - **Deskribapena**: Zerbitzuan sartu eta epoch-ean aktibo egon diren erabiltzaile bakarren kopurua.
+
+Zerbitzu bakoitzaren errendimendu puntuazioa $ P_n $ honela kalkulatzen da:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Non:
+
+- $ M_{1n} $: Zerbitzuaren $ n $ JetPack token kontsumoa.
+- $ M_{1\text{total}} $: Zerbitzu guztien JetPack token kontsumo osoa.
+- $ M_{2n} $: Zerbitzuaren $ n $ Degen Bunny bozken kopurua.
+- $ M_{2\text{total}} $: Zerbitzu guztien Degen Bunny bozken kopuru osoa.
+- $ M_{3n} $: Zerbitzuaren $ n $ erabiltzaile aktibo kopurua.
+- $ M_{3\text{total}} $: Zerbitzu guztien erabiltzaile aktibo kopuru osoa.
+
+**Adibidea**:
+
+- **Zerbitzu A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Zerbitzu B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Zerbitzu C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Guztira**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Pisua**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Zerbitzu A-rako Errendimendu Puntuazioa Kalkulatzea**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Zerbitzu B-rako Errendimendu Puntuazioa Kalkulatzea**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Zerbitzu C-rako Errendimendu Puntuazioa Kalkulatzea**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Beraz, errendimendu puntuazioak hauek dira:
+
+- **Zerbitzu A**: $ P_A = 0.38 $
+- **Zerbitzu B**: $ P_B = 0.29 $
+- **Zerbitzu C**: $ P_C = 0.33 $
+
+#### Maila Zehazteko Irizpideak eta Gehienezko Token Banaketa Kopurua
+
+Errendimendu puntuazioaren $ P_n $ arabera, zerbitzu bakoitza **1etik 9ra bitarteko Mailatan** sailkatzen da. Sailkapen honek zerbitzu guztien errendimendu puntuazioen **goiko ehuneko metatua** erabiltzen du.
+
+##### Goiko Ehuneko Metatuak eta Gehienezko Token Banaketa Kopuruak Maila bakoitzeko
+
+| **Maila** | **Goiko Ehuneko Metatua** | **Gehienezko Token Banaketa (Jet)** |
+|-----------|---------------------------|-------------------------------------|
+| Maila 1   | Goiko 4%                  | 30,000                              |
+| Maila 2   | Goiko 11%                 | 25,000                              |
+| Maila 3   | Goiko 23%                 | 20,000                              |
+| Maila 4   | Goiko 40%                 | 15,000                              |
+| Maila 5   | Goiko 60%                 | 10,000                              |
+| Maila 6   | Goiko 77%                 | 7,000                               |
+| Maila 7   | Goiko 89%                 | 5,000                               |
+| Maila 8   | Goiko 96%                 | 3,000                               |
+| Maila 9   | Goiko 100%                | 1,000                               |
+
+##### Maila Zehazteko Metodoa
+
+1. **Errendimendu Puntuazioak Kalkulatu**
+
+   Erabili aurretik definitutako metodoa zerbitzu bakoitzaren errendimendu puntuazioa $ P_n $ kalkulatzeko.
+
+2. **Zerbitzuen Sailkapenak Zehaztu**
+
+   Sailkatu zerbitzu guztiak **beheranzko ordenan** beren errendimendu puntuazioen arabera.
+
+3. **Goiko Ehuneko Metatuak Kalkulatu**
+
+   Zerbitzu bakoitzerako, kalkulatu goiko ehuneko metatua:
+
+   $$
+   \text{Goiko Ehuneko Metatua (\%)} = \left(1 - \frac{\text{Sailkapena} - 1}{N} \right) \times 100\%
+   $$
+
+   Non:
+
+    - $ \text{Sailkapena} $: Zerbitzuaren sailkapena (1etik hasita).
+    - $ N $: Zerbitzu kopuru osoa.
+
+4. **Mailak Esleitu**
+
+   Esleitu mailak goiko ehuneko metatuen arabera:
+
+    - **Maila 1**: Goiko ehuneko metatua > 96%
+    - **Maila 2**: 89% < Goiko ehuneko metatua ≤ 96%
+    - **Maila 3**: 77% < Goiko ehuneko metatua ≤ 89%
+    - **Maila 4**: 60% < Goiko ehuneko metatua ≤ 77%
+    - **Maila 5**: 40% < Goiko ehuneko metatua ≤ 60%
+    - **Maila 6**: 23% < Goiko ehuneko metatua ≤ 40%
+    - **Maila 7**: 11% < Goiko ehuneko metatua ≤ 23%
+    - **Maila 8**: 4% < Goiko ehuneko metatua ≤ 11%
+    - **Maila 9**: Goiko ehuneko metatua ≤ 4%
+
+**Adibidea**:
+
+Guztira **3** zerbitzurekin:
+
+1. **Sailkapenak eta Goiko Ehuneko Metatuak Kalkulatu**
+
+    - **Zerbitzu A**:
+
+        - Errendimendu Puntuazioa: $ P_A = 0.38 $
+        - Sailkapena: 1
+        - Goiko Ehuneko Metatua:
+
+          $$
+          \text{Goiko Ehuneko Metatua} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Zerbitzu C**:
+
+        - Errendimendu Puntuazioa: $ P_C = 0.33 $
+        - Sailkapena: 2
+        - Goiko Ehuneko Metatua:
+
+          $$
+          \text{Goiko Ehuneko Metatua} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Zerbitzu B**:
+
+        - Errendimendu Puntuazioa: $ P_B = 0.29 $
+        - Sailkapena: 3
+        - Goiko Ehuneko Metatua:
+
+          $$
+          \text{Goiko Ehuneko Metatua} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Mailak Esleitu**
+
+    - **Zerbitzu A**:
+
+        - Goiko Ehuneko Metatua: 100%
+        - **Maila**: **Maila 1** (Goiko Ehuneko Metatua > 96%)
+        - **Gehienezko Token Banaketa**: 30,000 Jet
+
+    - **Zerbitzu C**:
+
+        - Goiko Ehuneko Metatua: 66.67%
+        - **Maila**: **Maila 4** (60% < Goiko Ehuneko Metatua ≤ 77%)
+        - **Gehienezko Token Banaketa**: 15,000 Jet
+
+    - **Zerbitzu B**:
+
+        - Goiko Ehuneko Metatua: 33.33%
+        - **Maila**: **Maila 6** (23% < Goiko Ehuneko Metatua ≤ 40%)
+        - **Gehienezko Token Banaketa**: 7,000 Jet
+
+**Oharrak**:
+
+- **Puntuazio Berdinak**: Errendimendu puntuazio berdinak dituzten zerbitzuek sailkapen bera jasotzen dute. Goiko ehuneko metatuak kalkulatzean, batez besteko sailkapena erabiltzen da.
+- **Gehienezko Token Banaketa** zerbitzu batek bere mailaren arabera jaso dezakeen gehienezko token kopurua aipatzen du.
+
+### Adibide Eszenatokia
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Oinarrizko Banaketa Kopurua**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Doitutako Banaketa Kopuru Osoa**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Zerbitzu bakoitzeko Banaketa Kopurua Kalkulatzea**
+
+Errendimendu puntuazioen eta mailen arabera:
+
+- **Errendimendu Puntuazio Osoa $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Zerbitzu A**:
+
+    - Ehunekoa: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Banaketa Kopurua:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Zerbitzu C**:
+
+    - Ehunekoa: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Banaketa Kopurua:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Zerbitzu B**:
+
+    - Ehunekoa: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Banaketa Kopurua:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Banaketa Emaitzak**
+
+- **Banatutako Token Kopuru Osoa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Banatu Gabeko Tokenak**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Oinarrizko Banaketa Kopurua**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Eramandako Tokenak**: $ 3,427,788.70 \text{ Jet} $
+- **Doitutako Banaketa Kopuru Osoa**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Errendimendu Puntuazio eta Maila Eguneratuak**
+
+Errendimendu puntuazioetan aldaketak suposatuz:
+
+- **Zerbitzu A**:
+
+    - Errendimendu Puntuazioa: $ P_A = 0.40 $
+    - Sailkapena: 1
+    - Goiko Ehuneko Metatua: 100%
+    - **Maila**: Maila 1
+    - **Gehienezko Token Banaketa**: 30,000 Jet
+
+- **Zerbitzu C**:
+
+    - Errendimendu Puntuazioa: $ P_C = 0.35 $
+    - Sailkapena: 2
+    - Goiko Ehuneko Metatua: 66.67%
+    - **Maila**: Maila 4
+    - **Gehienezko Token Banaketa**: 15,000 Jet
+
+- **Zerbitzu B**:
+
+    - Errendimendu Puntuazioa: $ P_B = 0.25 $
+    - Sailkapena: 3
+    - Goiko Ehuneko Metatua: 33.33%
+    - **Maila**: Maila 6
+    - **Gehienezko Token Banaketa**: 7,000 Jet
+
+**Errendimendu Puntuazio Osoa $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Zerbitzu bakoitzeko Banaketa Kopurua Kalkulatzea**
+
+1. **Zerbitzu A**:
+
+    - Ehunekoa: $ \frac{P_A}{P} = 0.40 $
+    - Banaketa Kopurua:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Zerbitzu C**:
+
+    - Ehunekoa: $ \frac{P_C}{P} = 0.35 $
+    - Banaketa Kopurua:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Zerbitzu B**:
+
+    - Ehunekoa: $ \frac{P_B}{P} = 0.25 $
+    - Banaketa Kopurua:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Banaketa Emaitzak**
+
+- **Banatutako Token Kopuru Osoa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Banatu Gabeko Tokenak**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Banatu Gabeko Token Metatuen Eragina
+
+- **Zerbitzu Parte-hartze Handituak eta Errendimendu Hobetuak** pixkanaka banatu gabeko token kopurua murriztuko dute.
+- **Hasierako zerbitzuek gehienezko banaketa kopurua erabil dezakete** hazkundea sustatzeko.
+- Tokenak eramateak **balio egonkortasuna mantentzen** eta zirkulazioa erregulatzen laguntzen du.
+
+## Erabiltzaile Sariak eta Token Erabilera
+
+### **Erabiltzaile Sari Mekanismoa**
+
+- **Jarduera-Oinarritutako Sariak**: Erabiltzaileek JetPack tokenak jasotzen dituzte zerbitzu batean **aurrez adostutako jarduerak** (adibidez, eduki sortzea, jolastea) burutzen dituztenean.
+- **Token Sari Irizpideak**: Jarduera bakoitzeko saritutako token kopurua **zerbitzuaren eta JetPack ekosistema operadorearen arteko kontsultaren bidez** zehazten da.
+
+### **Token Erabilera Metodoak**
+
+1. **Zerbitzu Barruan**:
+    - **Ezaugarri Premiumetara Sarbidea**: Tokenak erabili zerbitzu barruko ordaindutako ezaugarri edo edukietara sartzeko.
+    - **Ondasunak Erosteko**: Erosi ondasun digitalak edo zerbitzu barruko elementuak tokenak erabiliz.
+
+2. **JetPack Zorro Zerbitzu Trukea Erabiliz**:
+    - **Token Salmentak**: Erabiltzaileek beren tokenak **ADA**-rekin (Cardano-ren moneta) trukatu ditzakete.
+    - **Zorro Kudeaketa**: JetPack zorroak tokenen kudeaketa segurua eta beste zerbitzuetara transferentziak ahalbidetzen ditu.
+
+### **Token Balioaren Apreziaziotik Espero diren Onurak**
+
+- **Token Likidezia**: Tokenak trukatzeak haien **likidezia** handitzen du.
+- **Onura Ekonomikoak**: Erabiltzaileek **onura ekonomiko gehigarriak** lor ditzakete tokenak saltzean, balioak gora egiten badu.
+
+## Token Erosketa eta Birbanaketa
+
+### **Zerbitzuek Token Gehigarriak Erosteko**
+
+- **Banatutako Tokenak Agortzen Direnean**: Zerbitzu batek esleitutako token guztiak erabiltzen baditu, **JetPack Zorro Zerbitzu Trukea**-tik token gehigarriak erosi ditzake.
+- **Erosketa Moneta**: Tokenak **ADA** erabiliz erosten dira.
+- **Erositako Tokenen Erabilera**: Erositako tokenak **erabiltzaileak saritzeko** edo **zerbitzu barruan** erabil daitezke.
+
+### **Berriz Saldu daitezkeen eta Berriz Saldu ezin daitezkeen Tokenak**
+
+- **Banatutako Tokenak** (**Berriz Saldu ezin daitezkeenak**): Zerbitzuei esleitutako tokenak **ezin dira berriz saldu** eta soilik **erabiltzaile sariak** emateko dira.
+- **Erositako Tokenak eta Erabiltzaileetatik Lortutako Tokenak** (**Berriz Saldu daitezkeenak**): ADA-rekin erositako tokenak eta erabiltzaileetatik jasotako tokenak **berriz saldu daitezke**, **likidezia eskuratzea** lagunduz.
+
+### **Token Birbanaketa eta Ekosistema Aktibazioa**
+
+1. **Token Zirkulazio Egitura**:
+    - Zerbitzuek erabiltzaileak tokenekin saritzen dituzte; erabiltzaileek zerbitzuetan erabiltzen dituzte edo trukeetan saltzen dituzte.
+    - Zerbitzuek erabiltzaileetatik tokenak eskuratzen dituzte edo erosten dituzte **sari sistema jasangarria** mantentzeko.
+
+2. **Ekosistema Aktibazioaren Eraginak**:
+    - Token zirkulazioak **erabiltzaile parte-hartzea** eta **zerbitzu aktibazioa** sustatzen ditu.
+    - Honek **token balioaren egonkortasuna** eta ekosistemaren **hazkunde jasangarria** laguntzen du.

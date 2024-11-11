@@ -1,0 +1,84 @@
+import Image from 'next/image'
+
+# Giriş
+
+Häzirki sanly giňişlikde ulanyjylar her gün sanly hyzmatlar we programmalar bilen köp sanly aragatnaşyk saklaýarlar. Şeýle-de bolsa, olaryň işjeň gatnaşygyna garamazdan, ulanyjylar köplenç goşantlary we aragatnaşyklary üçin az ýa-da hiç hili öwezini almazlar. Şol bir wagtyň özünde, hyzmat üpjün edijiler, esasanam garaşsyz işläp düzüjiler we başlangyçlar, ýokary ösüş çykdajylary we çylşyrymlylygy sebäpli hususy bal ulgamlaryny ornaşdyrmak we dolandyrmakda uly kynçylyklar bilen ýüzbe-ýüz bolýarlar. Bar bolan paýlaşylan bal ulgamlary berk giriş päsgelçilikleri, çylşyrymly hasaplaşyklar we bir hyzmatdan gazanylan ballar başga birinde ulanylanda mümkin bolan girdeji ýitgileri bilen gelýär. Mundan başga-da, adaty token ulgamlary köplenç adalatsyz bolup, irki maýadarlar we işläp düzüjiler üçin köp mukdarda token paýlaýarlar, adaty ulanyjylary başdan başlap bäsdeşlikden mahrum edýärler.
+
+**JetPack Token Ulgamy** ulanyjylar we hyzmat üpjün edijiler üçin adalatly, aç-açan we täsirli token esasly ekosistemany hödürlemek bilen bu giňden ýaýran meseleler üçin çözgüt hökmünde ýüze çykýar.
+
+```html
+<Image src="/images/en/intro.svg" alt="Sanly Gatnaşyk we Sylaglar - JetPack Token Ulgamy" width={700} height={534} className="dark:hidden"/>
+<Image src="/images/en/intro-dark.svg" alt="Sanly Gatnaşyk we Sylaglar - JetPack Token Ulgamy" width={700} height={534} className="hidden dark:block"/>
+```
+
+## Mesele Beýannamasy
+
+- **Ulanyjy Sylaglarynyň Ýoklugy**: Ulanyjylar internet hyzmatlarynda we programmalar bilen gatnaşygynyň we işjeňliginiň deňagramly öwezini almazlar, bu bolsa olaryň işjeň gatnaşmak höwesini çäklendirýär.
+- **Hyzmat Üpjün Edijiler üçin Kynçylyklar**: Öýde bal ulgamyny ösdürmek we saklamak köp çeşme talap edýär, ep-esli wagt we maliýe maýa goýumyny talap edýär we maliýe jogapkärçiligine öwrülip biler.
+- **Bar bolan Bal Ulgamlarynyň Çäklendirmeleri**: Paýlaşylan bal ulgamlary köplenç çäklendiriji giriş talaplaryna eýe, we ulanyjylar bir hyzmatdan gazanylan ballary başga birinde harçlanda, bu başlangyç hyzmat üçin girdejiniň azalmagyna we çylşyrymly hasaplaşyk proseslerine sebäp bolup biler.
+- **Adalatsyz Adaty Token Ulgamlary**: Köp token ulgamlary irki maýadarlar we işläp düzüjiler üçin köp mukdarda token paýlamak bilen adalatsyz artykmaçlyk berýär, adaty ulanyjylar üçin deň bäsdeşlik we deň mümkinçilikleri öňüni alýar.
+
+## Çözgüt Görnüşi
+
+**JetPack Token Ulgamy** sanly sylaglar we bal ulgamlaryna innowasion çemeleşme hödürleýär:
+
+- **Adalatly we Aç-açan Token Paýlama Modelini Ornaşdyrmak**: Ähli gatnaşyjylar deň şertlerde başlaýarlar, sebäbi hiç bir tarapa, şol sanda işläp düzüjilere we irki maýadarlara token öňünden paýlanmaýar.
+- **Köp Hyzmatlarda Ulanyp Boljak Çeýe Token Hödürlemek**: Ulanyjylar dürli hyzmatlarda JetPack Token gazanyp we ulanyp bilerler, tokenleriň peýdalylygyny we gymmatyny ýokarlandyrýar.
+- **Ýokary Geçiriş Ukyby we Howpsuzlygy Kepillendirmek**: Paýlanan maglumatlar bazalaryny blokçeyn tehnologiýasy bilen birleşdirip, JetPack ýokary tranzaksiýa işlemek tizligini (TPS) gazanýar we maglumatlaryň bitewiligini we howpsuzlygyny saklaýar.
+- **Ösüşi Höweslendirmek üçin Hyzmat Dereje Ulgamyny Girizmek**: Hyzmatlar her bäş günde (epoch) token alýarlar, ulanyjy token ulanyşyna esaslanyp derejeleri ýokarlanýar, bu bolsa has köp token almagyna we ulanyjy gatnaşygyny höweslendirmäge mümkinçilik berýär.
+
+## Üýtgeşik Gymmatlyk Teklibi
+
+- **Ähli Gatnaşyjylar üçin Adalatly we Deň Mümkinçilik**: JetPack adaty token ulgamlarynda görülen adalatsyz artykmaçlyklary ýok edýär, öňünden hiç bir tarapa token paýlamaz.
+- **Hyzmat Üpjün Edijiler üçin Ýönekeýleşdirilen Integrasiýa**: Işläp düzüjiler JetPack Token Ulgamyny hyzmatlaryna aňsatlyk bilen integrirlemek üçin üpjün edilen SDK-lary we API-lary ulanyp bilerler, wagt we çeşmeleri tygşytlaýarlar.
+- **Ulanyjy Gatnaşygy we Sylaglar**: Ulanyjylar işjeňligi üçin göni öwezini alýarlar, bu bolsa olaryň hyzmatlar bilen gatnaşmak we işjeňleşmek höwesini ýokarlandyrýar.
+- **Täsirli we Howpsuz Tranzaksiýalar**: Paýlanan maglumatlar bazalary we blokçeyn birleşmesi tranzaksiýalaryň çalt we howpsuz işlenmegini üpjün edýär, maglumatlaryň bitewiligini bozmazdan.
+- **Hyzmatlar üçin Ösüş Höweslendirmeleri**: Dereje ulgamy ulanyjy gatnaşygyny we token ulanyşyny höweslendirýän hyzmatlary sylaglaýar, sagdyn we bäsdeşlikli ekosistemany ösdürýär.
+
+## Nädip Işleýär
+
+- **Token Paýlama we Dereje Ulgamy**: Her bäş günde, hyzmatlar JetPack Token paýlamasyny alýarlar. Hyzmatlar ulanyjylarynyň ulanan token mukdaryna esaslanyp derejelerini 0-dan 99-a çenli ýokarlandyryp bilerler, bu bolsa indiki paýlamalarda goşmaça token almagyna mümkinçilik berýär.
+- **Ulanyjy Sylag Mehanizmi**: Ulanyjylar hyzmatlar içindäki işjeňligi arkaly JetPack Token gazanýarlar. Olar bu tokenleri hyzmat ekosistemasynda harçlap ýa-da ADA üçin alyş-çalyş edip bilerler, sanly aragatnaşyklary üçin hakyky gymmatlyk üpjün edýär.
+- **Token Yzyna Satyn Almak we Gaýtadan Paýlamak**: Hyzmat özüne bölünip berlen tokenleri ulanyp bolansoň, ulanyjylaryny sylaglamak üçin goşmaça token satyn alyp biler, bu bolsa dowamly sylag siklini üpjün edýär.
+- **Täsirli Tranzaksiýa Işlemek we Howpsuzlyk Çäresi**: Tranzaksiýa maglumatlary paýlanan maglumatlar bazasynda saklanýar we galplaşdyrmagy öňüni almak üçin hash zynjyr gurluşy bilen goralýar. Mundan başga-da, her bäş minutda, maglumatlaryň bitewiligini subut etmek üçin Cardano blokçeyninde hash bahasy saklanýar.
+
+## Maksat Müşderiler
+
+- **Hyzmat Üpjün Edijiler**: Aňsat integrirlenip boljak, täsirli we howpsuz bal ulgamyny gözleýän garaşsyz işläp düzüjiler we başlangyç hyzmat operatorlary.
+- **Hyzmat Ulanyjylary**: Işjeňligi üçin adalatly öwezini almak we gazanan ballaryny dürli hyzmatlarda ulanyp bilmek isleýän umumy ulanyjylar.
+- **Ekosistemanyň Goşantçylary**: JetPack ekosistemanyň ösüşine we saklanmagyna goşant goşýan düwün operatorlary, NFT karz berijiler we beýleki gatnaşyjylar.
+
+### Irki Kabul Edijiler
+
+- **Tokenlere Mätäç NFT Jemgyýetleri we Taslamalary**
+- **Indi Işläp Düzüjiler**
+
+## Kanallar we Integrasiýa
+
+- **SDK-lar we API-lar**: Java, Unity we JavaScript ýaly köp platforma üçin elýeterli bolup, dürli hyzmatlara we programmalar bilen ýönekeý integrasiýa üpjün edýär.
+- **Jemgyýet Platformalary**: Ulanyjylar we işläp düzüjiler bilen aragatnaşyk saklamak üçin Discord, Twitter we Cardano jemgyýeti we blokçeyn çärelerine işjeň gatnaşmak.
+- **Hyzmat we Programma Hyzmatdaşlyklary**: JetPack Token ulanyp hyzmatlar bilen hyzmatdaşlyk edip, ekosistemany giňeltmek we token peýdalylygyny ýokarlandyrmak.
+
+## Girdeji Akym
+
+- **ADA üçin Token Satyşlary**: Hyzmatlar özlerine bölünip berlen tokenleri tükenenden soň ADA ulanyp goşmaça token satyn alanda gazanylan girdeji.
+- **Tranzaksiýa Tölegleri**: Ekosistemanyň içindäki token tranzaksiýalaryndan ýygnalýan kiçi tölegler.
+- **Premium Hyzmatlar**: Professional statistiki derňew ýaly ösen hyzmatlary töleg bilen hödürlemek.
+
+## Gider Struktury
+
+- **Serwer Infrastrukturasyny Saklamak**: Paýlanan maglumatlar bazasyny işletmek we tor bitewiligini saklamak bilen baglanyşykly çykdajylar.
+- **Ösüş we Operasion Çykdajylar**: Platformanyň, SDK-laryň we API-laryň dowamly ösüşi we saklanmagy.
+- **Marketing we Jemgyýet Dolandyryşy**: Ulanyjy we hyzmat üpjün edijileriň gazanylmagy we jemgyýet bilen aragatnaşyk çykdajylary.
+- **Hukuk we Kadalaşdyryjy Çykdajylar**: Hukuk maslahatlary üçin tölegler we kadalaşdyryjy talaplara laýyklygy üpjün etmek.
+
+## Esasy Görkezijiler
+
+- **Hyzmat Gatnaşygy**: JetPack Token Ulgamyny kabul edýän hyzmatlaryň sany we olaryň degişli derejeleri.
+- **Token Dolanyşygy we Ulanylyşy**: Ulanyjylara paýlanan umumy token mukdary we hyzmatlaryň içindäki token ulanyş mukdary.
+- **Token Satyn Almak Mukdary**: Hyzmatlar tarapyndan ADA ulanyp satyn alnan umumy token mukdary.
+- **Ulanyjy Gatnaşygy Görkezijileri**: Işjeň ulanyjy sany, token tranzaksiýa mukdary we ulanyjy gatnaşygynyň beýleki görkezijileri.
+
+---
+
+**JetPack Token Ulgamy** sanly sylaglar we bal ekosistemalaryna rewolýusiýa çemeleşmesini görkezýär. Bar bolan ulgamlaryň çäklendirmelerini çözmek we adalatlylygy, aç-açanlygy we täsirliligi ileri tutmak bilen, JetPack ulanyjylaryň goşantlary üçin dogry öwezini alýan we hyzmat üpjün edijileriň artykmaç ýük bolmazdan ösüp we innowasiýa edip bilýän gurşawyny ösdürýär. Sanly ykdysadyýetde bu täze paradigma ähli gatnaşyjylaryň bilelikde gülläp ösüp biljek ekosistemany gurmagy maksat edinýär.

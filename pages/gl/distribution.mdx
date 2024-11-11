@@ -1,0 +1,529 @@
+# Como Funcionan os Tokens de JetPack
+
+O sistema de tokens de JetPack comprende a **emisión e distribución de tokens baseada en actividades**, un **sistema de nivel de servizo**, **recompensas para usuarios e métodos de utilización de tokens**, e un **mecanismo para a compra e redistribución de tokens**. Esta estrutura proporciona un **sistema de recompensas xusto e eficiente** tanto para os usuarios como para os provedores de servizos.
+
+## Mecanismo de Distribución de Tokens (Drop)
+
+### Subministración Total de Tokens e Período de Distribución
+
+- **Subministración Total**: JetPack emitirá un total de **1.000 millóns de Jet** tokens.
+- **Período de Distribución**: Os tokens distribuiranse ao longo de **38 anos**, cun total de **2.776 distribucións** que ocorrerán nos mesmos intervalos que o **Cardano Epoch** (1 epoch = 5 días).
+
+### Cantidade de Distribución de Tokens por Epoch
+
+#### Cálculo da Cantidade de Distribución Baseado nunha Función Logarítmica
+
+A cantidade de tokens distribuídos por epoch está deseñada para diminuír co tempo. Utilízase unha **función logarítmica** para calcular a cantidade de distribución para cada epoch. **1 Jet equivale a 1.000.000 Pack**, polo que as cantidades de distribución calcúlanse ata a **sexta casa decimal** e págase en consecuencia.
+
+1. **Definición da Función Logarítmica $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Onde:
+
+    - $ t $ é o número de epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ é a función de logaritmo natural.
+
+2. **Cálculo da Suma da Función Logarítmica $ f(t) $ ao Longo de Todos os Epochs**:
+
+   A suma total dos valores da función ao longo de todo o período de distribución $ S $ é:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Cálculo da Constante de Escalado $ A $**:
+
+   A subministración total de tokens de **1.000 millóns de Jet** divídese pola suma $ S $ para axustar a cantidade de distribución para cada epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Cálculo da Cantidade de Distribución de Tokens por Epoch**:
+
+   A cantidade de distribución para cada epoch é:
+
+   $$
+   \text{Cantidade de Distribución}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Exemplos de Cantidades de Distribución**:
+
+   Calculando as cantidades de distribución para os epochs iniciais:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Cantidade de Distribución}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Cantidade de Distribución}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Cantidade de Distribución}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   A cantidade de distribución para cada epoch determínase polo valor da función logarítmica correspondente ao número de epoch.
+
+**Características da Distribución**
+
+- Dado que $ \ln(t + 1) $ aumenta a medida que $ t $ aumenta, o denominador faise máis grande, facendo que a cantidade total de distribución diminúa gradualmente.
+- A cantidade de distribución por epoch diminúe co tempo, achegándose a cero.
+- Este deseño incentiva aos primeiros participantes e aumenta a escaseza do token.
+
+### Programa Xeral de Distribución
+
+A continuación móstrase unha táboa parcial que resume as cantidades de distribución e as datas por epoch.
+Para información detallada sobre todos os epochs, consulte o documento separado [document](/attach/token_allocation_per_epoch.csv) e o [código](/attach/token_allocation_per_epoch.py).
+
+| Número de Epoch | Data           | Cantidade de Distribución (Jet) |
+|-----------------|----------------|---------------------------------|
+| 1               | 2025-01-01     | 3,479,788.70                    |
+| 2               | 2025-01-06     | 2,195,502.227                   |
+| 3               | 2025-01-11     | 1,739,894.35                    |
+| ...             | ...            | ...                             |
+| 2774            | 2062-12-18     | 304,223.285                     |
+| 2775            | 2062-12-23     | 304,209.4607                    |
+| 2776            | 2062-12-28     | 304,195.6425                    |
+
+### Criterios de Distribución de Tokens por Servizo
+
+#### Cálculo de Proporcións Entre Servizos
+
+A proporción de distribución para cada servizo calcúlase en función do seu puntaxe de rendemento $ P_n $ en relación co puntaxe total de rendemento $ P $:
+
+$$
+\text{Proporción para o Servizo } n = \frac{P_n}{P}
+$$
+
+Onde:
+
+- $ P_n $: Puntaxe de rendemento do servizo $ n $.
+- $ P $: Suma dos puntaxes de rendemento de todos os servizos.
+
+#### Cálculo da Cantidade de Distribución por Servizo
+
+A cantidade de tokens que o servizo $ n $ recibe en cada epoch $ S_n $ é:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Máxima Distribución de Tokens para o Servizo } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Cantidade total de distribución axustada para o epoch.
+- $ \text{Máxima Distribución de Tokens para o Servizo } n $: Cantidade máxima de tokens asignada en función do nivel do servizo (ver distribución máxima de tokens baseada en niveis a continuación).
+
+#### Manexo de Tokens Non Distribuídos
+
+##### Transporte de Tokens Non Distribuídos
+
+- Os tokens non distribuídos de cada epoch son **engadidos** á cantidade total de distribución para o seguinte epoch.
+- Isto asegura unha distribución efectiva de tokens mesmo cando a participación inicial do servizo é baixa.
+
+##### Cálculo da Cantidade Total de Distribución Axustada por Epoch
+
+A cantidade total de distribución para o seguinte epoch é:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Tokens Non Distribuídos do Epoch Anterior}
+$$
+
+- $ f_{\text{total}}(t+1) $: Cantidade total de distribución axustada para o epoch $ t+1 $.
+- $ f(t+1) $: Cantidade de distribución baseada na función de distribución básica.
+- **Tokens Non Distribuídos Transportados**: Número de tokens non distribuídos no epoch $ t $.
+
+#### Cálculo do Puntaxe de Rendemento ($ P_n $) por Servizo
+
+O puntaxe de rendemento de cada servizo calcúlase en función das seguintes métricas. O peso de cada métrica pode ser axustado a través da gobernanza.
+
+1. **Consumo de Tokens de JetPack ($ M_{1n} $)**
+    - **Peso**: $ w_1 = 50\% $
+    - **Descrición**: Cantidade total de tokens de JetPack consumidos polos usuarios dentro do servizo.
+
+2. **Conteo de Votos de Degen Bunny ($ M_{2n} $)**
+    - **Peso**: $ w_2 = 30\% $
+    - **Descrición**: Número de votos recibidos de OG Degen Bunnies.
+
+3. **Conteo de Usuarios Activos ($ M_{3n} $)**
+    - **Peso**: $ w_3 = 20\% $
+    - **Descrición**: Número de usuarios únicos que accederon e estiveron activos no servizo durante o epoch.
+
+O puntaxe de rendemento de cada servizo $ P_n $ calcúlase como:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Onde:
+
+- $ M_{1n} $: Consumo de tokens de JetPack do servizo $ n $.
+- $ M_{1\text{total}} $: Consumo total de tokens de JetPack en todos os servizos.
+- $ M_{2n} $: Conteo de votos de Degen Bunny para o servizo $ n $.
+- $ M_{2\text{total}} $: Total de votos de Degen Bunny en todos os servizos.
+- $ M_{3n} $: Conteo de usuarios activos do servizo $ n $.
+- $ M_{3\text{total}} $: Total de usuarios activos en todos os servizos.
+
+**Exemplo**:
+
+- **Servizo A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Servizo B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Servizo C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totais**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Pesos**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Cálculo do Puntaxe de Rendemento para o Servizo A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Cálculo do Puntaxe de Rendemento para o Servizo B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Cálculo do Puntaxe de Rendemento para o Servizo C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Así, os puntaxes de rendemento son:
+
+- **Servizo A**: $ P_A = 0.38 $
+- **Servizo B**: $ P_B = 0.29 $
+- **Servizo C**: $ P_C = 0.33 $
+
+#### Criterios de Determinación de Nivel e Cantidade Máxima de Distribución de Tokens
+
+Baseado no puntaxe de rendemento $ P_n $, cada servizo clasifícase en **Niveis 1 a 9**. Esta clasificación utiliza o **percentil superior acumulado** dos puntaxes de rendemento de todos os servizos.
+
+##### Percentiles Superiores Acumulados e Cantidades Máximas de Distribución de Tokens por Nivel
+
+| **Nivel** | **Percentil Superior Acumulado** | **Máxima Distribución de Tokens (Jet)** |
+|-----------|----------------------------------|-----------------------------------------|
+| Nivel 1   | Top 4%                           | 30,000                                  |
+| Nivel 2   | Top 11%                          | 25,000                                  |
+| Nivel 3   | Top 23%                          | 20,000                                  |
+| Nivel 4   | Top 40%                          | 15,000                                  |
+| Nivel 5   | Top 60%                          | 10,000                                  |
+| Nivel 6   | Top 77%                          | 7,000                                   |
+| Nivel 7   | Top 89%                          | 5,000                                   |
+| Nivel 8   | Top 96%                          | 3,000                                   |
+| Nivel 9   | Top 100%                         | 1,000                                   |
+
+##### Método de Determinación de Nivel
+
+1. **Calcular Puntaxes de Rendemento**
+
+   Use o método previamente definido para calcular o puntaxe de rendemento de cada servizo $ P_n $.
+
+2. **Determinar Clasificacións de Servizos**
+
+   Clasifique todos os servizos en **orde descendente** baseado nos seus puntaxes de rendemento.
+
+3. **Calcular Percentiles Superiores Acumulados**
+
+   Para cada servizo, calcule o percentil superior acumulado:
+
+   $$
+   \text{Percentil Superior Acumulado (\%)} = \left(1 - \frac{\text{Clasificación} - 1}{N} \right) \times 100\%
+   $$
+
+   Onde:
+
+    - $ \text{Clasificación} $: A clasificación do servizo (comezando desde 1).
+    - $ N $: Número total de servizos.
+
+4. **Asignar Niveis**
+
+   Asigne niveis baseados nos percentiles superiores acumulados:
+
+    - **Nivel 1**: Percentil superior acumulado > 96%
+    - **Nivel 2**: 89% < Percentil superior acumulado ≤ 96%
+    - **Nivel 3**: 77% < Percentil superior acumulado ≤ 89%
+    - **Nivel 4**: 60% < Percentil superior acumulado ≤ 77%
+    - **Nivel 5**: 40% < Percentil superior acumulado ≤ 60%
+    - **Nivel 6**: 23% < Percentil superior acumulado ≤ 40%
+    - **Nivel 7**: 11% < Percentil superior acumulado ≤ 23%
+    - **Nivel 8**: 4% < Percentil superior acumulado ≤ 11%
+    - **Nivel 9**: Percentil superior acumulado ≤ 4%
+
+**Exemplo**:
+
+Con un total de **3** servizos:
+
+1. **Calcular Clasificacións e Percentiles Superiores Acumulados**
+
+    - **Servizo A**:
+
+        - Puntaxe de Rendemento: $ P_A = 0.38 $
+        - Clasificación: 1
+        - Percentil Superior Acumulado:
+
+          $$
+          \text{Percentil Superior Acumulado} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Servizo C**:
+
+        - Puntaxe de Rendemento: $ P_C = 0.33 $
+        - Clasificación: 2
+        - Percentil Superior Acumulado:
+
+          $$
+          \text{Percentil Superior Acumulado} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Servizo B**:
+
+        - Puntaxe de Rendemento: $ P_B = 0.29 $
+        - Clasificación: 3
+        - Percentil Superior Acumulado:
+
+          $$
+          \text{Percentil Superior Acumulado} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Asignar Niveis**
+
+    - **Servizo A**:
+
+        - Percentil Superior Acumulado: 100%
+        - **Nivel**: **Nivel 1** (Percentil Superior Acumulado > 96%)
+        - **Máxima Distribución de Tokens**: 30,000 Jet
+
+    - **Servizo C**:
+
+        - Percentil Superior Acumulado: 66.67%
+        - **Nivel**: **Nivel 4** (60% < Percentil Superior Acumulado ≤ 77%)
+        - **Máxima Distribución de Tokens**: 15,000 Jet
+
+    - **Servizo B**:
+
+        - Percentil Superior Acumulado: 33.33%
+        - **Nivel**: **Nivel 6** (23% < Percentil Superior Acumulado ≤ 40%)
+        - **Máxima Distribución de Tokens**: 7,000 Jet
+
+**Notas**:
+
+- **Puntaxes Empatadas**: Os servizos con puntaxes de rendemento idénticos reciben a mesma clasificación. Ao calcular os percentiles superiores acumulados, utilízase a clasificación media.
+- **Máxima Distribución de Tokens** refírese á cantidade máxima de tokens que un servizo pode recibir baseado no seu nivel.
+
+### Escenario de Exemplo
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Cantidade Básica de Distribución**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Cantidade Total de Distribución Axustada**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Cálculo da Cantidade de Distribución por Servizo**
+
+Baseado nos puntaxes de rendemento e niveis:
+
+- **Puntaxe Total de Rendemento $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Servizo A**:
+
+    - Proporción: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Cantidade de Distribución:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servizo C**:
+
+    - Proporción: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Cantidade de Distribución:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servizo B**:
+
+    - Proporción: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Cantidade de Distribución:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Resultados da Distribución**
+
+- **Total de Tokens Distribuídos**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens Non Distribuídos**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Cantidade Básica de Distribución**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokens Transportados**: $ 3,427,788.70 \text{ Jet} $
+- **Cantidade Total de Distribución Axustada**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Puntaxes de Rendemento e Niveis Actualizados**
+
+Asumindo cambios nos puntaxes de rendemento:
+
+- **Servizo A**:
+
+    - Puntaxe de Rendemento: $ P_A = 0.40 $
+    - Clasificación: 1
+    - Percentil Superior Acumulado: 100%
+    - **Nivel**: Nivel 1
+    - **Máxima Distribución de Tokens**: 30,000 Jet
+
+- **Servizo C**:
+
+    - Puntaxe de Rendemento: $ P_C = 0.35 $
+    - Clasificación: 2
+    - Percentil Superior Acumulado: 66.67%
+    - **Nivel**: Nivel 4
+    - **Máxima Distribución de Tokens**: 15,000 Jet
+
+- **Servizo B**:
+
+    - Puntaxe de Rendemento: $ P_B = 0.25 $
+    - Clasificación: 3
+    - Percentil Superior Acumulado: 33.33%
+    - **Nivel**: Nivel 6
+    - **Máxima Distribución de Tokens**: 7,000 Jet
+
+**Puntaxe Total de Rendemento $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Cálculo da Cantidade de Distribución por Servizo**
+
+1. **Servizo A**:
+
+    - Proporción: $ \frac{P_A}{P} = 0.40 $
+    - Cantidade de Distribución:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Servizo C**:
+
+    - Proporción: $ \frac{P_C}{P} = 0.35 $
+    - Cantidade de Distribución:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Servizo B**:
+
+    - Proporción: $ \frac{P_B}{P} = 0.25 $
+    - Cantidade de Distribución:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Resultados da Distribución**
+
+- **Total de Tokens Distribuídos**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens Non Distribuídos**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impacto dos Tokens Non Distribuídos Acumulados
+
+- **Aumento da Participación nos Servizos e Mellora do Rendemento** reducirá gradualmente a cantidade de tokens non distribuídos.
+- **Os servizos iniciais poden utilizar a cantidade máxima de distribución** para fomentar o crecemento.
+- O transporte de tokens axuda a **manter a estabilidade do valor** e regular a circulación.
+
+## Recompensas para Usuarios e Uso de Tokens
+
+### **Mecanismo de Recompensas para Usuarios**
+
+- **Recompensas Baseadas en Actividades**: Os usuarios reciben tokens de JetPack cando realizan **actividades preacordadas** (por exemplo, creación de contido, xogos) dentro dun servizo.
+- **Criterios de Recompensa de Tokens**: A cantidade de tokens recompensados por cada actividade é **determinada a través de consulta** entre o servizo e o operador do ecosistema de JetPack.
+
+### **Métodos de Uso de Tokens**
+
+1. **Dentro do Servizo**:
+    - **Acceso a Funcións Premium**: Use tokens para acceder a funcións ou contidos de pago dentro do servizo.
+    - **Compra de Produtos**: Compre bens dixitais ou elementos dentro do servizo usando tokens.
+
+2. **Usando o Servizo de Intercambio de Carteira de JetPack**:
+    - **Venda de Tokens**: Os usuarios poden intercambiar os seus tokens por **ADA** (a moeda de **Cardano**).
+    - **Xestión de Carteira**: A carteira de JetPack permite a xestión segura de tokens e transferencias a outros servizos.
+
+### **Beneficios Esperados da Apreciación do Valor dos Tokens**
+
+- **Liquidez dos Tokens**: O comercio de tokens en intercambios aumenta a súa **liquidez**.
+- **Ganancias Económicas**: Os usuarios poden lograr **beneficios económicos adicionais** vendendo tokens se o seu valor aumenta.
+
+## Compra e Redistribución de Tokens
+
+### **Compras Adicionais de Tokens por Servizos**
+
+- **Cando os Tokens Distribuídos se Esgotan**: Se un servizo usa todos os seus tokens asignados, pode comprar tokens adicionais no **Servizo de Intercambio de Carteira de JetPack**.
+- **Moeda de Compra**: Os tokens cómpranse usando **ADA**.
+- **Utilización de Tokens Comprados**: Os tokens comprados poden ser usados para **recompensar usuarios** ou **dentro do servizo**.
+
+### **Tokens Revendibles vs. Non Revendibles**
+
+- **Tokens Distribuídos** (**Non Revendibles**): Os tokens asignados aos servizos **non poden ser revendidos** e son só para **recompensas de usuarios**.
+- **Tokens Comprados e Tokens Adquiridos de Usuarios** (**Revendibles**): Os tokens comprados con ADA e os tokens recibidos de usuarios **poden ser revendidos**, axudando na **adquisición de liquidez**.
+
+### **Redistribución de Tokens e Activación do Ecosistema**
+
+1. **Estrutura de Circulación de Tokens**:
+    - Os servizos recompensan aos usuarios con tokens; os usuarios úsanos dentro dos servizos ou véndenos en intercambios.
+    - Os servizos adquiren tokens dos usuarios ou cómpranos para manter un **sistema de recompensas sostible**.
+
+2. **Efectos de Activación do Ecosistema**:
+    - A circulación de tokens promove a **participación dos usuarios** e a **activación dos servizos**.
+    - Isto contribúe á **estabilización do valor dos tokens** e ao **crecemento sostible** do ecosistema.

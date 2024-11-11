@@ -1,0 +1,529 @@
+# Jinsi Tokeni za JetPack Zinavyofanya Kazi
+
+Mfumo wa tokeni wa JetPack unajumuisha **utoaji na usambazaji wa tokeni kulingana na shughuli**, **mfumo wa kiwango cha huduma**, **zawadi za watumiaji na mbinu za matumizi ya tokeni**, na **utaratibu wa kununua na kusambaza tena tokeni**. Muundo huu unatoa **mfumo wa zawadi wa haki na bora** kwa watumiaji na watoa huduma.
+
+## Utaratibu wa Usambazaji wa Tokeni (Drop)
+
+### Jumla ya Ugavi wa Tokeni na Kipindi cha Usambazaji
+
+- **Jumla ya Ugavi**: JetPack itatoa jumla ya **bilioni 1 Jet** tokeni.
+- **Kipindi cha Usambazaji**: Tokeni zitasambazwa kwa kipindi cha **miaka 38**, na jumla ya **usambazaji 2,776** kufanyika kwa vipindi sawa na **Cardano Epoch** (1 epoch = siku 5).
+
+### Kiasi cha Usambazaji wa Tokeni kwa Kila Epoch
+
+#### Kuhesabu Kiasi cha Usambazaji Kulingana na Kazi ya Logarithm
+
+Kiasi cha tokeni kinachosambazwa kwa kila epoch kimeundwa kupungua kwa muda. **Kazi ya logarithm** inatumika kuhesabu kiasi cha usambazaji kwa kila epoch. **1 Jet ni sawa na 1,000,000 Pack**, hivyo kiasi cha usambazaji kinahesabiwa hadi **nafasi ya sita ya desimali** na kulipwa ipasavyo.
+
+1. **Ufafanuzi wa Kazi ya Logarithm $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Ambapo:
+
+    - $ t $ ni namba ya epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ ni kazi ya logarithm asilia.
+
+2. **Kuhesabu Jumla ya Kazi ya Log $ f(t) $ Katika Epoch Zote**:
+
+   Jumla ya thamani za kazi katika kipindi chote cha usambazaji $ S $ ni:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Kuhesabu Kiwango cha Kuweka $ A $**:
+
+   Jumla ya ugavi wa tokeni wa **bilioni 1 Jet** inagawanywa na jumla $ S $ ili kurekebisha kiasi cha usambazaji kwa kila epoch:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Kuhesabu Kiasi cha Usambazaji wa Tokeni kwa Kila Epoch**:
+
+   Kiasi cha usambazaji kwa kila epoch ni:
+
+   $$
+   \text{Kiasi cha Usambazaji}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Mifano ya Kiasi cha Usambazaji**:
+
+   Kuhesabu kiasi cha usambazaji kwa epoch za awali:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Kiasi cha Usambazaji}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Kiasi cha Usambazaji}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Kiasi cha Usambazaji}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Kiasi cha usambazaji kwa kila epoch kinatambuliwa na thamani ya kazi ya log inayolingana na namba ya epoch.
+
+**Sifa za Usambazaji**
+
+- Kwa kuwa $ \ln(t + 1) $ inaongezeka kadri $ t $ inavyoongezeka, denominator inakuwa kubwa, na kusababisha kiasi cha usambazaji kupungua polepole.
+- Kiasi cha usambazaji kwa kila epoch kinapungua kwa muda, kikikaribia sifuri.
+- Muundo huu unahamasisha washiriki wa awali na kuongeza uhaba wa tokeni.
+
+### Ratiba ya Jumla ya Usambazaji
+
+Hapo chini ni jedwali la sehemu linaloelezea kiasi cha usambazaji na tarehe kwa kila epoch.
+Kwa maelezo ya kina juu ya epoch zote, tafadhali rejelea [hati](/attach/token_allocation_per_epoch.csv) na [msimbo](/attach/token_allocation_per_epoch.py).
+
+| Namba ya Epoch | Tarehe        | Kiasi cha Usambazaji (Jet) |
+|----------------|---------------|----------------------------|
+| 1              | 2025-01-01    | 3,479,788.70               |
+| 2              | 2025-01-06    | 2,195,502.227              |
+| 3              | 2025-01-11    | 1,739,894.35               |
+| ...            | ...           | ...                        |
+| 2774           | 2062-12-18    | 304,223.285                |
+| 2775           | 2062-12-23    | 304,209.4607               |
+| 2776           | 2062-12-28    | 304,195.6425               |
+
+### Vigezo vya Usambazaji wa Tokeni kwa Kila Huduma
+
+#### Kuhesabu Uwiano Kati ya Huduma
+
+Uwiano wa usambazaji kwa kila huduma unahesabiwa kulingana na alama yake ya utendaji $ P_n $ ikilinganishwa na jumla ya alama za utendaji $ P $:
+
+$$
+\text{Uwiano kwa Huduma } n = \frac{P_n}{P}
+$$
+
+Ambapo:
+
+- $ P_n $: Alama ya utendaji ya huduma $ n $.
+- $ P $: Jumla ya alama za utendaji za huduma zote.
+
+#### Kuhesabu Kiasi cha Usambazaji kwa Kila Huduma
+
+Kiasi cha tokeni ambacho huduma $ n $ inapokea katika kila epoch $ S_n $ ni:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Kiwango cha Juu cha Usambazaji wa Tokeni kwa Huduma } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Kiasi cha usambazaji kilichorekebishwa kwa epoch.
+- $ \text{Kiwango cha Juu cha Usambazaji wa Tokeni kwa Huduma } n $: Kiwango cha juu cha tokeni kilichotengwa kulingana na kiwango cha huduma (angalia usambazaji wa kiwango cha juu wa tokeni kulingana na kiwango hapa chini).
+
+#### Ushughulikiaji wa Tokeni Zisizosambazwa
+
+##### Kubeba Tokeni Zisizosambazwa
+
+- Tokeni zisizosambazwa kutoka kila epoch zinaongezwa kwenye kiasi cha usambazaji kwa epoch inayofuata.
+- Hii inahakikisha usambazaji bora wa tokeni hata wakati ushiriki wa huduma za awali ni mdogo.
+
+##### Kuhesabu Kiasi cha Usambazaji Kilichorekebishwa kwa Kila Epoch
+
+Kiasi cha usambazaji kwa epoch inayofuata ni:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Tokeni Zisizosambazwa kutoka Epoch Iliyopita}
+$$
+
+- $ f_{\text{total}}(t+1) $: Kiasi cha usambazaji kilichorekebishwa kwa epoch $ t+1 $.
+- $ f(t+1) $: Kiasi cha usambazaji kulingana na kazi ya usambazaji ya msingi.
+- **Tokeni Zisizosambazwa Zilizobebwa**: Idadi ya tokeni ambazo hazikusambazwa katika epoch $ t $.
+
+#### Kuhesabu Alama ya Utendaji ($ P_n $) kwa Kila Huduma
+
+Alama ya utendaji ya kila huduma inahesabiwa kulingana na vipimo vifuatavyo. Uzito wa kila kipimo unaweza kubadilishwa kupitia utawala.
+
+1. **Matumizi ya Tokeni za JetPack ($ M_{1n} $)**
+    - **Uzito**: $ w_1 = 50\% $
+    - **Maelezo**: Jumla ya kiasi cha tokeni za JetPack zilizotumiwa na watumiaji ndani ya huduma.
+
+2. **Idadi ya Kura za Degen Bunny ($ M_{2n} $)**
+    - **Uzito**: $ w_2 = 30\% $
+    - **Maelezo**: Idadi ya kura zilizopokelewa kutoka kwa OG Degen Bunnies.
+
+3. **Idadi ya Watumiaji Wanaofanya Kazi ($ M_{3n} $)**
+    - **Uzito**: $ w_3 = 20\% $
+    - **Maelezo**: Idadi ya watumiaji wa kipekee waliopata na walikuwa hai katika huduma wakati wa epoch.
+
+Alama ya utendaji ya kila huduma $ P_n $ inahesabiwa kama:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Ambapo:
+
+- $ M_{1n} $: Matumizi ya tokeni za JetPack ya huduma $ n $.
+- $ M_{1\text{total}} $: Jumla ya matumizi ya tokeni za JetPack katika huduma zote.
+- $ M_{2n} $: Idadi ya kura za Degen Bunny kwa huduma $ n $.
+- $ M_{2\text{total}} $: Jumla ya kura za Degen Bunny katika huduma zote.
+- $ M_{3n} $: Idadi ya watumiaji wanaofanya kazi ya huduma $ n $.
+- $ M_{3\text{total}} $: Jumla ya watumiaji wanaofanya kazi katika huduma zote.
+
+**Mfano**:
+
+- **Huduma A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Huduma B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Huduma C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Jumla**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Uzito**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Kuhesabu Alama ya Utendaji kwa Huduma A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Kuhesabu Alama ya Utendaji kwa Huduma B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Kuhesabu Alama ya Utendaji kwa Huduma C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Hivyo, alama za utendaji ni:
+
+- **Huduma A**: $ P_A = 0.38 $
+- **Huduma B**: $ P_B = 0.29 $
+- **Huduma C**: $ P_C = 0.33 $
+
+#### Vigezo vya Uamuzi wa Kiwango na Kiwango cha Juu cha Usambazaji wa Tokeni
+
+Kulingana na alama ya utendaji $ P_n $, kila huduma inagawanywa katika **Viwango 1 hadi 9**. Uainishaji huu unatumia **asilimia ya juu ya jumla** ya alama za utendaji za huduma zote.
+
+##### Asilimia za Juu za Jumla na Kiwango cha Juu cha Usambazaji wa Tokeni kwa Kila Kiwango
+
+| **Kiwango** | **Asilimia ya Juu ya Jumla** | **Kiwango cha Juu cha Usambazaji wa Tokeni (Jet)** |
+|-------------|------------------------------|---------------------------------------------------|
+| Kiwango 1   | Juu 4%                       | 30,000                                            |
+| Kiwango 2   | Juu 11%                      | 25,000                                            |
+| Kiwango 3   | Juu 23%                      | 20,000                                            |
+| Kiwango 4   | Juu 40%                      | 15,000                                            |
+| Kiwango 5   | Juu 60%                      | 10,000                                            |
+| Kiwango 6   | Juu 77%                      | 7,000                                             |
+| Kiwango 7   | Juu 89%                      | 5,000                                             |
+| Kiwango 8   | Juu 96%                      | 3,000                                             |
+| Kiwango 9   | Juu 100%                     | 1,000                                             |
+
+##### Njia ya Uamuzi wa Kiwango
+
+1. **Hesabu Alama za Utendaji**
+
+   Tumia njia iliyotajwa hapo awali kuhesabu alama ya utendaji ya kila huduma $ P_n $.
+
+2. **Tambua Viwango vya Huduma**
+
+   Panga huduma zote kwa **mpangilio wa kushuka** kulingana na alama zao za utendaji.
+
+3. **Hesabu Asilimia za Juu za Jumla**
+
+   Kwa kila huduma, hesabu asilimia ya juu ya jumla:
+
+   $$
+   \text{Asilimia ya Juu ya Jumla (\%)} = \left(1 - \frac{\text{Nafasi} - 1}{N} \right) \times 100\%
+   $$
+
+   Ambapo:
+
+    - $ \text{Nafasi} $: Nafasi ya huduma (kuanzia 1).
+    - $ N $: Jumla ya idadi ya huduma.
+
+4. **Gawa Viwango**
+
+   Gawa viwango kulingana na asilimia za juu za jumla:
+
+    - **Kiwango 1**: Asilimia ya juu ya jumla > 96%
+    - **Kiwango 2**: 89% < Asilimia ya juu ya jumla ≤ 96%
+    - **Kiwango 3**: 77% < Asilimia ya juu ya jumla ≤ 89%
+    - **Kiwango 4**: 60% < Asilimia ya juu ya jumla ≤ 77%
+    - **Kiwango 5**: 40% < Asilimia ya juu ya jumla ≤ 60%
+    - **Kiwango 6**: 23% < Asilimia ya juu ya jumla ≤ 40%
+    - **Kiwango 7**: 11% < Asilimia ya juu ya jumla ≤ 23%
+    - **Kiwango 8**: 4% < Asilimia ya juu ya jumla ≤ 11%
+    - **Kiwango 9**: Asilimia ya juu ya jumla ≤ 4%
+
+**Mfano**:
+
+Kwa jumla ya **huduma 3**:
+
+1. **Hesabu Nafasi na Asilimia za Juu za Jumla**
+
+    - **Huduma A**:
+
+        - Alama ya Utendaji: $ P_A = 0.38 $
+        - Nafasi: 1
+        - Asilimia ya Juu ya Jumla:
+
+          $$
+          \text{Asilimia ya Juu ya Jumla} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Huduma C**:
+
+        - Alama ya Utendaji: $ P_C = 0.33 $
+        - Nafasi: 2
+        - Asilimia ya Juu ya Jumla:
+
+          $$
+          \text{Asilimia ya Juu ya Jumla} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Huduma B**:
+
+        - Alama ya Utendaji: $ P_B = 0.29 $
+        - Nafasi: 3
+        - Asilimia ya Juu ya Jumla:
+
+          $$
+          \text{Asilimia ya Juu ya Jumla} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Gawa Viwango**
+
+    - **Huduma A**:
+
+        - Asilimia ya Juu ya Jumla: 100%
+        - **Kiwango**: **Kiwango 1** (Asilimia ya Juu ya Jumla > 96%)
+        - **Kiwango cha Juu cha Usambazaji wa Tokeni**: 30,000 Jet
+
+    - **Huduma C**:
+
+        - Asilimia ya Juu ya Jumla: 66.67%
+        - **Kiwango**: **Kiwango 4** (60% < Asilimia ya Juu ya Jumla ≤ 77%)
+        - **Kiwango cha Juu cha Usambazaji wa Tokeni**: 15,000 Jet
+
+    - **Huduma B**:
+
+        - Asilimia ya Juu ya Jumla: 33.33%
+        - **Kiwango**: **Kiwango 6** (23% < Asilimia ya Juu ya Jumla ≤ 40%)
+        - **Kiwango cha Juu cha Usambazaji wa Tokeni**: 7,000 Jet
+
+**Vidokezo**:
+
+- **Alama Zilizofungana**: Huduma zilizo na alama za utendaji zinazofanana hupokea nafasi sawa. Katika kuhesabu asilimia za juu za jumla, nafasi ya wastani hutumika.
+- **Kiwango cha Juu cha Usambazaji wa Tokeni** kinarejelea kiwango cha juu cha tokeni ambacho huduma inaweza kupokea kulingana na kiwango chake.
+
+### Mfano wa Hali
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Kiasi cha Usambazaji wa Msingi**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Kiasi cha Usambazaji Kilichorekebishwa**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Kuhesabu Kiasi cha Usambazaji kwa Kila Huduma**
+
+Kulingana na alama za utendaji na viwango:
+
+- **Jumla ya Alama za Utendaji $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Huduma A**:
+
+    - Uwiano: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Kiasi cha Usambazaji:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Huduma C**:
+
+    - Uwiano: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Kiasi cha Usambazaji:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Huduma B**:
+
+    - Uwiano: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Kiasi cha Usambazaji:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Matokeo ya Usambazaji**
+
+- **Jumla ya Tokeni Zilizogawanywa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokeni Zisizosambazwa**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Kiasi cha Usambazaji wa Msingi**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokeni Zilizobebwa**: $ 3,427,788.70 \text{ Jet} $
+- **Kiasi cha Usambazaji Kilichorekebishwa**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Alama za Utendaji na Viwango Vilivyosasishwa**
+
+Kudhani mabadiliko katika alama za utendaji:
+
+- **Huduma A**:
+
+    - Alama ya Utendaji: $ P_A = 0.40 $
+    - Nafasi: 1
+    - Asilimia ya Juu ya Jumla: 100%
+    - **Kiwango**: Kiwango 1
+    - **Kiwango cha Juu cha Usambazaji wa Tokeni**: 30,000 Jet
+
+- **Huduma C**:
+
+    - Alama ya Utendaji: $ P_C = 0.35 $
+    - Nafasi: 2
+    - Asilimia ya Juu ya Jumla: 66.67%
+    - **Kiwango**: Kiwango 4
+    - **Kiwango cha Juu cha Usambazaji wa Tokeni**: 15,000 Jet
+
+- **Huduma B**:
+
+    - Alama ya Utendaji: $ P_B = 0.25 $
+    - Nafasi: 3
+    - Asilimia ya Juu ya Jumla: 33.33%
+    - **Kiwango**: Kiwango 6
+    - **Kiwango cha Juu cha Usambazaji wa Tokeni**: 7,000 Jet
+
+**Jumla ya Alama za Utendaji $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Kuhesabu Kiasi cha Usambazaji kwa Kila Huduma**
+
+1. **Huduma A**:
+
+    - Uwiano: $ \frac{P_A}{P} = 0.40 $
+    - Kiasi cha Usambazaji:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Huduma C**:
+
+    - Uwiano: $ \frac{P_C}{P} = 0.35 $
+    - Kiasi cha Usambazaji:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Huduma B**:
+
+    - Uwiano: $ \frac{P_B}{P} = 0.25 $
+    - Kiasi cha Usambazaji:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Matokeo ya Usambazaji**
+
+- **Jumla ya Tokeni Zilizogawanywa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokeni Zisizosambazwa**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Athari za Tokeni Zisizosambazwa Zilizokusanywa
+
+- **Ushiriki wa Huduma Ulioongezeka na Utendaji Ulioboreshwa** utaongeza polepole kiasi cha tokeni zisizosambazwa.
+- **Huduma za awali zinaweza kutumia kiwango cha juu cha usambazaji** ili kukuza ukuaji.
+- Kubeba tokeni husaidia **kudumisha utulivu wa thamani** na kudhibiti mzunguko.
+
+## Zawadi za Watumiaji na Matumizi ya Tokeni
+
+### **Utaratibu wa Zawadi za Watumiaji**
+
+- **Zawadi Zinazotegemea Shughuli**: Watumiaji hupokea tokeni za JetPack wanapofanya **shughuli zilizokubaliwa awali** (mfano, uundaji wa maudhui, michezo) ndani ya huduma.
+- **Vigezo vya Zawadi za Tokeni**: Kiasi cha tokeni kinachotolewa kwa kila shughuli **kinatambuliwa kupitia mashauriano** kati ya huduma na mwendeshaji wa mfumo wa JetPack.
+
+### **Mbinu za Matumizi ya Tokeni**
+
+1. **Ndani ya Huduma**:
+    - **Kupata Vipengele vya Premium**: Tumia tokeni kupata vipengele au maudhui yanayolipiwa ndani ya huduma.
+    - **Kununua Bidhaa**: Nunua bidhaa za kidijitali au vitu vya ndani ya huduma kwa kutumia tokeni.
+
+2. **Kutumia Huduma ya Kubadilisha ya JetPack Wallet**:
+    - **Uuzaji wa Tokeni**: Watumiaji wanaweza kubadilisha tokeni zao kwa **ADA** (sarafu ya **Cardano**).
+    - **Usimamizi wa Wallet**: Wallet ya JetPack inaruhusu usimamizi salama wa tokeni na uhamisho kwa huduma nyingine.
+
+### **Faida Zinazotarajiwa kutoka kwa Kuongezeka kwa Thamani ya Tokeni**
+
+- **Uwezo wa Kuuza Tokeni**: Kuuza tokeni kwenye masoko huongeza **uwezo wa kuuza**.
+- **Faida za Kiuchumi**: Watumiaji wanaweza kupata **faida za kiuchumi za ziada** kwa kuuza tokeni ikiwa thamani yao itaongezeka.
+
+## Ununuzi na Usambazaji wa Tokeni
+
+### **Ununuzi wa Ziada wa Tokeni na Huduma**
+
+- **Wakati Tokeni Zilizogawanywa Zimeisha**: Ikiwa huduma inatumia tokeni zake zote zilizotengwa, inaweza kununua tokeni za ziada kutoka **JetPack Wallet Service Exchange**.
+- **Sarafu ya Ununuzi**: Tokeni zinanunuliwa kwa kutumia **ADA**.
+- **Matumizi ya Tokeni Zilizopatikana**: Tokeni zilizopatikana zinaweza kutumika **kuzawadia watumiaji** au **ndani ya huduma**.
+
+### **Tokeni Zinazoweza Kuuza tena dhidi ya Zisizoweza Kuuza tena**
+
+- **Tokeni Zilizogawanywa** (**Zisizoweza Kuuza tena**): Tokeni zilizotengwa kwa huduma **haziwezi kuuzwa tena** na ni kwa ajili ya **zawadi za watumiaji** pekee.
+- **Tokeni Zilizopatikana na Tokeni Zilizopokelewa kutoka kwa Watumiaji** (**Zinazoweza Kuuza tena**): Tokeni zilizonunuliwa kwa ADA na tokeni zilizopokelewa kutoka kwa watumiaji **zinaweza kuuzwa tena**, kusaidia katika **upatikanaji wa uwezo wa kuuza**.
+
+### **Usambazaji wa Tokeni na Uanzishaji wa Mfumo**
+
+1. **Muundo wa Mzunguko wa Tokeni**:
+    - Huduma zinawazawadia watumiaji kwa tokeni; watumiaji wanazitumia ndani ya huduma au kuziuza kwenye masoko.
+    - Huduma zinapata tokeni kutoka kwa watumiaji au kuzinunua ili kudumisha **mfumo endelevu wa zawadi**.
+
+2. **Athari za Uanzishaji wa Mfumo**:
+    - Mzunguko wa tokeni unakuza **ushiriki wa watumiaji** na **uanzishaji wa huduma**.
+    - Hii inachangia **utulivu wa thamani ya tokeni** na **ukuaji endelevu** wa mfumo.

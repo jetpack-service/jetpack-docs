@@ -1,0 +1,84 @@
+import Image from 'next/image'
+
+# Introdución
+
+No panorama dixital actual, os usuarios interactúan con innumerables servizos e aplicacións de internet diariamente. Non obstante, a pesar da súa participación activa, os usuarios adoitan recibir pouca ou ningunha compensación polas súas contribucións e interaccións. Simultaneamente, os provedores de servizos, especialmente os desenvolvedores independentes e startups, enfróntanse a desafíos significativos na implementación e xestión de sistemas de puntos propietarios debido aos altos custos de desenvolvemento e complexidade. Os sistemas de puntos compartidos existentes veñen con barreiras de entrada estritas, liquidacións complicadas e posibles perdas de ingresos cando os puntos gañados dun servizo son usados noutro. Ademais, os sistemas de tokens tradicionais tenden a ser inxustos, asignando grandes cantidades de tokens a investidores e desenvolvedores iniciais, deixando aos usuarios regulares en desvantaxe desde o principio.
+
+**JetPack Token System** xorde como unha solución a estes problemas prevalentes ao introducir un ecosistema baseado en tokens xusto, transparente e eficiente que beneficia tanto aos usuarios como aos provedores de servizos.
+
+```jsx
+<Image src="/images/en/intro.svg" alt="Solving Digital Engagement and Rewards - JetPack Token System" width={700} height={534} className="dark:hidden"/>
+<Image src="/images/en/intro-dark.svg" alt="Solving Digital Engagement and Rewards - JetPack Token System" width={700} height={534} className="hidden dark:block"/>
+```
+
+## Declaración do Problema
+
+- **Falta de Recompensas para Usuarios**: Os usuarios non reciben unha compensación equitativa pola súa participación e actividades dentro dos servizos e aplicacións de internet, limitando a súa motivación para participar activamente.
+- **Desafíos para Provedores de Servizos**: Desenvolver e manter un sistema de puntos interno é intensivo en recursos, requirindo un investimento substancial de tempo e diñeiro, e pode converterse nunha carga financeira.
+- **Limitacións dos Sistemas de Puntos Existentes**: Os sistemas de puntos compartidos adoitan ter requisitos de entrada restritivos, e cando os usuarios gastan puntos gañados dun servizo noutro, pode levar a unha diminución dos beneficios para o servizo orixinal e procesos de liquidación complicados.
+- **Sistemas de Tokens Tradicionais Inxustos**: Moitos sistemas de tokens favorecen desproporcionadamente aos investidores e desenvolvedores iniciais ao preasignar grandes cantidades de tokens, impedindo a competencia xusta e a igualdade de oportunidades para os usuarios regulares.
+
+## Visión Xeral da Solución
+
+**JetPack Token System** ofrece un enfoque innovador para recompensas dixitais e sistemas de puntos ao:
+
+- **Implementar un Modelo de Distribución de Tokens Xusto e Transparente**: Todos os participantes comezan en igualdade de condicións, xa que non hai preasignación de tokens a ningunha parte, incluíndo desenvolvedores e investidores iniciais.
+- **Proporcionar un Token Versátil Usable en Múltiples Servizos**: Os usuarios poden gañar e utilizar JetPack Tokens nunha variedade de servizos, aumentando a utilidade e o valor dos tokens.
+- **Garantir Alta Capacidade de Transacción e Seguridade**: Ao combinar bases de datos distribuídas con tecnoloxía blockchain, JetPack logra altas velocidades de procesamento de transaccións (TPS) mentres mantén a integridade e seguridade dos datos.
+- **Introducir un Sistema de Niveis de Servizo para Incentivar o Crecemento**: Os servizos reciben tokens cada cinco días (unha época), co seu nivel aumentando en función do uso de tokens polos usuarios, o que lles permite recibir máis tokens e fomentar a participación dos usuarios.
+
+## Proposta de Valor Única
+
+- **Oportunidade Xusta e Igual para Todos os Participantes**: JetPack elimina as vantaxes inxustas vistas nos sistemas de tokens tradicionais ao non asignar tokens a ningunha entidade de antemán.
+- **Integración Simplificada para Provedores de Servizos**: Os desenvolvedores poden integrar facilmente o JetPack Token System nos seus servizos usando os SDKs e APIs proporcionados, aforrando tempo e recursos.
+- **Maior Participación e Recompensas para Usuarios**: Os usuarios son compensados directamente polas súas actividades, aumentando a súa motivación para participar e interactuar cos servizos.
+- **Transaccións Eficientes e Seguras**: A combinación de bases de datos distribuídas e blockchain asegura que as transaccións se procesen rapidamente e de forma segura sen comprometer a integridade dos datos.
+- **Incentivos de Crecemento para Servizos**: O sistema de niveis recompensa aos servizos que promoven a participación dos usuarios e o uso de tokens, fomentando un ecosistema saudable e competitivo.
+
+## Como Funciona
+
+- **Distribución de Tokens e Sistema de Niveis**: Cada cinco días, os servizos reciben unha distribución de JetPack Tokens. Os servizos poden aumentar o seu nivel de 0 a 99 en función da cantidade de tokens usados polos seus usuarios, permitindo recibir tokens adicionais en distribucións posteriores.
+- **Mecanismo de Recompensa para Usuarios**: Os usuarios gañan JetPack Tokens a través das súas actividades dentro dos servizos. Poden gastar estes tokens dentro do ecosistema de servizos ou intercambialos en bolsas por ADA, proporcionando un valor tangible para as súas interaccións dixitais.
+- **Recompra e Redistribución de Tokens**: Unha vez que un servizo utilizou os seus tokens asignados, pode mercar tokens adicionais usando ADA para continuar recompensando aos seus usuarios, asegurando un ciclo de recompensas continuo.
+- **Procesamento de Transaccións Eficiente e Medidas de Seguridade**: Os datos das transaccións almacénanse nunha base de datos distribuída e protéxense usando unha estrutura de cadea de hash para evitar manipulacións. Ademais, cada cinco minutos, un valor hash almacénase na blockchain de Cardano para probar a integridade dos datos.
+
+## Clientes Obxectivo
+
+- **Provedores de Servizos**: Desenvolvedores independentes e operadores de servizos startup que buscan un sistema de puntos fácil de integrar, eficiente e seguro.
+- **Usuarios de Servizos**: Usuarios xerais que desexan recibir unha compensación xusta polas súas actividades e ter a flexibilidade de usar os seus puntos gañados en varios servizos.
+- **Contribuíntes ao Ecosistema**: Operadores de nodos, prestamistas de NFT e outros participantes que contribúen ao crecemento e mantemento do ecosistema JetPack.
+
+### Primeiros Adoptantes
+
+- **Comunidades e Proxectos NFT que Necesitan Tokens**
+- **Desenvolvedores Indie**
+
+## Canles e Integración
+
+- **SDKs e APIs**: Dispoñibles para múltiples plataformas, incluíndo Java, Unity e JavaScript, permitindo unha integración sen problemas en varios servizos e aplicacións.
+- **Plataformas Comunitarias**: Presenza activa en Discord, Twitter e participación na comunidade de Cardano e eventos de blockchain para interactuar con usuarios e desenvolvedores.
+- **Parcerías con Servizos e Aplicacións**: Colaboracións con servizos que utilizan JetPack Tokens para expandir o ecosistema e aumentar a utilidade dos tokens.
+
+## Fontes de Ingresos
+
+- **Venda de Tokens por ADA**: Ingresos xerados cando os servizos mercan tokens adicionais usando ADA despois de esgotar os seus tokens asignados.
+- **Taxas de Transacción**: Pequenas taxas recollidas das transaccións de tokens dentro do ecosistema.
+- **Servizos Premium**: Oferta de servizos avanzados como análise estatística profesional por unha tarifa.
+
+## Estrutura de Custos
+
+- **Mantemento da Infraestrutura de Servidores**: Custos asociados coa operación da base de datos distribuída e mantemento da integridade da rede.
+- **Gastos de Desenvolvemento e Operativos**: Desenvolvemento e mantemento continuo da plataforma, SDKs e APIs.
+- **Marketing e Xestión Comunitaria**: Gastos relacionados coa adquisición de usuarios e provedores de servizos e o compromiso coa comunidade.
+- **Custos Legais e de Cumprimento**: Taxas para consulta legal e aseguramento do cumprimento dos requisitos normativos.
+
+## Métricas Clave
+
+- **Participación de Servizos**: Número de servizos que adoptan o JetPack Token System e os seus niveis respectivos.
+- **Circulación e Uso de Tokens**: Cantidade total de tokens distribuídos aos usuarios e o volume de uso de tokens dentro dos servizos.
+- **Volume de Compra de Tokens**: Cantidade total de tokens mercada polos servizos usando ADA.
+- **Métricas de Participación dos Usuarios**: Contas de usuarios activos, volumes de transaccións de tokens e outros indicadores de participación dos usuarios.
+
+---
+
+**JetPack Token System** representa un enfoque revolucionario para recompensas dixitais e ecosistemas de puntos. Ao abordar as limitacións dos sistemas existentes e priorizar a xustiza, transparencia e eficiencia, JetPack fomenta un ambiente onde os usuarios son debidamente compensados polas súas contribucións, e os provedores de servizos poden crecer e innovar sen cargas indebidas. Este novo paradigma na economía dixital ten como obxectivo construír un ecosistema próspero onde todos os participantes poidan prosperar xuntos.

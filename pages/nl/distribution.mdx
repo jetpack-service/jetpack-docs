@@ -1,0 +1,529 @@
+# Hoe JetPack Tokens Werken
+
+Het JetPack tokensysteem bestaat uit **activiteitsgebaseerde tokenuitgifte en -distributie**, een **serviceniveausysteem**, **gebruikersbeloningen en tokengebruiksmethoden**, en een **mechanisme voor het kopen en herverdelen van tokens**. Deze structuur biedt een **eerlijk en efficiënt beloningssysteem** voor zowel gebruikers als dienstverleners.
+
+## Token Distributie (Drop) Mechanisme
+
+### Totale Tokenvoorraad en Distributieperiode
+
+- **Totale Voorraad**: JetPack zal in totaal **1 miljard Jet** tokens uitgeven.
+- **Distributieperiode**: Tokens worden verspreid over **38 jaar**, met in totaal **2.776 distributies** die plaatsvinden op dezelfde intervallen als de **Cardano Epoch** (1 epoch = 5 dagen).
+
+### Token Distributiebedrag per Epoch
+
+#### Berekening van Distributiebedrag op Basis van een Logaritmische Functie
+
+Het aantal tokens dat per epoch wordt verdeeld, is ontworpen om in de loop van de tijd af te nemen. Een **logaritmische functie** wordt gebruikt om het distributiebedrag voor elke epoch te berekenen. **1 Jet is gelijk aan 1.000.000 Pack**, dus de distributiebedragen worden berekend tot op de **zesde decimaal** en dienovereenkomstig uitbetaald.
+
+1. **Definitie van de Logaritmische Functie $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Waarbij:
+
+    - $ t $ het epochnummer is, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ de natuurlijke logaritmefunctie is.
+
+2. **Berekening van de Som van de Logfunctie $ f(t) $ Over Alle Epochs**:
+
+   De totale som van de functiewaarden over de gehele distributieperiode $ S $ is:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Berekening van de Schaalconstante $ A $**:
+
+   De totale tokenvoorraad van **1 miljard Jet** wordt gedeeld door de som $ S $ om het distributiebedrag voor elke epoch aan te passen:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Berekening van het Token Distributiebedrag per Epoch**:
+
+   Het distributiebedrag voor elke epoch is:
+
+   $$
+   \text{Distributiebedrag}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Voorbeelden van Distributiebedragen**:
+
+   Berekening van de distributiebedragen voor de eerste epochs:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distributiebedrag}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distributiebedrag}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distributiebedrag}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Het distributiebedrag voor elke epoch wordt bepaald door de waarde van de logfunctie die overeenkomt met het epochnummer.
+
+**Distributiekenmerken**
+
+- Aangezien $ \ln(t + 1) $ toeneemt naarmate $ t $ toeneemt, wordt de noemer groter, waardoor het totale distributiebedrag geleidelijk afneemt.
+- Het distributiebedrag per epoch neemt in de loop van de tijd af en nadert nul.
+- Dit ontwerp stimuleert vroege deelnemers en verhoogt de schaarste van de token.
+
+### Algemeen Distributieschema
+
+Hieronder staat een gedeeltelijke tabel die de distributiebedragen en datums per epoch samenvat.
+Voor gedetailleerde informatie over alle epochs, raadpleeg het aparte [document](/attach/token_allocation_per_epoch.csv) en [code](/attach/token_allocation_per_epoch.py).
+
+| Epochnummer | Datum          | Distributiebedrag (Jet)    |
+|-------------|----------------|----------------------------|
+| 1           | 2025-01-01     | 3,479,788.70               |
+| 2           | 2025-01-06     | 2,195,502.227              |
+| 3           | 2025-01-11     | 1,739,894.35               |
+| ...         | ...            | ...                        |
+| 2774        | 2062-12-18     | 304,223.285                |
+| 2775        | 2062-12-23     | 304,209.4607               |
+| 2776        | 2062-12-28     | 304,195.6425               |
+
+### Token Distributiecriteria per Dienst
+
+#### Berekening van Verhoudingen Tussen Diensten
+
+De distributieverhouding voor elke dienst wordt berekend op basis van de prestatiescore $ P_n $ ten opzichte van de totale prestatiescore $ P $:
+
+$$
+\text{Verhouding voor Dienst } n = \frac{P_n}{P}
+$$
+
+Waarbij:
+
+- $ P_n $: Prestatiescore van dienst $ n $.
+- $ P $: Som van prestatiescores van alle diensten.
+
+#### Berekening van Distributiebedrag per Dienst
+
+Het aantal tokens dat dienst $ n $ ontvangt in elke epoch $ S_n $ is:
+
+$$
+S_n = \min\left(f_{\text{totaal}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximale Token Distributie voor Dienst } n\right)
+$$
+
+- $ f_{\text{totaal}}(t) $: Aangepast totaal distributiebedrag voor de epoch.
+- $ \text{Maximale Token Distributie voor Dienst } n $: Maximale tokenhoeveelheid toegewezen op basis van het serviceniveau (zie niveau-gebaseerde maximale token distributie hieronder).
+
+#### Behandeling van Niet-Gedistribueerde Tokens
+
+##### Overdragen van Niet-Gedistribueerde Tokens
+
+- Niet-gedistribueerde tokens van elke epoch worden **toegevoegd** aan het totale distributiebedrag voor de volgende epoch.
+- Dit zorgt voor een effectieve token distributie, zelfs wanneer de initiële deelname van diensten laag is.
+
+##### Berekening van Aangepast Totaal Distributiebedrag per Epoch
+
+Het totale distributiebedrag voor de volgende epoch is:
+
+$$
+f_{\text{totaal}}(t+1) = f(t+1) + \text{Niet-Gedistribueerde Tokens van Vorige Epoch}
+$$
+
+- $ f_{\text{totaal}}(t+1) $: Aangepast totaal distributiebedrag voor epoch $ t+1 $.
+- $ f(t+1) $: Distributiebedrag op basis van de basisdistributiefunctie.
+- **Overgedragen Niet-Gedistribueerde Tokens**: Aantal tokens dat niet is gedistribueerd in epoch $ t $.
+
+#### Berekening van Prestatiescore ($ P_n $) per Dienst
+
+De prestatiescore van elke dienst wordt berekend op basis van de volgende metrics. Het gewicht van elke metric kan worden aangepast via governance.
+
+1. **JetPack Token Consumptie ($ M_{1n} $)**
+    - **Gewicht**: $ w_1 = 50\% $
+    - **Beschrijving**: Totale hoeveelheid JetPack tokens geconsumeerd door gebruikers binnen de dienst.
+
+2. **Degen Bunny Stemmen Aantal ($ M_{2n} $)**
+    - **Gewicht**: $ w_2 = 30\% $
+    - **Beschrijving**: Aantal stemmen ontvangen van OG Degen Bunnies.
+
+3. **Actieve Gebruikers Aantal ($ M_{3n} $)**
+    - **Gewicht**: $ w_3 = 20\% $
+    - **Beschrijving**: Aantal unieke gebruikers die toegang hebben gehad tot en actief waren in de dienst tijdens de epoch.
+
+De prestatiescore van elke dienst $ P_n $ wordt berekend als:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{totaal}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{totaal}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{totaal}}} \right)
+$$
+
+Waarbij:
+
+- $ M_{1n} $: JetPack token consumptie van dienst $ n $.
+- $ M_{1\text{totaal}} $: Totale JetPack token consumptie over alle diensten.
+- $ M_{2n} $: Degen Bunny stemmen aantal voor dienst $ n $.
+- $ M_{2\text{totaal}} $: Totale Degen Bunny stemmen over alle diensten.
+- $ M_{3n} $: Actieve gebruikers aantal van dienst $ n $.
+- $ M_{3\text{totaal}} $: Totaal actieve gebruikers over alle diensten.
+
+**Voorbeeld**:
+
+- **Dienst A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Dienst B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Dienst C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Totalen**:
+
+- $ M_{1\text{totaal}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{totaal}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{totaal}} = 200 + 100 + 700 = 1000 $
+
+**Gewichten**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Berekening van Prestatiescore voor Dienst A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Berekening van Prestatiescore voor Dienst B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Berekening van Prestatiescore voor Dienst C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Dus, de prestatiescores zijn:
+
+- **Dienst A**: $ P_A = 0.38 $
+- **Dienst B**: $ P_B = 0.29 $
+- **Dienst C**: $ P_C = 0.33 $
+
+#### Niveau Bepalingscriteria en Maximale Token Distributiebedrag
+
+Op basis van de prestatiescore $ P_n $ wordt elke dienst ingedeeld in **Niveaus 1 tot en met 9**. Deze indeling maakt gebruik van de **cumulatieve toppercentiel** van alle prestatiescores van diensten.
+
+##### Cumulatieve Toppercentielen en Maximale Token Distributiebedragen per Niveau
+
+| **Niveau** | **Cumulatieve Toppercentiel** | **Maximale Token Distributie (Jet)** |
+|------------|-------------------------------|--------------------------------------|
+| Niveau 1   | Top 4%                        | 30,000                               |
+| Niveau 2   | Top 11%                       | 25,000                               |
+| Niveau 3   | Top 23%                       | 20,000                               |
+| Niveau 4   | Top 40%                       | 15,000                               |
+| Niveau 5   | Top 60%                       | 10,000                               |
+| Niveau 6   | Top 77%                       | 7,000                                |
+| Niveau 7   | Top 89%                       | 5,000                                |
+| Niveau 8   | Top 96%                       | 3,000                                |
+| Niveau 9   | Top 100%                      | 1,000                                |
+
+##### Niveau Bepalingsmethode
+
+1. **Bereken Prestatiescores**
+
+   Gebruik de eerder gedefinieerde methode om de prestatiescore $ P_n $ van elke dienst te berekenen.
+
+2. **Bepaal Dienst Rangschikkingen**
+
+   Rangschik alle diensten in **aflopende volgorde** op basis van hun prestatiescores.
+
+3. **Bereken Cumulatieve Toppercentielen**
+
+   Bereken voor elke dienst het cumulatieve toppercentiel:
+
+   $$
+   \text{Cumulatieve Toppercentiel (\%)} = \left(1 - \frac{\text{Rang} - 1}{N} \right) \times 100\%
+   $$
+
+   Waarbij:
+
+    - $ \text{Rang} $: De rang van de dienst (beginnend bij 1).
+    - $ N $: Totaal aantal diensten.
+
+4. **Ken Niveaus Toe**
+
+   Ken niveaus toe op basis van de cumulatieve toppercentielen:
+
+    - **Niveau 1**: Cumulatieve toppercentiel > 96%
+    - **Niveau 2**: 89% < Cumulatieve toppercentiel ≤ 96%
+    - **Niveau 3**: 77% < Cumulatieve toppercentiel ≤ 89%
+    - **Niveau 4**: 60% < Cumulatieve toppercentiel ≤ 77%
+    - **Niveau 5**: 40% < Cumulatieve toppercentiel ≤ 60%
+    - **Niveau 6**: 23% < Cumulatieve toppercentiel ≤ 40%
+    - **Niveau 7**: 11% < Cumulatieve toppercentiel ≤ 23%
+    - **Niveau 8**: 4% < Cumulatieve toppercentiel ≤ 11%
+    - **Niveau 9**: Cumulatieve toppercentiel ≤ 4%
+
+**Voorbeeld**:
+
+Met in totaal **3** diensten:
+
+1. **Bereken Rangschikkingen en Cumulatieve Toppercentielen**
+
+    - **Dienst A**:
+
+        - Prestatiescore: $ P_A = 0.38 $
+        - Rang: 1
+        - Cumulatieve Toppercentiel:
+
+          $$
+          \text{Cumulatieve Toppercentiel} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Dienst C**:
+
+        - Prestatiescore: $ P_C = 0.33 $
+        - Rang: 2
+        - Cumulatieve Toppercentiel:
+
+          $$
+          \text{Cumulatieve Toppercentiel} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Dienst B**:
+
+        - Prestatiescore: $ P_B = 0.29 $
+        - Rang: 3
+        - Cumulatieve Toppercentiel:
+
+          $$
+          \text{Cumulatieve Toppercentiel} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Ken Niveaus Toe**
+
+    - **Dienst A**:
+
+        - Cumulatieve Toppercentiel: 100%
+        - **Niveau**: **Niveau 1** (Cumulatieve Toppercentiel > 96%)
+        - **Maximale Token Distributie**: 30,000 Jet
+
+    - **Dienst C**:
+
+        - Cumulatieve Toppercentiel: 66.67%
+        - **Niveau**: **Niveau 4** (60% < Cumulatieve Toppercentiel ≤ 77%)
+        - **Maximale Token Distributie**: 15,000 Jet
+
+    - **Dienst B**:
+
+        - Cumulatieve Toppercentiel: 33.33%
+        - **Niveau**: **Niveau 6** (23% < Cumulatieve Toppercentiel ≤ 40%)
+        - **Maximale Token Distributie**: 7,000 Jet
+
+**Opmerkingen**:
+
+- **Gelijke Scores**: Diensten met identieke prestatiescores krijgen dezelfde rang. Bij het berekenen van cumulatieve toppercentielen wordt het gemiddelde van de rang gebruikt.
+- **Maximale Token Distributie** verwijst naar de maximale hoeveelheid tokens die een dienst kan ontvangen op basis van zijn niveau.
+
+### Voorbeeldscenario
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Basis Distributiebedrag**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Aangepast Totaal Distributiebedrag**: $ f_{\text{totaal}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Berekening van Distributiebedrag per Dienst**
+
+Op basis van de prestatiescores en niveaus:
+
+- **Totale Prestatiescore $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Dienst A**:
+
+    - Verhouding: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Distributiebedrag:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Dienst C**:
+
+    - Verhouding: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Distributiebedrag:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Dienst B**:
+
+    - Verhouding: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Distributiebedrag:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distributieresultaten**
+
+- **Totaal Gedistribueerde Tokens**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Niet-Gedistribueerde Tokens**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Basis Distributiebedrag**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Overgedragen Tokens**: $ 3,427,788.70 \text{ Jet} $
+- **Aangepast Totaal Distributiebedrag**:
+
+  $$
+  f_{\text{totaal}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Bijgewerkte Prestatiescores en Niveaus**
+
+Aangenomen veranderingen in prestatiescores:
+
+- **Dienst A**:
+
+    - Prestatiescore: $ P_A = 0.40 $
+    - Rang: 1
+    - Cumulatieve Toppercentiel: 100%
+    - **Niveau**: Niveau 1
+    - **Maximale Token Distributie**: 30,000 Jet
+
+- **Dienst C**:
+
+    - Prestatiescore: $ P_C = 0.35 $
+    - Rang: 2
+    - Cumulatieve Toppercentiel: 66.67%
+    - **Niveau**: Niveau 4
+    - **Maximale Token Distributie**: 15,000 Jet
+
+- **Dienst B**:
+
+    - Prestatiescore: $ P_B = 0.25 $
+    - Rang: 3
+    - Cumulatieve Toppercentiel: 33.33%
+    - **Niveau**: Niveau 6
+    - **Maximale Token Distributie**: 7,000 Jet
+
+**Totale Prestatiescore $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Berekening van Distributiebedrag per Dienst**
+
+1. **Dienst A**:
+
+    - Verhouding: $ \frac{P_A}{P} = 0.40 $
+    - Distributiebedrag:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Dienst C**:
+
+    - Verhouding: $ \frac{P_C}{P} = 0.35 $
+    - Distributiebedrag:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Dienst B**:
+
+    - Verhouding: $ \frac{P_B}{P} = 0.25 $
+    - Distributiebedrag:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Distributieresultaten**
+
+- **Totaal Gedistribueerde Tokens**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Niet-Gedistribueerde Tokens**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Impact van Opgehoopte Niet-Gedistribueerde Tokens
+
+- **Toegenomen Dienstdeelname en Verbeterde Prestaties** zullen geleidelijk het aantal niet-gedistribueerde tokens verminderen.
+- **Initiële diensten kunnen het maximale distributiebedrag gebruiken** om groei te bevorderen.
+- Het overdragen van tokens helpt **waarde stabiliteit te behouden** en de circulatie te reguleren.
+
+## Gebruikersbeloningen en Tokengebruik
+
+### **Gebruikersbeloningsmechanisme**
+
+- **Activiteitsgebaseerde Beloningen**: Gebruikers ontvangen JetPack tokens wanneer ze **vooraf overeengekomen activiteiten** uitvoeren (bijv. contentcreatie, gameplay) binnen een dienst.
+- **Token Beloningscriteria**: Het aantal tokens dat voor elke activiteit wordt beloond, wordt **bepaald door overleg** tussen de dienst en de JetPack ecosysteemoperator.
+
+### **Tokengebruiksmethoden**
+
+1. **Binnen de Dienst**:
+    - **Toegang tot Premiumfuncties**: Gebruik tokens om toegang te krijgen tot betaalde functies of content binnen de dienst.
+    - **Aankoop van Goederen**: Koop digitale goederen of items binnen de dienst met tokens.
+
+2. **Gebruik van de JetPack Wallet Service Exchange**:
+    - **Tokenverkoop**: Gebruikers kunnen hun tokens inwisselen voor **ADA** (de valuta van **Cardano**).
+    - **Walletbeheer**: De JetPack wallet biedt veilig beheer van tokens en overdrachten naar andere diensten.
+
+### **Verwachte Voordelen van Tokenwaardestijging**
+
+- **Token Liquiditeit**: Het verhandelen van tokens op beurzen verhoogt hun **liquiditeit**.
+- **Economische Winsten**: Gebruikers kunnen **extra economische voordelen** behalen door tokens te verkopen als hun waarde stijgt.
+
+## Token Aankoop en Herverdeling
+
+### **Aanvullende Token Aankopen door Diensten**
+
+- **Wanneer Gedistribueerde Tokens Op Zijn**: Als een dienst al zijn toegewezen tokens heeft gebruikt, kan het extra tokens kopen van de **JetPack Wallet Service Exchange**.
+- **Aankoopvaluta**: Tokens worden gekocht met **ADA**.
+- **Gebruik van Gekochte Tokens**: Gekochte tokens kunnen worden gebruikt om **gebruikers te belonen** of **binnen de dienst**.
+
+### **Herverkoopbare vs. Niet-Herverkoopbare Tokens**
+
+- **Gedistribueerde Tokens** (**Niet-Herverkoopbaar**): Tokens toegewezen aan diensten **kunnen niet worden doorverkocht** en zijn alleen voor **gebruikersbeloningen**.
+- **Gekochte Tokens en Tokens Verkregen van Gebruikers** (**Herverkoopbaar**): Tokens gekocht met ADA en tokens ontvangen van gebruikers **kunnen worden doorverkocht**, wat helpt bij **liquiditeitsverwerving**.
+
+### **Token Herverdeling en Ecosysteem Activering**
+
+1. **Token Circulatiestructuur**:
+    - Diensten belonen gebruikers met tokens; gebruikers gebruiken ze binnen diensten of verkopen ze op beurzen.
+    - Diensten verwerven tokens van gebruikers of kopen ze om een **duurzaam beloningssysteem** te behouden.
+
+2. **Ecosysteem Activeringseffecten**:
+    - Token circulatie bevordert **gebruikersbetrokkenheid** en **dienstactivering**.
+    - Dit draagt bij aan **tokenwaardestabilisatie** en de **duurzame groei** van het ecosysteem.

@@ -1,0 +1,82 @@
+import Image from 'next/image'
+
+# Johdanto
+
+Nykyisessä digitaalisessa ympäristössä käyttäjät ovat päivittäin vuorovaikutuksessa lukemattomien internet-palveluiden ja sovellusten kanssa. Kuitenkin, aktiivisesta osallistumisestaan huolimatta, käyttäjät saavat usein vain vähän tai ei lainkaan korvausta panoksestaan ja vuorovaikutuksestaan. Samanaikaisesti palveluntarjoajat, erityisesti itsenäiset kehittäjät ja startupit, kohtaavat merkittäviä haasteita omien pistejärjestelmien toteuttamisessa ja hallinnassa korkeiden kehityskustannusten ja monimutkaisuuden vuoksi. Olemassa olevat jaetut pistejärjestelmät sisältävät tiukkoja pääsyesteitä, monimutkaisia selvityksiä ja mahdollisia tulonmenetyksiä, kun yhdestä palvelusta ansaittuja pisteitä käytetään toisessa. Lisäksi perinteiset token-järjestelmät ovat usein epäoikeudenmukaisia, jakamalla suuria määriä tokeneita varhaisille sijoittajille ja kehittäjille, jättäen tavalliset käyttäjät heikompaan asemaan alusta alkaen.
+
+**JetPack Token System** nousee ratkaisuksi näihin yleisiin ongelmiin esittelemällä oikeudenmukaisen, läpinäkyvän ja tehokkaan token-pohjaisen ekosysteemin, joka hyödyttää sekä käyttäjiä että palveluntarjoajia.
+
+<Image src="/images/en/intro.svg" alt="Solving Digital Engagement and Rewards - JetPack Token System" width={700} height={534} className="dark:hidden"/>
+<Image src="/images/en/intro-dark.svg" alt="Solving Digital Engagement and Rewards - JetPack Token System" width={700} height={534} className="hidden dark:block"/>
+
+## Ongelman Määrittely
+
+- **Käyttäjäpalkkioiden puute**: Käyttäjät eivät saa oikeudenmukaista korvausta osallistumisestaan ja toiminnastaan internet-palveluissa ja sovelluksissa, mikä rajoittaa heidän motivaatiotaan osallistua aktiivisesti.
+- **Haasteet palveluntarjoajille**: Oman pistejärjestelmän kehittäminen ja ylläpito on resurssi-intensiivistä, vaatii huomattavaa aikaa ja taloudellista panostusta, ja voi muodostua taloudelliseksi rasitteeksi.
+- **Olemassa olevien pistejärjestelmien rajoitukset**: Jaetuilla pistejärjestelmillä on usein rajoittavia pääsyvaatimuksia, ja kun käyttäjät käyttävät yhdestä palvelusta ansaittuja pisteitä toisessa, se voi johtaa alkuperäisen palvelun voittojen vähenemiseen ja monimutkaisiin selvitysprosesseihin.
+- **Epäoikeudenmukaiset perinteiset token-järjestelmät**: Monet token-järjestelmät suosivat suhteettomasti varhaisia sijoittajia ja kehittäjiä jakamalla etukäteen suuria määriä tokeneita, mikä estää reilun kilpailun ja tasavertaiset mahdollisuudet tavallisille käyttäjille.
+
+## Ratkaisun Yleiskatsaus
+
+**JetPack Token System** tarjoaa innovatiivisen lähestymistavan digitaalisiin palkkioihin ja pistejärjestelmiin:
+
+- **Oikeudenmukaisen ja läpinäkyvän token-jakelumallin toteuttaminen**: Kaikki osallistujat aloittavat tasavertaiselta pohjalta, sillä tokeneita ei jaeta etukäteen millekään osapuolelle, mukaan lukien kehittäjät ja varhaiset sijoittajat.
+- **Monipuolisen tokenin tarjoaminen, jota voi käyttää useissa palveluissa**: Käyttäjät voivat ansaita ja käyttää JetPack Tokeneita monissa palveluissa, mikä lisää tokenien hyötyä ja arvoa.
+- **Korkean transaktiokapasiteetin ja turvallisuuden varmistaminen**: Yhdistämällä hajautetut tietokannat ja lohkoketjuteknologia, JetPack saavuttaa korkeat transaktioprosessointinopeudet (TPS) samalla kun se säilyttää tietojen eheyden ja turvallisuuden.
+- **Palvelutason järjestelmän esittely kasvun kannustamiseksi**: Palvelut saavat tokeneita viiden päivän välein (epookki), ja niiden taso nousee käyttäjien token-käytön perusteella, mikä puolestaan mahdollistaa enemmän tokeneita ja kannustaa käyttäjien osallistumista.
+
+## Uniikki Arvolupaus
+
+- **Oikeudenmukainen ja tasavertainen mahdollisuus kaikille osallistujille**: JetPack poistaa perinteisissä token-järjestelmissä esiintyvät epäoikeudenmukaiset edut, koska tokeneita ei jaeta etukäteen millekään taholle.
+- **Yksinkertaistettu integrointi palveluntarjoajille**: Kehittäjät voivat helposti integroida JetPack Token Systemin palveluihinsa tarjottujen SDK:iden ja API:iden avulla, säästäen aikaa ja resursseja.
+- **Parannettu käyttäjäosallistuminen ja palkkiot**: Käyttäjät saavat suoraan korvausta toiminnastaan, mikä lisää heidän motivaatiotaan osallistua ja olla vuorovaikutuksessa palveluiden kanssa.
+- **Tehokkaat ja turvalliset transaktiot**: Hajautettujen tietokantojen ja lohkoketjun yhdistelmä varmistaa, että transaktiot käsitellään nopeasti ja turvallisesti ilman tietojen eheyden vaarantumista.
+- **Kasvukannustimet palveluille**: Taso-järjestelmä palkitsee palveluita, jotka edistävät käyttäjien osallistumista ja tokenien käyttöä, luoden terveen ja kilpailukykyisen ekosysteemin.
+
+## Miten Se Toimii
+
+- **Token-jakelu ja taso-järjestelmä**: Joka viides päivä palvelut saavat JetPack Tokeneiden jakelun. Palvelut voivat nostaa tasoaan 0:sta 99:ään käyttäjiensä käyttämien tokenien määrän perusteella, mikä mahdollistaa lisätokeneiden saamisen seuraavissa jakeluissa.
+- **Käyttäjäpalkkioiden mekanismi**: Käyttäjät ansaitsevat JetPack Tokeneita toiminnoistaan palveluissa. He voivat käyttää näitä tokeneita palveluekosysteemissä tai vaihtaa ne pörsseissä ADA:ksi, tarjoten konkreettista arvoa heidän digitaaliselle vuorovaikutukselleen.
+- **Tokenien takaisinosto ja uudelleenjakelu**: Kun palvelu on käyttänyt sille jaetut tokenit, se voi ostaa lisää tokeneita ADA:lla jatkaakseen käyttäjiensä palkitsemista, varmistaen jatkuvan palkkiokierteen.
+- **Tehokas transaktioprosessointi ja turvatoimet**: Transaktiotiedot tallennetaan hajautettuun tietokantaan ja suojataan hash-ketjurakenteella manipuloinnin estämiseksi. Lisäksi joka viides minuutti hash-arvo tallennetaan Cardano-lohkoketjuun tietojen eheyden todistamiseksi.
+
+## Kohdeasiakkaat
+
+- **Palveluntarjoajat**: Itsenäiset kehittäjät ja startup-palveluoperaattorit, jotka etsivät helposti integroitavaa, tehokasta ja turvallista pistejärjestelmää.
+- **Palvelukäyttäjät**: Yleiset käyttäjät, jotka haluavat saada oikeudenmukaista korvausta toiminnastaan ja joustavuutta käyttää ansaitsemiaan pisteitä eri palveluissa.
+- **Ekosysteemin osallistujat**: Solmuoperaattorit, NFT-lainaajat ja muut osallistujat, jotka edistävät JetPack-ekosysteemin kasvua ja ylläpitoa.
+
+### Varhaiset Omaksujat
+
+- **NFT-yhteisöt ja projektit, jotka tarvitsevat tokeneita**
+- **Indie-kehittäjät**
+
+## Kanavat ja Integraatio
+
+- **SDK:t ja API:t**: Saatavilla useille alustoille, mukaan lukien Java, Unity ja JavaScript, mahdollistaen saumattoman integroinnin eri palveluihin ja sovelluksiin.
+- **Yhteisöalustat**: Aktiivinen läsnäolo Discordissa, Twitterissä ja osallistuminen Cardano-yhteisöön ja lohkoketjutapahtumiin käyttäjien ja kehittäjien kanssa vuorovaikutuksessa.
+- **Palvelu- ja sovelluskumppanuudet**: Yhteistyöt palveluiden kanssa, jotka käyttävät JetPack Tokeneita ekosysteemin laajentamiseksi ja tokenien hyödyn lisäämiseksi.
+
+## Tulovirrat
+
+- **Token-myynti ADA:lle**: Tuloja syntyy, kun palvelut ostavat lisää tokeneita ADA:lla käytettyään jaetut tokenit.
+- **Transaktiomaksut**: Pienet maksut, jotka kerätään token-transaktioista ekosysteemissä.
+- **Premium-palvelut**: Tarjotaan edistyneitä palveluita, kuten ammatillista tilastollista analyysiä maksua vastaan.
+
+## Kustannusrakenne
+
+- **Palvelininfrastruktuurin ylläpito**: Kustannukset, jotka liittyvät hajautetun tietokannan operointiin ja verkon eheyden ylläpitoon.
+- **Kehitys- ja operatiiviset kulut**: Alustan, SDK:iden ja API:iden jatkuva kehitys ja ylläpito.
+- **Markkinointi ja yhteisön hallinta**: Kulut, jotka liittyvät käyttäjien ja palveluntarjoajien hankintaan ja yhteisön sitouttamiseen.
+- **Oikeudelliset ja sääntelykustannukset**: Maksut oikeudellisesta neuvonnasta ja sääntelyvaatimusten noudattamisen varmistamisesta.
+
+## Keskeiset Mittarit
+
+- **Palveluosallistuminen**: JetPack Token Systemin omaksuneiden palveluiden määrä ja niiden tasot.
+- **Tokenien kierto ja käyttö**: Käyttäjille jaettujen tokenien kokonaismäärä ja tokenien käyttömäärä palveluissa.
+- **Tokenien ostomäärä**: Palveluiden ADA:lla ostamien tokenien kokonaismäärä.
+- **Käyttäjäosallistumisen mittarit**: Aktiivisten käyttäjien määrät, token-transaktiomäärät ja muut käyttäjien osallistumisen indikaattorit.
+
+---
+
+**JetPack Token System** edustaa vallankumouksellista lähestymistapaa digitaalisiin palkkioihin ja piste-ekosysteemeihin. Käsittelemällä olemassa olevien järjestelmien rajoituksia ja asettamalla etusijalle oikeudenmukaisuuden, läpinäkyvyyden ja tehokkuuden, JetPack luo ympäristön, jossa käyttäjät saavat oikeudenmukaisen korvauksen panoksestaan, ja palveluntarjoajat voivat kasvaa ja innovoida ilman kohtuutonta rasitusta. Tämä uusi paradigma digitaalisessa taloudessa pyrkii rakentamaan kukoistavan ekosysteemin, jossa kaikki osallistujat voivat menestyä yhdessä.

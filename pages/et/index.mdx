@@ -1,0 +1,82 @@
+import Image from 'next/image'
+
+# Sissejuhatus
+
+Tänapäeva digitaalses maastikus suhtlevad kasutajad igapäevaselt lugematute internetiteenuste ja rakendustega. Kuid vaatamata oma aktiivsele osalusele saavad kasutajad sageli vähe või üldse mitte tasu oma panuse ja suhtluse eest. Samal ajal seisavad teenusepakkujad, eriti sõltumatud arendajad ja idufirmad, silmitsi märkimisväärsete väljakutsetega oma punktisüsteemide rakendamisel ja haldamisel kõrgete arenduskulude ja keerukuse tõttu. Olemasolevatel jagatud punktisüsteemidel on ranged sisenemisbarjäärid, keerulised arveldused ja võimalikud tulukaotused, kui ühe teenuse teenitud punkte kasutatakse teises. Lisaks kipuvad traditsioonilised tokenisüsteemid olema ebaõiglased, eraldades suuri koguseid tokeneid varajastele investoritele ja arendajatele, jättes tavalised kasutajad algusest peale ebasoodsasse olukorda.
+
+**JetPack Token System** tõuseb esile lahendusena nendele levinud probleemidele, tutvustades õiglast, läbipaistvat ja tõhusat tokenipõhist ökosüsteemi, mis toob kasu nii kasutajatele kui ka teenusepakkujatele.
+
+<Image src="/images/en/intro.svg" alt="Solving Digital Engagement and Rewards - JetPack Token System" width={700} height={534} className="dark:hidden"/>
+<Image src="/images/en/intro-dark.svg" alt="Solving Digital Engagement and Rewards - JetPack Token System" width={700} height={534} className="hidden dark:block"/>
+
+## Probleemi kirjeldus
+
+- **Kasutajate tasustamise puudumine**: Kasutajad ei saa õiglast tasu oma osaluse ja tegevuse eest internetiteenustes ja rakendustes, mis piirab nende motivatsiooni aktiivselt osaleda.
+- **Väljakutsed teenusepakkujatele**: Oma punktisüsteemi arendamine ja hooldamine on ressursimahukas, nõudes märkimisväärset aja- ja rahainvesteeringut ning võib muutuda rahaliseks koormaks.
+- **Olemasolevate punktisüsteemide piirangud**: Jagatud punktisüsteemidel on sageli piiravad sisenemisnõuded ja kui kasutajad kulutavad ühe teenuse teenitud punkte teises, võib see viia algse teenuse kasumi vähenemiseni ja keeruliste arveldusprotsessideni.
+- **Ebaõiglased traditsioonilised tokenisüsteemid**: Paljud tokenisüsteemid soosivad ebaproportsionaalselt varajasi investoreid ja arendajaid, eraldades neile suuri koguseid tokeneid, mis takistab õiglast konkurentsi ja võrdseid võimalusi tavalistele kasutajatele.
+
+## Lahenduse ülevaade
+
+**JetPack Token System** pakub uuenduslikku lähenemist digitaalsetele tasudele ja punktisüsteemidele, tehes järgmist:
+
+- **Õiglase ja läbipaistva tokenite jaotuse mudeli rakendamine**: Kõik osalejad alustavad võrdsetel alustel, kuna tokeneid ei eraldata eelnevalt ühelegi osapoolele, sealhulgas arendajatele ja varajastele investoritele.
+- **Mitmekülgse tokeni pakkumine, mida saab kasutada mitmesugustes teenustes**: Kasutajad saavad teenida ja kasutada JetPack Tokeneid erinevates teenustes, suurendades tokenite kasulikkust ja väärtust.
+- **Kõrge tehingute läbilaskevõime ja turvalisuse tagamine**: Kombineerides hajutatud andmebaase plokiahela tehnoloogiaga, saavutab JetPack kõrge tehingute töötlemise kiiruse (TPS), säilitades samal ajal andmete terviklikkuse ja turvalisuse.
+- **Teenuse taseme süsteemi tutvustamine kasvu stimuleerimiseks**: Teenused saavad iga viie päeva järel (epohh) tokeneid, nende tase tõuseb vastavalt kasutajate tokenite kasutamisele, mis omakorda võimaldab neil saada rohkem tokeneid ja julgustada kasutajate osalust.
+
+## Unikaalne väärtuspakkumine
+
+- **Õiglane ja võrdne võimalus kõigile osalejatele**: JetPack kõrvaldab traditsioonilistes tokenisüsteemides esinevad ebaõiglased eelised, jättes tokeneid eelnevalt eraldamata ühelegi üksusele.
+- **Lihtsustatud integreerimine teenusepakkujatele**: Arendajad saavad JetPack Token Systemi hõlpsasti oma teenustesse integreerida, kasutades pakutavaid SDK-sid ja API-sid, säästes aega ja ressursse.
+- **Paranenud kasutajate osalus ja tasud**: Kasutajad saavad oma tegevuse eest otsest tasu, suurendades nende motivatsiooni osaleda ja teenustega suhelda.
+- **Tõhusad ja turvalised tehingud**: Hajutatud andmebaaside ja plokiahela kombinatsioon tagab, et tehingud töödeldakse kiiresti ja turvaliselt, ilma andmete terviklikkust ohverdamata.
+- **Kasvustimulid teenustele**: Tasemesüsteem premeerib teenuseid, mis edendavad kasutajate osalust ja tokenite kasutamist, soodustades tervislikku ja konkurentsivõimelist ökosüsteemi.
+
+## Kuidas see töötab
+
+- **Tokenite jaotuse ja tasemesüsteem**: Iga viie päeva järel saavad teenused JetPack Tokenite jaotuse. Teenused saavad oma taset tõsta 0-st 99-ni, lähtudes kasutajate poolt kasutatud tokenite hulgast, võimaldades neil järgnevates jaotustes saada täiendavaid tokeneid.
+- **Kasutajate tasustamise mehhanism**: Kasutajad teenivad JetPack Tokeneid oma tegevuste kaudu teenustes. Nad saavad neid tokeneid kulutada teenuste ökosüsteemis või vahetada neid ADA vastu, pakkudes oma digitaalsetele suhtlustele käegakatsutavat väärtust.
+- **Tokenite tagasiost ja ümberjaotamine**: Kui teenus on oma eraldatud tokeneid kasutanud, saab see osta täiendavaid tokeneid, kasutades ADA-d, et jätkata oma kasutajate tasustamist, tagades pideva tasustamistsükli.
+- **Tõhus tehingute töötlemine ja turvameetmed**: Tehinguandmed salvestatakse hajutatud andmebaasis ja kaitstakse räsiahela struktuuriga, et vältida andmete võltsimist. Lisaks salvestatakse iga viie minuti järel räsiväärtus Cardano plokiahelas, et tõendada andmete terviklikkust.
+
+## Sihtkliendid
+
+- **Teenusepakkujad**: Sõltumatud arendajad ja idufirmade teenuseoperaatorid, kes otsivad lihtsasti integreeritavat, tõhusat ja turvalist punktisüsteemi.
+- **Teenuse kasutajad**: Üldkasutajad, kes soovivad saada õiglast tasu oma tegevuse eest ja omada paindlikkust kasutada teenitud punkte erinevates teenustes.
+- **Ökosüsteemi panustajad**: Sõlmeoperaatorid, NFT laenuandjad ja teised osalejad, kes aitavad kaasa JetPack ökosüsteemi kasvule ja hooldusele.
+
+### Varased kasutuselevõtjad
+
+- **NFT kogukonnad ja projektid, mis vajavad tokeneid**
+- **Indie arendajad**
+
+## Kanalid ja integreerimine
+
+- **SDK-d ja API-d**: Saadaval mitmetele platvormidele, sealhulgas Java, Unity ja JavaScript, võimaldades sujuvat integreerimist erinevatesse teenustesse ja rakendustesse.
+- **Kogukonna platvormid**: Aktiivne kohalolek Discordis, Twitteris ja osalemine Cardano kogukonnas ja plokiahela üritustel, et suhelda kasutajate ja arendajatega.
+- **Teenuste ja rakenduste partnerlused**: Koostöö teenustega, mis kasutavad JetPack Tokeneid, et laiendada ökosüsteemi ja suurendada tokenite kasulikkust.
+
+## Tuluvoolud
+
+- **Tokenite müük ADA eest**: Tulu, mis tekib, kui teenused ostavad täiendavaid tokeneid, kasutades ADA-d pärast oma eraldatud tokenite ammendumist.
+- **Tehingutasud**: Väikesed tasud, mis kogutakse tokenitehingutelt ökosüsteemis.
+- **Premium-teenused**: Täiustatud teenuste, nagu professionaalne statistiline analüüs, pakkumine tasu eest.
+
+## Kulustruktuur
+
+- **Serveri infrastruktuuri hooldus**: Kulud, mis on seotud hajutatud andmebaasi käitamise ja võrgu terviklikkuse säilitamisega.
+- **Arendus- ja tegevuskulud**: Platvormi, SDK-de ja API-de pidev arendamine ja hooldamine.
+- **Turundus ja kogukonna juhtimine**: Kulud, mis on seotud kasutajate ja teenusepakkujate omandamise ning kogukonna kaasamisega.
+- **Õigus- ja vastavuskulud**: Tasud õigusnõustamise ja regulatiivsete nõuete järgimise tagamise eest.
+
+## Olulised mõõdikud
+
+- **Teenuste osalus**: Teenuste arv, kes võtavad kasutusele JetPack Token Systemi ja nende vastavad tasemed.
+- **Tokenite ringlus ja kasutamine**: Kasutajatele jaotatud tokenite kogusumma ja tokenite kasutamise maht teenustes.
+- **Tokenite ostumaht**: Teenuste poolt ADA kasutades ostetud tokenite kogusumma.
+- **Kasutajate osaluse mõõdikud**: Aktiivsete kasutajate arv, tokenitehingute mahud ja muud kasutajate osaluse näitajad.
+
+---
+
+**JetPack Token System** esindab revolutsioonilist lähenemist digitaalsetele tasudele ja punktisüsteemidele. Lahendades olemasolevate süsteemide piirangud ja seades esikohale õigluse, läbipaistvuse ja tõhususe, loob JetPack keskkonna, kus kasutajad saavad õiglast tasu oma panuse eest ja teenusepakkujad saavad kasvada ja uuendada ilma liigse koormuseta. See uus paradigma digitaalses majanduses püüab luua õitsva ökosüsteemi, kus kõik osalejad saavad koos edeneda.

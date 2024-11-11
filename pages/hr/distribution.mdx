@@ -1,0 +1,529 @@
+# Kako JetPack Tokeni Funkcioniraju
+
+Sustav JetPack tokena sastoji se od **izdavanja i distribucije tokena temeljenih na aktivnostima**, **sustava razine usluga**, **nagrada za korisnike i metoda korištenja tokena**, te **mehanizma za kupnju i preraspodjelu tokena**. Ova struktura pruža **pravedan i učinkovit sustav nagrađivanja** za korisnike i pružatelje usluga.
+
+## Mehanizam Distribucije Tokena (Drop)
+
+### Ukupna Ponuda Tokena i Razdoblje Distribucije
+
+- **Ukupna Ponuda**: JetPack će izdati ukupno **1 milijardu Jet** tokena.
+- **Razdoblje Distribucije**: Tokeni će se distribuirati tijekom **38 godina**, s ukupno **2,776 distribucija** koje će se odvijati u istim intervalima kao i **Cardano Epoch** (1 epoha = 5 dana).
+
+### Količina Distribucije Tokena po Epohi
+
+#### Izračunavanje Količine Distribucije Temeljem Logaritamske Funkcije
+
+Količina tokena distribuiranih po epohi dizajnirana je da se smanjuje tijekom vremena. **Logaritamska funkcija** koristi se za izračunavanje količine distribucije za svaku epohu. **1 Jet jednak je 1,000,000 Pack**, tako da se količine distribucije izračunavaju do **šeste decimale** i isplaćuju u skladu s tim.
+
+1. **Definicija Logaritamske Funkcije $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Gdje:
+
+    - $ t $ je broj epohe, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ je funkcija prirodnog logaritma.
+
+2. **Izračunavanje Sume Log Funkcije $ f(t) $ Kroz Sve Epohe**:
+
+   Ukupna suma vrijednosti funkcije tijekom cijelog razdoblja distribucije $ S $ je:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Izračunavanje Skalirajuće Konstante $ A $**:
+
+   Ukupna ponuda tokena od **1 milijarde Jet** podijeljena je s sumom $ S $ kako bi se prilagodila količina distribucije za svaku epohu:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Izračunavanje Količine Distribucije Tokena po Epohi**:
+
+   Količina distribucije za svaku epohu je:
+
+   $$
+   \text{Količina Distribucije}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Primjeri Količina Distribucije**:
+
+   Izračunavanje količina distribucije za početne epohe:
+
+    - **Epoha 1**:
+
+      $$
+      \text{Količina Distribucije}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoha 2**:
+
+      $$
+      \text{Količina Distribucije}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoha 3**:
+
+      $$
+      \text{Količina Distribucije}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Količina distribucije za svaku epohu određena je vrijednošću log funkcije koja odgovara broju epohe.
+
+**Karakteristike Distribucije**
+
+- Budući da $ \ln(t + 1) $ raste kako $ t $ raste, nazivnik postaje veći, uzrokujući da ukupna količina distribucije postupno opada.
+- Količina distribucije po epohi smanjuje se tijekom vremena, približavajući se nuli.
+- Ovaj dizajn potiče rane sudionike i povećava oskudicu tokena.
+
+### Ukupni Raspored Distribucije
+
+Ispod je djelomična tablica koja sažima količine distribucije i datume po epohi.
+Za detaljne informacije o svim epohama, molimo pogledajte zaseban [dokument](/attach/token_allocation_per_epoch.csv) i [kod](/attach/token_allocation_per_epoch.py).
+
+| Broj Epohe | Datum          | Količina Distribucije (Jet) |
+|------------|----------------|-----------------------------|
+| 1          | 2025-01-01     | 3,479,788.70                |
+| 2          | 2025-01-06     | 2,195,502.227               |
+| 3          | 2025-01-11     | 1,739,894.35                |
+| ...        | ...            | ...                         |
+| 2774       | 2062-12-18     | 304,223.285                 |
+| 2775       | 2062-12-23     | 304,209.4607                |
+| 2776       | 2062-12-28     | 304,195.6425                |
+
+### Kriteriji Distribucije Tokena po Usluzi
+
+#### Izračunavanje Omjera Među Uslugama
+
+Omjer distribucije za svaku uslugu izračunava se na temelju njezinog rezultata izvedbe $ P_n $ u odnosu na ukupni rezultat izvedbe $ P $:
+
+$$
+\text{Omjer za Uslugu } n = \frac{P_n}{P}
+$$
+
+Gdje:
+
+- $ P_n $: Rezultat izvedbe usluge $ n $.
+- $ P $: Suma rezultata izvedbe svih usluga.
+
+#### Izračunavanje Količine Distribucije po Usluzi
+
+Količina tokena koju usluga $ n $ prima u svakoj epohi $ S_n $ je:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maksimalna Distribucija Tokena za Uslugu } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Prilagođena ukupna količina distribucije za epohu.
+- $ \text{Maksimalna Distribucija Tokena za Uslugu } n $: Maksimalna količina tokena dodijeljena na temelju razine usluge (vidi maksimalnu distribuciju tokena po razinama ispod).
+
+#### Rukovanje Neraspodijeljenim Tokenima
+
+##### Prenošenje Neraspodijeljenih Tokena
+
+- Neraspodijeljeni tokeni iz svake epohe **dodaju se** ukupnoj količini distribucije za sljedeću epohu.
+- Ovo osigurava učinkovitu distribuciju tokena čak i kada je početno sudjelovanje usluga nisko.
+
+##### Izračunavanje Prilagođene Ukupne Količine Distribucije po Epohi
+
+Ukupna količina distribucije za sljedeću epohu je:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Neraspodijeljeni Tokeni iz Prethodne Epohe}
+$$
+
+- $ f_{\text{total}}(t+1) $: Prilagođena ukupna količina distribucije za epohu $ t+1 $.
+- $ f(t+1) $: Količina distribucije temeljena na osnovnoj funkciji distribucije.
+- **Preneseni Neraspodijeljeni Tokeni**: Broj tokena koji nisu distribuirani u epohi $ t $.
+
+#### Izračunavanje Rezultata Izvedbe ($ P_n $) po Usluzi
+
+Rezultat izvedbe svake usluge izračunava se na temelju sljedećih metrika. Težina svake metrike može se prilagoditi kroz upravljanje.
+
+1. **Potrošnja JetPack Tokena ($ M_{1n} $)**
+    - **Težina**: $ w_1 = 50\% $
+    - **Opis**: Ukupna količina JetPack tokena koju su korisnici potrošili unutar usluge.
+
+2. **Broj Glasova Degen Bunny ($ M_{2n} $)**
+    - **Težina**: $ w_2 = 30\% $
+    - **Opis**: Broj glasova primljenih od OG Degen Bunnies.
+
+3. **Broj Aktivnih Korisnika ($ M_{3n} $)**
+    - **Težina**: $ w_3 = 20\% $
+    - **Opis**: Broj jedinstvenih korisnika koji su pristupili i bili aktivni u usluzi tijekom epohe.
+
+Rezultat izvedbe svake usluge $ P_n $ izračunava se kao:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Gdje:
+
+- $ M_{1n} $: Potrošnja JetPack tokena usluge $ n $.
+- $ M_{1\text{total}} $: Ukupna potrošnja JetPack tokena kroz sve usluge.
+- $ M_{2n} $: Broj glasova Degen Bunny za uslugu $ n $.
+- $ M_{2\text{total}} $: Ukupni glasovi Degen Bunny kroz sve usluge.
+- $ M_{3n} $: Broj aktivnih korisnika usluge $ n $.
+- $ M_{3\text{total}} $: Ukupni aktivni korisnici kroz sve usluge.
+
+**Primjer**:
+
+- **Usluga A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Usluga B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Usluga C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Ukupno**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Težine**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Izračunavanje Rezultata Izvedbe za Uslugu A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Izračunavanje Rezultata Izvedbe za Uslugu B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Izračunavanje Rezultata Izvedbe za Uslugu C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Dakle, rezultati izvedbe su:
+
+- **Usluga A**: $ P_A = 0.38 $
+- **Usluga B**: $ P_B = 0.29 $
+- **Usluga C**: $ P_C = 0.33 $
+
+#### Kriteriji Određivanja Razine i Maksimalna Količina Distribucije Tokena
+
+Na temelju rezultata izvedbe $ P_n $, svaka usluga klasificira se u **Razine 1 do 9**. Ova klasifikacija koristi **kumulativni gornji postotak** svih rezultata izvedbe usluga.
+
+##### Kumulativni Gornji Postoci i Maksimalne Količine Distribucije Tokena po Razini
+
+| **Razina** | **Kumulativni Gornji Postotak** | **Maksimalna Distribucija Tokena (Jet)** |
+|------------|---------------------------------|------------------------------------------|
+| Razina 1   | Gornjih 4%                      | 30,000                                   |
+| Razina 2   | Gornjih 11%                     | 25,000                                   |
+| Razina 3   | Gornjih 23%                     | 20,000                                   |
+| Razina 4   | Gornjih 40%                     | 15,000                                   |
+| Razina 5   | Gornjih 60%                     | 10,000                                   |
+| Razina 6   | Gornjih 77%                     | 7,000                                    |
+| Razina 7   | Gornjih 89%                     | 5,000                                    |
+| Razina 8   | Gornjih 96%                     | 3,000                                    |
+| Razina 9   | Gornjih 100%                    | 1,000                                    |
+
+##### Metoda Određivanja Razine
+
+1. **Izračunavanje Rezultata Izvedbe**
+
+   Koristite prethodno definiranu metodu za izračunavanje rezultata izvedbe svake usluge $ P_n $.
+
+2. **Određivanje Rangiranja Usluga**
+
+   Rangirajte sve usluge u **silaznom redoslijedu** na temelju njihovih rezultata izvedbe.
+
+3. **Izračunavanje Kumulativnih Gornjih Postotaka**
+
+   Za svaku uslugu izračunajte kumulativni gornji postotak:
+
+   $$
+   \text{Kumulativni Gornji Postotak (\%)} = \left(1 - \frac{\text{Rang} - 1}{N} \right) \times 100\%
+   $$
+
+   Gdje:
+
+    - $ \text{Rang} $: Rang usluge (počevši od 1).
+    - $ N $: Ukupan broj usluga.
+
+4. **Dodjela Razina**
+
+   Dodijelite razine na temelju kumulativnih gornjih postotaka:
+
+    - **Razina 1**: Kumulativni gornji postotak > 96%
+    - **Razina 2**: 89% < Kumulativni gornji postotak ≤ 96%
+    - **Razina 3**: 77% < Kumulativni gornji postotak ≤ 89%
+    - **Razina 4**: 60% < Kumulativni gornji postotak ≤ 77%
+    - **Razina 5**: 40% < Kumulativni gornji postotak ≤ 60%
+    - **Razina 6**: 23% < Kumulativni gornji postotak ≤ 40%
+    - **Razina 7**: 11% < Kumulativni gornji postotak ≤ 23%
+    - **Razina 8**: 4% < Kumulativni gornji postotak ≤ 11%
+    - **Razina 9**: Kumulativni gornji postotak ≤ 4%
+
+**Primjer**:
+
+S ukupno **3** usluge:
+
+1. **Izračunavanje Rangiranja i Kumulativnih Gornjih Postotaka**
+
+    - **Usluga A**:
+
+        - Rezultat Izvedbe: $ P_A = 0.38 $
+        - Rang: 1
+        - Kumulativni Gornji Postotak:
+
+          $$
+          \text{Kumulativni Gornji Postotak} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Usluga C**:
+
+        - Rezultat Izvedbe: $ P_C = 0.33 $
+        - Rang: 2
+        - Kumulativni Gornji Postotak:
+
+          $$
+          \text{Kumulativni Gornji Postotak} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Usluga B**:
+
+        - Rezultat Izvedbe: $ P_B = 0.29 $
+        - Rang: 3
+        - Kumulativni Gornji Postotak:
+
+          $$
+          \text{Kumulativni Gornji Postotak} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Dodjela Razina**
+
+    - **Usluga A**:
+
+        - Kumulativni Gornji Postotak: 100%
+        - **Razina**: **Razina 1** (Kumulativni Gornji Postotak > 96%)
+        - **Maksimalna Distribucija Tokena**: 30,000 Jet
+
+    - **Usluga C**:
+
+        - Kumulativni Gornji Postotak: 66.67%
+        - **Razina**: **Razina 4** (60% < Kumulativni Gornji Postotak ≤ 77%)
+        - **Maksimalna Distribucija Tokena**: 15,000 Jet
+
+    - **Usluga B**:
+
+        - Kumulativni Gornji Postotak: 33.33%
+        - **Razina**: **Razina 6** (23% < Kumulativni Gornji Postotak ≤ 40%)
+        - **Maksimalna Distribucija Tokena**: 7,000 Jet
+
+**Napomene**:
+
+- **Isti Rezultati**: Usluge s identičnim rezultatima izvedbe dobivaju isti rang. U izračunu kumulativnih gornjih postotaka koristi se prosječni rang.
+- **Maksimalna Distribucija Tokena** odnosi se na maksimalnu količinu tokena koju usluga može primiti na temelju svoje razine.
+
+### Primjer Scenarija
+
+#### Epoha 1 ($ t = 1 $)
+
+- **Osnovna Količina Distribucije**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Prilagođena Ukupna Količina Distribucije**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Izračunavanje Količine Distribucije po Usluzi**
+
+Na temelju rezultata izvedbe i razina:
+
+- **Ukupni Rezultat Izvedbe $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Usluga A**:
+
+    - Omjer: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Količina Distribucije:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Usluga C**:
+
+    - Omjer: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Količina Distribucije:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Usluga B**:
+
+    - Omjer: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Količina Distribucije:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultati Distribucije**
+
+- **Ukupno Distribuirani Tokeni**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Neraspodijeljeni Tokeni**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoha 2 ($ t = 2 $)
+
+- **Osnovna Količina Distribucije**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Preneseni Tokeni**: $ 3,427,788.70 \text{ Jet} $
+- **Prilagođena Ukupna Količina Distribucije**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Ažurirani Rezultati Izvedbe i Razine**
+
+Pretpostavljajući promjene u rezultatima izvedbe:
+
+- **Usluga A**:
+
+    - Rezultat Izvedbe: $ P_A = 0.40 $
+    - Rang: 1
+    - Kumulativni Gornji Postotak: 100%
+    - **Razina**: Razina 1
+    - **Maksimalna Distribucija Tokena**: 30,000 Jet
+
+- **Usluga C**:
+
+    - Rezultat Izvedbe: $ P_C = 0.35 $
+    - Rang: 2
+    - Kumulativni Gornji Postotak: 66.67%
+    - **Razina**: Razina 4
+    - **Maksimalna Distribucija Tokena**: 15,000 Jet
+
+- **Usluga B**:
+
+    - Rezultat Izvedbe: $ P_B = 0.25 $
+    - Rang: 3
+    - Kumulativni Gornji Postotak: 33.33%
+    - **Razina**: Razina 6
+    - **Maksimalna Distribucija Tokena**: 7,000 Jet
+
+**Ukupni Rezultat Izvedbe $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Izračunavanje Količine Distribucije po Usluzi**
+
+1. **Usluga A**:
+
+    - Omjer: $ \frac{P_A}{P} = 0.40 $
+    - Količina Distribucije:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Usluga C**:
+
+    - Omjer: $ \frac{P_C}{P} = 0.35 $
+    - Količina Distribucije:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Usluga B**:
+
+    - Omjer: $ \frac{P_B}{P} = 0.25 $
+    - Količina Distribucije:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Rezultati Distribucije**
+
+- **Ukupno Distribuirani Tokeni**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Neraspodijeljeni Tokeni**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Utjecaj Akumuliranih Neraspodijeljenih Tokena
+
+- **Povećano Sudjelovanje Usluga i Poboljšana Izvedba** postupno će smanjiti količinu neraspodijeljenih tokena.
+- **Početne usluge mogu iskoristiti maksimalnu količinu distribucije** za poticanje rasta.
+- Prenošenje tokena pomaže **održati stabilnost vrijednosti** i regulirati cirkulaciju.
+
+## Nagrade za Korisnike i Korištenje Tokena
+
+### **Mehanizam Nagrađivanja Korisnika**
+
+- **Nagrade Temeljene na Aktivnostima**: Korisnici primaju JetPack tokene kada obavljaju **unaprijed dogovorene aktivnosti** (npr. stvaranje sadržaja, igranje) unutar usluge.
+- **Kriteriji Nagrađivanja Tokenima**: Količina tokena nagrađena za svaku aktivnost **određuje se kroz konzultacije** između usluge i operatera JetPack ekosustava.
+
+### **Metode Korištenja Tokena**
+
+1. **Unutar Usluge**:
+    - **Pristup Premium Značajkama**: Koristite tokene za pristup plaćenim značajkama ili sadržaju unutar usluge.
+    - **Kupnja Dobara**: Kupujte digitalna dobra ili stavke unutar usluge koristeći tokene.
+
+2. **Korištenje JetPack Usluge Novčanika za Razmjenu**:
+    - **Prodaja Tokena**: Korisnici mogu razmijeniti svoje tokene za **ADA** (valuta **Cardano**).
+    - **Upravljanje Novčanikom**: JetPack novčanik omogućuje sigurno upravljanje tokenima i prijenos na druge usluge.
+
+### **Očekivane Prednosti od Povećanja Vrijednosti Tokena**
+
+- **Likvidnost Tokena**: Trgovanje tokenima na burzama povećava njihovu **likvidnost**.
+- **Ekonomski Dobici**: Korisnici mogu ostvariti **dodatne ekonomske koristi** prodajom tokena ako im vrijednost poraste.
+
+## Kupnja i Preraspodjela Tokena
+
+### **Dodatne Kupnje Tokena od Strane Usluga**
+
+- **Kada su Distribuirani Tokeni Iscrpljeni**: Ako usluga iskoristi sve dodijeljene tokene, može kupiti dodatne tokene iz **JetPack Usluge Novčanika za Razmjenu**.
+- **Valuta Kupnje**: Tokeni se kupuju koristeći **ADA**.
+- **Korištenje Kupljenih Tokena**: Kupljeni tokeni mogu se koristiti za **nagrađivanje korisnika** ili **unutar usluge**.
+
+### **Preprodajni i Nepreprodajni Tokeni**
+
+- **Distribuirani Tokeni** (**Nepreprodajni**): Tokeni dodijeljeni uslugama **ne mogu se preprodati** i služe samo za **nagrađivanje korisnika**.
+- **Kupljeni Tokeni i Tokeni Dobiveni od Korisnika** (**Preprodajni**): Tokeni kupljeni s ADA i tokeni primljeni od korisnika **mogu se preprodati**, pomažući u **stjecanju likvidnosti**.
+
+### **Preraspodjela Tokena i Aktivacija Ekosustava**
+
+1. **Struktura Cirkulacije Tokena**:
+    - Usluge nagrađuju korisnike tokenima; korisnici ih koriste unutar usluga ili prodaju na burzama.
+    - Usluge stječu tokene od korisnika ili ih kupuju kako bi održale **održiv sustav nagrađivanja**.
+
+2. **Učinci Aktivacije Ekosustava**:
+    - Cirkulacija tokena potiče **angažman korisnika** i **aktivaciju usluga**.
+    - To doprinosi **stabilizaciji vrijednosti tokena** i **održivom rastu** ekosustava.

@@ -1,0 +1,529 @@
+# Otu JetPack Tokens Si Eme Ọrụ
+
+Usoro JetPack token gụnyere **ịnye na ikesa token dabere na ọrụ**, **usoro ọkwa ọrụ**, **ụgwọ ọrụ ndị ọrụ na ụzọ eji token**, na **usoro maka ịzụta na ikesa token**. Usoro a na-enye **usoro ụgwọ ọrụ ziri ezi na nke ọma** maka ndị ọrụ na ndị na-enye ọrụ.
+
+## Usoro Ikesa Token (Drop)
+
+### Ngụkọta Ọnụ Ọgụ Token na Oge Ikesa
+
+- **Ngụkọta Ọnụ Ọgụ**: JetPack ga-enye ngụkọta nke **otu ijeri Jet** tokens.
+- **Oge Ikesa**: A ga-ekesa tokens n'ime **afọ 38**, na ngụkọta nke **2,776 ikesa** na-eme n'otu oge dị ka **Cardano Epoch** (1 epoch = 5 ụbọchị).
+
+### Ọnụ Ọgụ Ikesa Token kwa Epoch
+
+#### Ịgbakọ Ọnụ Ọgụ Ikesa Dabere na Usoro Logarithmic
+
+Ọnụ ọgụgụ nke tokens a na-ekesa kwa epoch e mere ka ọ belata n'oge. A na-eji **usoro logarithmic** gbakọọ ọnụ ọgụgụ ikesa maka epoch ọ bụla. **1 Jet bụ 1,000,000 Pack**, ya mere a na-agbakọ ọnụ ọgụgụ ikesa ruo **nke isii decimal** ma kwụọ ụgwọ accordingly.
+
+1. **Nkọwa nke Usoro Logarithmic $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Ebe:
+
+    - $ t $ bụ nọmba epoch, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ bụ ọrụ logarithm eke.
+
+2. **Ịgbakọ Ngụkọta Usoro Log $ f(t) $ N'elu Epoch niile**:
+
+   Ngụkọta ọnụ ọgụgụ nke uru ọrụ n'elu oge ikesa niile $ S $ bụ:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Ịgbakọ Ngụkọta Ngbanwe $ A $**:
+
+   Ngụkọta token nke **otu ijeri Jet** ka ekewara site na ngụkọta $ S $ iji hazie ọnụ ọgụgụ ikesa maka epoch ọ bụla:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Ịgbakọ Ọnụ Ọgụ Ikesa Token kwa Epoch**:
+
+   Ọnụ ọgụgụ ikesa maka epoch ọ bụla bụ:
+
+   $$
+   \text{Distribution Amount}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Ihe Nlereanya nke Ọnụ Ọgụ Ikesa**:
+
+   Ịgbakọ ọnụ ọgụgụ ikesa maka epochs mbụ:
+
+    - **Epoch 1**:
+
+      $$
+      \text{Distribution Amount}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epoch 2**:
+
+      $$
+      \text{Distribution Amount}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epoch 3**:
+
+      $$
+      \text{Distribution Amount}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Ọnụ ọgụgụ ikesa maka epoch ọ bụla kpebisiri ike site na uru nke ọrụ log kwekọrọ na nọmba epoch.
+
+**Njirimara Ikesa**
+
+- Ebe ọ bụ na $ \ln(t + 1) $ na-abawanye ka $ t $ na-abawanye, denominator na-abawanye, na-eme ka ọnụ ọgụgụ ikesa n'ozuzu ya belata nwayọọ nwayọọ.
+- Ọnụ ọgụgụ ikesa kwa epoch na-ebelata n'oge, na-abịaru na efu.
+- Nhazi a na-akwalite ndị sonyere mbụ ma na-abawanye ụkọ nke token.
+
+### Usoro Ikesa N'ozuzu
+
+N'okpuru ebe a bụ tebụl dị mkpirikpi na-akọwa ọnụ ọgụgụ ikesa na ụbọchị kwa epoch.
+Maka ozi zuru ezu gbasara epochs niile, biko lelee [akwụkwọ](/attach/token_allocation_per_epoch.csv) na [koodu](/attach/token_allocation_per_epoch.py).
+
+| Nọmba Epoch | Ụbọchị         | Ọnụ Ọgụ Ikesa (Jet) |
+|-------------|---------------|---------------------|
+| 1           | 2025-01-01    | 3,479,788.70        |
+| 2           | 2025-01-06    | 2,195,502.227       |
+| 3           | 2025-01-11    | 1,739,894.35        |
+| ...         | ...           | ...                 |
+| 2774        | 2062-12-18    | 304,223.285         |
+| 2775        | 2062-12-23    | 304,209.4607        |
+| 2776        | 2062-12-28    | 304,195.6425        |
+
+### Usoro Ikesa Token kwa Ọrụ
+
+#### Ịgbakọ Ọnụ Ọgụ N'etiti Ọrụ
+
+Ọnụ ọgụgụ ikesa maka ọrụ ọ bụla na-agbakọ dabere na akara arụmọrụ ya $ P_n $ metụtara akara arụmọrụ zuru oke $ P $:
+
+$$
+\text{Ratio for Service } n = \frac{P_n}{P}
+$$
+
+Ebe:
+
+- $ P_n $: Akara arụmọrụ nke ọrụ $ n $.
+- $ P $: Ngụkọta akara arụmọrụ nke ọrụ niile.
+
+#### Ịgbakọ Ọnụ Ọgụ Ikesa kwa Ọrụ
+
+Ọnụ ọgụgụ nke tokens nke ọrụ $ n $ na-enweta na epoch ọ bụla $ S_n $ bụ:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Distribution for Service } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Ngụkọta ikesa zuru oke maka epoch.
+- $ \text{Maximum Token Distribution for Service } n $: Ọnụ ọgụgụ token kachasị ekesa dabere na ọkwa ọrụ (lee ikesa token kachasị dabere na ọkwa n'okpuru).
+
+#### Ịchịkwa Tokens Na-adịghị Ekesa
+
+##### Ịkekọrịta Tokens Na-adịghị Ekesa
+
+- Tokens na-adịghị ekesa site na epoch ọ bụla na-agbakwụnye na ngụkọta ikesa maka epoch na-esote.
+- Nke a na-eme ka ikesa token dị irè ọbụna mgbe mmalite ọrụ na-abụghị nke ukwuu.
+
+##### Ịgbakọ Ngụkọta Ikesa Zuru Ezu kwa Epoch
+
+Ngụkọta ikesa maka epoch na-esote bụ:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+$$
+
+- $ f_{\text{total}}(t+1) $: Ngụkọta ikesa zuru oke maka epoch $ t+1 $.
+- $ f(t+1) $: Ọnụ ọgụgụ ikesa dabere na ọrụ ikesa bụ isi.
+- **Tokens Na-adịghị Ekesa**: Ọnụ ọgụgụ nke tokens na-adịghị ekesa na epoch $ t $.
+
+#### Ịgbakọ Akara Arụmọrụ ($ P_n $) kwa Ọrụ
+
+Akara arụmọrụ nke ọrụ ọ bụla na-agbakọ dabere na ihe ndị a. A pụkwara ịhazigharị ibu nke ihe ọ bụla site na ọchịchị.
+
+1. **Ịchọ JetPack Token ($ M_{1n} $)**
+    - **Ibu**: $ w_1 = 50\% $
+    - **Nkọwa**: Ngụkọta ọnụ ọgụgụ nke JetPack tokens ndị ọrụ na-eji n'ime ọrụ ahụ.
+
+2. **Ọnụ Ọgụ Vote Degen Bunny ($ M_{2n} $)**
+    - **Ibu**: $ w_2 = 30\% $
+    - **Nkọwa**: Ọnụ ọgụgụ vote ndị natara site na OG Degen Bunnies.
+
+3. **Ọnụ Ọgụ Ndị Ọrụ Na-arụ Ọrụ ($ M_{3n} $)**
+    - **Ibu**: $ w_3 = 20\% $
+    - **Nkọwa**: Ọnụ ọgụgụ nke ndị ọrụ pụrụ iche ndị na-enweta na na-arụ ọrụ n'ime ọrụ ahụ n'oge epoch.
+
+Akara arụmọrụ nke ọrụ ọ bụla $ P_n $ na-agbakọ dị ka:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Ebe:
+
+- $ M_{1n} $: Ịchọ JetPack token nke ọrụ $ n $.
+- $ M_{1\text{total}} $: Ngụkọta ịchọ JetPack token n'elu ọrụ niile.
+- $ M_{2n} $: Ọnụ ọgụgụ vote Degen Bunny maka ọrụ $ n $.
+- $ M_{2\text{total}} $: Ngụkọta vote Degen Bunny n'elu ọrụ niile.
+- $ M_{3n} $: Ọnụ ọgụgụ ndị ọrụ na-arụ ọrụ nke ọrụ $ n $.
+- $ M_{3\text{total}} $: Ngụkọta ndị ọrụ na-arụ ọrụ n'elu ọrụ niile.
+
+**Ihe Nlereanya**:
+
+- **Ọrụ A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Ọrụ B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Ọrụ C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Ngụkọta**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Ibu**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Ịgbakọ Akara Arụmọrụ maka Ọrụ A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Ịgbakọ Akara Arụmọrụ maka Ọrụ B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Ịgbakọ Akara Arụmọrụ maka Ọrụ C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Ya mere, akara arụmọrụ bụ:
+
+- **Ọrụ A**: $ P_A = 0.38 $
+- **Ọrụ B**: $ P_B = 0.29 $
+- **Ọrụ C**: $ P_C = 0.33 $
+
+#### Usoro Mkpebi Ọkwa na Ọnụ Ọgụ Ikesa Token Kasị Elu
+
+Dabere na akara arụmọrụ $ P_n $, a na-ekewa ọrụ ọ bụla n'ime **Ọkwa 1 ruo 9**. A na-eji **percentile elu na-agbakọ** nke akara arụmọrụ nke ọrụ niile eme ihe maka nkewa a.
+
+##### Percentiles Elu na Ọnụ Ọgụ Ikesa Token Kasị Elu kwa Ọkwa
+
+| **Ọkwa** | **Percentile Elu na-agbakọ** | **Ọnụ Ọgụ Ikesa Token Kasị Elu (Jet)** |
+|----------|------------------------------|----------------------------------------|
+| Ọkwa 1   | Elu 4%                       | 30,000                                 |
+| Ọkwa 2   | Elu 11%                      | 25,000                                 |
+| Ọkwa 3   | Elu 23%                      | 20,000                                 |
+| Ọkwa 4   | Elu 40%                      | 15,000                                 |
+| Ọkwa 5   | Elu 60%                      | 10,000                                 |
+| Ọkwa 6   | Elu 77%                      | 7,000                                  |
+| Ọkwa 7   | Elu 89%                      | 5,000                                  |
+| Ọkwa 8   | Elu 96%                      | 3,000                                  |
+| Ọkwa 9   | Elu 100%                     | 1,000                                  |
+
+##### Usoro Mkpebi Ọkwa
+
+1. **Gbakọọ Akara Arụmọrụ**
+
+   Jiri usoro a kọwara n'elu gbakọọ akara arụmọrụ nke ọrụ ọ bụla $ P_n $.
+
+2. **Kpebie Ọnụ Ọgụ Ọrụ**
+
+   Tinye ọrụ niile n'usoro **na-ebelata** dabere na akara arụmọrụ ha.
+
+3. **Gbakọọ Percentiles Elu na-agbakọ**
+
+   Maka ọrụ ọ bụla, gbakọọ percentile elu na-agbakọ:
+
+   $$
+   \text{Cumulative Top Percentile (\%)} = \left(1 - \frac{\text{Rank} - 1}{N} \right) \times 100\%
+   $$
+
+   Ebe:
+
+    - $ \text{Rank} $: Ọnụ ọgụgụ ọrụ (na-amalite site na 1).
+    - $ N $: Ngụkọta ọnụ ọgụgụ nke ọrụ.
+
+4. **Kewaa Ọkwa**
+
+   Kewaa ọkwa dabere na percentiles elu na-agbakọ:
+
+    - **Ọkwa 1**: Percentile elu na-agbakọ > 96%
+    - **Ọkwa 2**: 89% < Percentile elu na-agbakọ ≤ 96%
+    - **Ọkwa 3**: 77% < Percentile elu na-agbakọ ≤ 89%
+    - **Ọkwa 4**: 60% < Percentile elu na-agbakọ ≤ 77%
+    - **Ọkwa 5**: 40% < Percentile elu na-agbakọ ≤ 60%
+    - **Ọkwa 6**: 23% < Percentile elu na-agbakọ ≤ 40%
+    - **Ọkwa 7**: 11% < Percentile elu na-agbakọ ≤ 23%
+    - **Ọkwa 8**: 4% < Percentile elu na-agbakọ ≤ 11%
+    - **Ọkwa 9**: Percentile elu na-agbakọ ≤ 4%
+
+**Ihe Nlereanya**:
+
+Na ngụkọta nke **3** ọrụ:
+
+1. **Gbakọọ Ọnụ Ọgụ na Percentiles Elu na-agbakọ**
+
+    - **Ọrụ A**:
+
+        - Akara Arụmọrụ: $ P_A = 0.38 $
+        - Ọnụ Ọgụ: 1
+        - Percentile Elu na-agbakọ:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Ọrụ C**:
+
+        - Akara Arụmọrụ: $ P_C = 0.33 $
+        - Ọnụ Ọgụ: 2
+        - Percentile Elu na-agbakọ:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Ọrụ B**:
+
+        - Akara Arụmọrụ: $ P_B = 0.29 $
+        - Ọnụ Ọgụ: 3
+        - Percentile Elu na-agbakọ:
+
+          $$
+          \text{Cumulative Top Percentile} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Kewaa Ọkwa**
+
+    - **Ọrụ A**:
+
+        - Percentile Elu na-agbakọ: 100%
+        - **Ọkwa**: **Ọkwa 1** (Percentile Elu na-agbakọ > 96%)
+        - **Ọnụ Ọgụ Ikesa Token Kasị Elu**: 30,000 Jet
+
+    - **Ọrụ C**:
+
+        - Percentile Elu na-agbakọ: 66.67%
+        - **Ọkwa**: **Ọkwa 4** (60% < Percentile Elu na-agbakọ ≤ 77%)
+        - **Ọnụ Ọgụ Ikesa Token Kasị Elu**: 15,000 Jet
+
+    - **Ọrụ B**:
+
+        - Percentile Elu na-agbakọ: 33.33%
+        - **Ọkwa**: **Ọkwa 6** (23% < Percentile Elu na-agbakọ ≤ 40%)
+        - **Ọnụ Ọgụ Ikesa Token Kasị Elu**: 7,000 Jet
+
+**Nkọwa**:
+
+- **Akara Tied**: Ọrụ nwere akara arụmọrụ yiri nke ahụ na-enweta otu ọkwa. Na ịgbakọ percentiles elu na-agbakọ, a na-eji ọkwa nkezi.
+- **Ọnụ Ọgụ Ikesa Token Kasị Elu** na-ezo aka na ọnụ ọgụgụ token kachasị ọrụ nwere ike inweta dabere na ọkwa ya.
+
+### Ihe Nlereanya
+
+#### Epoch 1 ($ t = 1 $)
+
+- **Ọnụ Ọgụ Ikesa Bụ Isi**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Ngụkọta Ikesa Zuru Ezu**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Ịgbakọ Ọnụ Ọgụ Ikesa kwa Ọrụ**
+
+Dabere na akara arụmọrụ na ọkwa:
+
+- **Ngụkọta Akara Arụmọrụ $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Ọrụ A**:
+
+    - Ọnụ Ọgụ: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Ọnụ Ọgụ Ikesa:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Ọrụ C**:
+
+    - Ọnụ Ọgụ: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Ọnụ Ọgụ Ikesa:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Ọrụ B**:
+
+    - Ọnụ Ọgụ: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Ọnụ Ọgụ Ikesa:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Nsonaazụ Ikesa**
+
+- **Ngụkọta Tokens Ekesa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens Na-adịghị Ekesa**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epoch 2 ($ t = 2 $)
+
+- **Ọnụ Ọgụ Ikesa Bụ Isi**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Tokens Na-eburu**: $ 3,427,788.70 \text{ Jet} $
+- **Ngụkọta Ikesa Zuru Ezu**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Akara Arụmọrụ na Ọkwa Emelitere**
+
+Na-atụle mgbanwe na akara arụmọrụ:
+
+- **Ọrụ A**:
+
+    - Akara Arụmọrụ: $ P_A = 0.40 $
+    - Ọnụ Ọgụ: 1
+    - Percentile Elu na-agbakọ: 100%
+    - **Ọkwa**: Ọkwa 1
+    - **Ọnụ Ọgụ Ikesa Token Kasị Elu**: 30,000 Jet
+
+- **Ọrụ C**:
+
+    - Akara Arụmọrụ: $ P_C = 0.35 $
+    - Ọnụ Ọgụ: 2
+    - Percentile Elu na-agbakọ: 66.67%
+    - **Ọkwa**: Ọkwa 4
+    - **Ọnụ Ọgụ Ikesa Token Kasị Elu**: 15,000 Jet
+
+- **Ọrụ B**:
+
+    - Akara Arụmọrụ: $ P_B = 0.25 $
+    - Ọnụ Ọgụ: 3
+    - Percentile Elu na-agbakọ: 33.33%
+    - **Ọkwa**: Ọkwa 6
+    - **Ọnụ Ọgụ Ikesa Token Kasị Elu**: 7,000 Jet
+
+**Ngụkọta Akara Arụmọrụ $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Ịgbakọ Ọnụ Ọgụ Ikesa kwa Ọrụ**
+
+1. **Ọrụ A**:
+
+    - Ọnụ Ọgụ: $ \frac{P_A}{P} = 0.40 $
+    - Ọnụ Ọgụ Ikesa:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Ọrụ C**:
+
+    - Ọnụ Ọgụ: $ \frac{P_C}{P} = 0.35 $
+    - Ọnụ Ọgụ Ikesa:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Ọrụ B**:
+
+    - Ọnụ Ọgụ: $ \frac{P_B}{P} = 0.25 $
+    - Ọnụ Ọgụ Ikesa:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Nsonaazụ Ikesa**
+
+- **Ngụkọta Tokens Ekesa**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Tokens Na-adịghị Ekesa**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Mmetụta nke Tokens Na-adịghị Ekesa Na-agbakọ
+
+- **Mmetụta Ọrụ Ọrụ na Arụ Ọrụ Ka Mma** ga-eme ka ọnụ ọgụgụ nke tokens na-adịghị ekesa belata nwayọọ nwayọọ.
+- **Ọrụ mbụ nwere ike iji ọnụ ọgụgụ ikesa kachasị** iji kwalite uto.
+- Ịkekọrịta tokens na-enyere aka **ịchekwa ịdị mma nke uru** na ịchịkwa mgbasa.
+
+## Ụgwọ Ndị Ọrụ na Jiri Token
+
+### **Usoro Ụgwọ Ndị Ọrụ**
+
+- **Ụgwọ Dabere na Ọrụ**: Ndị ọrụ na-enweta JetPack tokens mgbe ha na-eme **ọrụ kwadoro tupu oge eruo** (dịka, imepụta ọdịnaya, egwuregwu) n'ime ọrụ.
+- **Usoro Ụgwọ Token**: Ọnụ ọgụgụ nke tokens a na-enye maka ọrụ ọ bụla bụ **kpebiri site na mkparịta ụka** n'etiti ọrụ na onye na-arụ ọrụ JetPack ecosystem.
+
+### **Usoro Jiri Token**
+
+1. **N'ime Ọrụ**:
+    - **Nweta Njirimara Premium**: Jiri tokens iji nweta njirimara ma ọ bụ ọdịnaya a na-akwụ ụgwọ n'ime ọrụ.
+    - **Zụta Ngwa**: Zụta ngwa dijitalụ ma ọ bụ ihe n'ime ọrụ na-eji tokens.
+
+2. **Jiri Ọrụ Wallet JetPack Exchange**:
+    - **Ree Tokens**: Ndị ọrụ nwere ike ịgbanwe tokens ha maka **ADA** (ego nke **Cardano**).
+    - **Njikwa Wallet**: Wallet JetPack na-enye ohere njikwa nchekwa nke tokens na nyefe na ọrụ ndị ọzọ.
+
+### **Uru A Tụziri Site na Ọnụ Ọgụ Token Na-abawanye**
+
+- **Liquidity Token**: Ịzụ ahịa tokens na exchanges na-abawanye **liquidity** ha.
+- **Uru Akụnụba**: Ndị ọrụ nwere ike nweta **ụgwọ akụnụba ọzọ** site na ire tokens ma ọ bụrụ na uru ha na-abawanye.
+
+## Ịzụta na Ikesa Token
+
+### **Ịzụta Token Ọzọ Site na Ọrụ**
+
+- **Mgbe Tokens Ekesa Na-agwụ**: Ọ bụrụ na ọrụ na-eji tokens niile e kenyere ya, ọ nwere ike ịzụta tokens ọzọ site na **JetPack Wallet Service Exchange**.
+- **Ego Ịzụta**: A na-azụta tokens na-eji **ADA**.
+- **Jiri Tokens Zụrụ**: A pụkwara iji tokens zụrụ **kwụọ ndị ọrụ ụgwọ** ma ọ bụ **n'ime ọrụ**.
+
+### **Tokens A Na-ereghị Ahịa vs. Tokens A Na-ere Ahịa**
+
+- **Tokens Ekesa** (**A Na-ereghị Ahịa**): Tokens e kenyere na ọrụ **enweghị ike ire** ma bụ naanị maka **ụgwọ ndị ọrụ**.
+- **Tokens Zụrụ na Tokens Nwetara Site na Ndị Ọrụ** (**A Na-ere Ahịa**): Tokens zụrụ na ADA na tokens natara site na ndị ọrụ **enwere ike ire**, na-enyere aka na **ịnweta liquidity**.
+
+### **Ikesa Token na Mmetụta Mgbasa Ozi Ecosystem**
+
+1. **Usoro Mgbasa Token**:
+    - Ọrụ na-akwụ ndị ọrụ ụgwọ na tokens; ndị ọrụ na-eji ha n'ime ọrụ ma ọ bụ ree ha na exchanges.
+    - Ọrụ na-enweta tokens site na ndị ọrụ ma ọ bụ zụta ha iji chekwaa **usoro ụgwọ ọrụ na-adịgide adịgide**.
+
+2. **Mmetụta Mgbasa Ozi Ecosystem**:
+    - Mgbasa token na-akwalite **mmekọrịta ndị ọrụ** na **mgbasa ọrụ**.
+    - Nke a na-enyere aka na **ịchekwa uru token** na **uto na-adịgide adịgide** nke ecosystem.

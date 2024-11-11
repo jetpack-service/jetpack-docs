@@ -1,0 +1,529 @@
+# Jak fungují tokeny JetPack
+
+Systém tokenů JetPack zahrnuje **vydávání a distribuci tokenů na základě aktivity**, **systém úrovní služeb**, **odměny pro uživatele a metody využití tokenů** a **mechanismus pro nákup a redistribuci tokenů**. Tato struktura poskytuje **spravedlivý a efektivní systém odměn** pro uživatele i poskytovatele služeb.
+
+## Mechanismus distribuce tokenů (Drop)
+
+### Celková nabídka tokenů a období distribuce
+
+- **Celková nabídka**: JetPack vydá celkem **1 miliardu Jet** tokenů.
+- **Období distribuce**: Tokeny budou distribuovány po dobu **38 let**, s celkem **2 776 distribucemi**, které se budou konat ve stejných intervalech jako **Cardano Epoch** (1 epocha = 5 dní).
+
+### Množství distribuce tokenů na epochu
+
+#### Výpočet množství distribuce na základě logaritmické funkce
+
+Množství tokenů distribuovaných na epochu je navrženo tak, aby se časem snižovalo. Pro výpočet množství distribuce pro každou epochu se používá **logaritmická funkce**. **1 Jet se rovná 1 000 000 Pack**, takže množství distribuce se počítá na **šest desetinných míst** a vyplácí se podle toho.
+
+1. **Definice logaritmické funkce $ f(t) $**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Kde:
+
+    - $ t $ je číslo epochy, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ je funkce přirozeného logaritmu.
+
+2. **Výpočet součtu logaritmické funkce $ f(t) $ pro všechny epochy**:
+
+   Celkový součet hodnot funkce za celé období distribuce $ S $ je:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **Výpočet škálovací konstanty $ A $**:
+
+   Celková nabídka tokenů **1 miliarda Jet** je rozdělena součtem $ S $ pro úpravu množství distribuce pro každou epochu:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **Výpočet množství distribuce tokenů na epochu**:
+
+   Množství distribuce pro každou epochu je:
+
+   $$
+   \text{Množství distribuce}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Příklady množství distribuce**:
+
+   Výpočet množství distribuce pro počáteční epochy:
+
+    - **Epocha 1**:
+
+      $$
+      \text{Množství distribuce}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **Epocha 2**:
+
+      $$
+      \text{Množství distribuce}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **Epocha 3**:
+
+      $$
+      \text{Množství distribuce}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Množství distribuce pro každou epochu je určeno hodnotou logaritmické funkce odpovídající číslu epochy.
+
+**Charakteristiky distribuce**
+
+- Protože $ \ln(t + 1) $ se zvyšuje s rostoucím $ t $, jmenovatel se stává větším, což způsobuje, že celkové množství distribuce se postupně snižuje.
+- Množství distribuce na epochu se časem snižuje a blíží se nule.
+- Tento design motivuje rané účastníky a zvyšuje vzácnost tokenu.
+
+### Celkový plán distribuce
+
+Níže je částečná tabulka shrnující množství distribuce a data na epochu.
+Pro podrobné informace o všech epochách se prosím podívejte na samostatný [dokument](/attach/token_allocation_per_epoch.csv) a [kód](/attach/token_allocation_per_epoch.py).
+
+| Číslo epochy | Datum         | Množství distribuce (Jet) |
+|--------------|---------------|---------------------------|
+| 1            | 2025-01-01    | 3,479,788.70              |
+| 2            | 2025-01-06    | 2,195,502.227             |
+| 3            | 2025-01-11    | 1,739,894.35              |
+| ...          | ...           | ...                       |
+| 2774         | 2062-12-18    | 304,223.285               |
+| 2775         | 2062-12-23    | 304,209.4607              |
+| 2776         | 2062-12-28    | 304,195.6425              |
+
+### Kritéria distribuce tokenů na službu
+
+#### Výpočet poměrů mezi službami
+
+Poměr distribuce pro každou službu je vypočítán na základě jejího výkonového skóre $ P_n $ vzhledem k celkovému výkonovému skóre $ P $:
+
+$$
+\text{Poměr pro službu } n = \frac{P_n}{P}
+$$
+
+Kde:
+
+- $ P_n $: Výkonové skóre služby $ n $.
+- $ P $: Součet výkonových skóre všech služeb.
+
+#### Výpočet množství distribuce na službu
+
+Množství tokenů, které služba $ n $ obdrží v každé epoše $ S_n $, je:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximální distribuce tokenů pro službu } n\right)
+$$
+
+- $ f_{\text{total}}(t) $: Upravené celkové množství distribuce pro epochu.
+- $ \text{Maximální distribuce tokenů pro službu } n $: Maximální množství tokenů přidělené na základě úrovně služby (viz níže maximální distribuce tokenů na základě úrovně).
+
+#### Zpracování nerozdělených tokenů
+
+##### Přenášení nerozdělených tokenů
+
+- Nerozdělené tokeny z každé epochy jsou **přidány** k celkovému množství distribuce pro další epochu.
+- To zajišťuje efektivní distribuci tokenů i při nízké počáteční účasti služeb.
+
+##### Výpočet upraveného celkového množství distribuce na epochu
+
+Celkové množství distribuce pro další epochu je:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Nerozdělené tokeny z předchozí epochy}
+$$
+
+- $ f_{\text{total}}(t+1) $: Upravené celkové množství distribuce pro epochu $ t+1 $.
+- $ f(t+1) $: Množství distribuce na základě základní distribuční funkce.
+- **Přenesené nerozdělené tokeny**: Počet tokenů nerozdělených v epoše $ t $.
+
+#### Výpočet výkonového skóre ($ P_n $) na službu
+
+Výkonové skóre každé služby je vypočítáno na základě následujících metrik. Váha každé metriky může být upravena prostřednictvím správy.
+
+1. **Spotřeba tokenů JetPack ($ M_{1n} $)**
+    - **Váha**: $ w_1 = 50\% $
+    - **Popis**: Celkové množství tokenů JetPack spotřebovaných uživateli v rámci služby.
+
+2. **Počet hlasů Degen Bunny ($ M_{2n} $)**
+    - **Váha**: $ w_2 = 30\% $
+    - **Popis**: Počet hlasů obdržených od OG Degen Bunnies.
+
+3. **Počet aktivních uživatelů ($ M_{3n} $)**
+    - **Váha**: $ w_3 = 20\% $
+    - **Popis**: Počet unikátních uživatelů, kteří přistoupili a byli aktivní ve službě během epochy.
+
+Výkonové skóre každé služby $ P_n $ je vypočítáno jako:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Kde:
+
+- $ M_{1n} $: Spotřeba tokenů JetPack služby $ n $.
+- $ M_{1\text{total}} $: Celková spotřeba tokenů JetPack napříč všemi službami.
+- $ M_{2n} $: Počet hlasů Degen Bunny pro službu $ n $.
+- $ M_{2\text{total}} $: Celkový počet hlasů Degen Bunny napříč všemi službami.
+- $ M_{3n} $: Počet aktivních uživatelů služby $ n $.
+- $ M_{3\text{total}} $: Celkový počet aktivních uživatelů napříč všemi službami.
+
+**Příklad**:
+
+- **Služba A**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **Služba B**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **Služba C**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Celkové hodnoty**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Váhy**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**Výpočet výkonového skóre pro službu A**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**Výpočet výkonového skóre pro službu B**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**Výpočet výkonového skóre pro službu C**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Výkonová skóre jsou tedy:
+
+- **Služba A**: $ P_A = 0.38 $
+- **Služba B**: $ P_B = 0.29 $
+- **Služba C**: $ P_C = 0.33 $
+
+#### Kritéria pro určení úrovně a maximální množství distribuce tokenů
+
+Na základě výkonového skóre $ P_n $ je každá služba klasifikována do **úrovní 1 až 9**. Tato klasifikace používá **kumulativní horní percentil** všech výkonových skóre služeb.
+
+##### Kumulativní horní percentily a maximální množství distribuce tokenů na úroveň
+
+| **Úroveň** | **Kumulativní horní percentil** | **Maximální distribuce tokenů (Jet)** |
+|------------|---------------------------------|--------------------------------------|
+| Úroveň 1   | Horní 4%                        | 30,000                               |
+| Úroveň 2   | Horní 11%                       | 25,000                               |
+| Úroveň 3   | Horní 23%                       | 20,000                               |
+| Úroveň 4   | Horní 40%                       | 15,000                               |
+| Úroveň 5   | Horní 60%                       | 10,000                               |
+| Úroveň 6   | Horní 77%                       | 7,000                                |
+| Úroveň 7   | Horní 89%                       | 5,000                                |
+| Úroveň 8   | Horní 96%                       | 3,000                                |
+| Úroveň 9   | Horní 100%                      | 1,000                                |
+
+##### Metoda určení úrovně
+
+1. **Výpočet výkonových skóre**
+
+   Použijte dříve definovanou metodu pro výpočet výkonového skóre každé služby $ P_n $.
+
+2. **Určení pořadí služeb**
+
+   Seřaďte všechny služby v **sestupném pořadí** podle jejich výkonových skóre.
+
+3. **Výpočet kumulativních horních percentilů**
+
+   Pro každou službu vypočítejte kumulativní horní percentil:
+
+   $$
+   \text{Kumulativní horní percentil (\%)} = \left(1 - \frac{\text{Pořadí} - 1}{N} \right) \times 100\%
+   $$
+
+   Kde:
+
+    - $ \text{Pořadí} $: Pořadí služby (počínaje od 1).
+    - $ N $: Celkový počet služeb.
+
+4. **Přiřazení úrovní**
+
+   Přiřaďte úrovně na základě kumulativních horních percentilů:
+
+    - **Úroveň 1**: Kumulativní horní percentil > 96%
+    - **Úroveň 2**: 89% < Kumulativní horní percentil ≤ 96%
+    - **Úroveň 3**: 77% < Kumulativní horní percentil ≤ 89%
+    - **Úroveň 4**: 60% < Kumulativní horní percentil ≤ 77%
+    - **Úroveň 5**: 40% < Kumulativní horní percentil ≤ 60%
+    - **Úroveň 6**: 23% < Kumulativní horní percentil ≤ 40%
+    - **Úroveň 7**: 11% < Kumulativní horní percentil ≤ 23%
+    - **Úroveň 8**: 4% < Kumulativní horní percentil ≤ 11%
+    - **Úroveň 9**: Kumulativní horní percentil ≤ 4%
+
+**Příklad**:
+
+S celkovým počtem **3** služeb:
+
+1. **Výpočet pořadí a kumulativních horních percentilů**
+
+    - **Služba A**:
+
+        - Výkonové skóre: $ P_A = 0.38 $
+        - Pořadí: 1
+        - Kumulativní horní percentil:
+
+          $$
+          \text{Kumulativní horní percentil} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **Služba C**:
+
+        - Výkonové skóre: $ P_C = 0.33 $
+        - Pořadí: 2
+        - Kumulativní horní percentil:
+
+          $$
+          \text{Kumulativní horní percentil} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **Služba B**:
+
+        - Výkonové skóre: $ P_B = 0.29 $
+        - Pořadí: 3
+        - Kumulativní horní percentil:
+
+          $$
+          \text{Kumulativní horní percentil} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Přiřazení úrovní**
+
+    - **Služba A**:
+
+        - Kumulativní horní percentil: 100%
+        - **Úroveň**: **Úroveň 1** (Kumulativní horní percentil > 96%)
+        - **Maximální distribuce tokenů**: 30,000 Jet
+
+    - **Služba C**:
+
+        - Kumulativní horní percentil: 66.67%
+        - **Úroveň**: **Úroveň 4** (60% < Kumulativní horní percentil ≤ 77%)
+        - **Maximální distribuce tokenů**: 15,000 Jet
+
+    - **Služba B**:
+
+        - Kumulativní horní percentil: 33.33%
+        - **Úroveň**: **Úroveň 6** (23% < Kumulativní horní percentil ≤ 40%)
+        - **Maximální distribuce tokenů**: 7,000 Jet
+
+**Poznámky**:
+
+- **Shodná skóre**: Služby s identickými výkonovými skóre obdrží stejné pořadí. Při výpočtu kumulativních horních percentilů se používá průměrné pořadí.
+- **Maximální distribuce tokenů** odkazuje na maximální množství tokenů, které může služba obdržet na základě své úrovně.
+
+### Příklad scénáře
+
+#### Epocha 1 ($ t = 1 $)
+
+- **Základní množství distribuce**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Upravené celkové množství distribuce**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Výpočet množství distribuce na službu**
+
+Na základě výkonových skóre a úrovní:
+
+- **Celkové výkonové skóre $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **Služba A**:
+
+    - Poměr: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Množství distribuce:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Služba C**:
+
+    - Poměr: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Množství distribuce:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Služba B**:
+
+    - Poměr: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Množství distribuce:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Výsledky distribuce**
+
+- **Celkové distribuované tokeny**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nerozdělené tokeny**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### Epocha 2 ($ t = 2 $)
+
+- **Základní množství distribuce**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Přenesené tokeny**: $ 3,427,788.70 \text{ Jet} $
+- **Upravené celkové množství distribuce**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Aktualizovaná výkonová skóre a úrovně**
+
+Předpokládejme změny ve výkonových skórech:
+
+- **Služba A**:
+
+    - Výkonové skóre: $ P_A = 0.40 $
+    - Pořadí: 1
+    - Kumulativní horní percentil: 100%
+    - **Úroveň**: Úroveň 1
+    - **Maximální distribuce tokenů**: 30,000 Jet
+
+- **Služba C**:
+
+    - Výkonové skóre: $ P_C = 0.35 $
+    - Pořadí: 2
+    - Kumulativní horní percentil: 66.67%
+    - **Úroveň**: Úroveň 4
+    - **Maximální distribuce tokenů**: 15,000 Jet
+
+- **Služba B**:
+
+    - Výkonové skóre: $ P_B = 0.25 $
+    - Pořadí: 3
+    - Kumulativní horní percentil: 33.33%
+    - **Úroveň**: Úroveň 6
+    - **Maximální distribuce tokenů**: 7,000 Jet
+
+**Celkové výkonové skóre $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Výpočet množství distribuce na službu**
+
+1. **Služba A**:
+
+    - Poměr: $ \frac{P_A}{P} = 0.40 $
+    - Množství distribuce:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **Služba C**:
+
+    - Poměr: $ \frac{P_C}{P} = 0.35 $
+    - Množství distribuce:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **Služba B**:
+
+    - Poměr: $ \frac{P_B}{P} = 0.25 $
+    - Množství distribuce:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Výsledky distribuce**
+
+- **Celkové distribuované tokeny**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Nerozdělené tokeny**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Dopad nahromaděných nerozdělených tokenů
+
+- **Zvýšená účast služeb a zlepšený výkon** postupně sníží množství nerozdělených tokenů.
+- **Počáteční služby mohou využít maximální množství distribuce** k podpoře růstu.
+- Přenášení tokenů pomáhá **udržovat stabilitu hodnoty** a regulovat oběh.
+
+## Odměny pro uživatele a využití tokenů
+
+### **Mechanismus odměn pro uživatele**
+
+- **Odměny na základě aktivity**: Uživatelé obdrží tokeny JetPack, když vykonávají **předem dohodnuté aktivity** (např. tvorba obsahu, hraní her) v rámci služby.
+- **Kritéria pro odměny tokenů**: Množství tokenů odměněných za každou aktivitu je **stanoveno po konzultaci** mezi službou a operátorem ekosystému JetPack.
+
+### **Metody využití tokenů**
+
+1. **V rámci služby**:
+    - **Přístup k prémiovým funkcím**: Použijte tokeny k přístupu k placeným funkcím nebo obsahu v rámci služby.
+    - **Nákup zboží**: Kupte digitální zboží nebo položky v rámci služby pomocí tokenů.
+
+2. **Použití směnárny JetPack Wallet Service**:
+    - **Prodej tokenů**: Uživatelé mohou vyměnit své tokeny za **ADA** (měnu **Cardano**).
+    - **Správa peněženky**: Peněženka JetPack umožňuje bezpečnou správu tokenů a převody do jiných služeb.
+
+### **Očekávané výhody z ocenění hodnoty tokenů**
+
+- **Likvidita tokenů**: Obchodování s tokeny na burzách zvyšuje jejich **likviditu**.
+- **Ekonomické zisky**: Uživatelé mohou dosáhnout **dalších ekonomických výhod** prodejem tokenů, pokud jejich hodnota vzroste.
+
+## Nákup a redistribuce tokenů
+
+### **Další nákupy tokenů službami**
+
+- **Když jsou distribuované tokeny vyčerpány**: Pokud služba využije všechny přidělené tokeny, může zakoupit další tokeny z **JetPack Wallet Service Exchange**.
+- **Měna nákupu**: Tokeny jsou nakupovány pomocí **ADA**.
+- **Využití zakoupených tokenů**: Zakoupené tokeny mohou být použity k **odměňování uživatelů** nebo **v rámci služby**.
+
+### **Prodejné vs. neprodejné tokeny**
+
+- **Distribuované tokeny** (**Neprodejné**): Tokeny přidělené službám **nelze prodat** a jsou určeny pouze pro **odměny uživatelům**.
+- **Zakoupené tokeny a tokeny získané od uživatelů** (**Prodejné**): Tokeny zakoupené za ADA a tokeny obdržené od uživatelů **lze prodat**, což pomáhá při **získávání likvidity**.
+
+### **Redistribuce tokenů a aktivace ekosystému**
+
+1. **Struktura oběhu tokenů**:
+    - Služby odměňují uživatele tokeny; uživatelé je používají v rámci služeb nebo je prodávají na burzách.
+    - Služby získávají tokeny od uživatelů nebo je nakupují, aby udržely **udržitelný systém odměn**.
+
+2. **Efekty aktivace ekosystému**:
+    - Oběh tokenů podporuje **zapojení uživatelů** a **aktivaci služeb**.
+    - To přispívá k **stabilizaci hodnoty tokenů** a **udržitelnému růstu** ekosystému.

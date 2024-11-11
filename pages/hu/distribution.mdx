@@ -1,0 +1,529 @@
+# Hogyan működnek a JetPack tokenek
+
+A JetPack tokenrendszer **tevékenységalapú token kibocsátásból és elosztásból**, egy **szolgáltatási szint rendszerből**, **felhasználói jutalmakból és token felhasználási módszerekből**, valamint egy **token vásárlási és újraelosztási mechanizmusból** áll. Ez a struktúra **igazságos és hatékony jutalmazási rendszert** biztosít mind a felhasználók, mind a szolgáltatók számára.
+
+## Tokenelosztási (Drop) Mechanizmus
+
+### Teljes Tokenkínálat és Elosztási Időszak
+
+- **Teljes Kínálat**: A JetPack összesen **1 milliárd Jet** tokent bocsát ki.
+- **Elosztási Időszak**: A tokenek **38 év** alatt kerülnek elosztásra, összesen **2,776 elosztás** történik ugyanazon időközönként, mint a **Cardano Epoch** (1 epoch = 5 nap).
+
+### Tokenelosztási Mennyiség Epochonként
+
+#### Elosztási Mennyiség Számítása Logaritmikus Függvény Alapján
+
+Az epochonként elosztott tokenek mennyisége úgy van kialakítva, hogy idővel csökkenjen. Egy **logaritmikus függvényt** használnak az egyes epochok elosztási mennyiségének kiszámításához. **1 Jet egyenlő 1,000,000 Pack**-kel, így az elosztási mennyiségeket a **hatodik tizedesjegyig** számítják ki és fizetik ki.
+
+1. **A Logaritmikus Függvény $ f(t) $ Definíciója**:
+
+   $$
+   f(t) = \dfrac{1}{\ln(t + 1)}
+   $$
+
+   Ahol:
+
+    - $ t $ az epoch száma, $ t = 1, 2, 3, \dotsc, 2776 $.
+    - $ \ln $ a természetes logaritmus függvény.
+
+2. **A Logaritmus Függvény $ f(t) $ Összegének Számítása Az Összes Epochon**:
+
+   A függvényértékek teljes összege az egész elosztási időszak alatt $ S $:
+
+   $$
+   S = \sum_{t=1}^{2776} f(t) = \sum_{t=1}^{2776} \dfrac{1}{\ln(t + 1)}
+   $$
+
+3. **A Skálázási Konstans $ A $ Számítása**:
+
+   Az **1 milliárd Jet** teljes tokenkínálatot elosztják az $ S $ összeggel, hogy beállítsák az egyes epochok elosztási mennyiségét:
+
+   $$
+   A = \dfrac{1,000,000,000}{S} = 2,412,005.7263929145
+   $$
+
+4. **A Tokenelosztási Mennyiség Számítása Epochonként**:
+
+   Az egyes epochok elosztási mennyisége:
+
+   $$
+   \text{Elosztási Mennyiség}_t = A \times f(t) = A \times \dfrac{1}{\ln(t + 1)}
+   $$
+
+5. **Elosztási Mennyiségek Példái**:
+
+   Az első epochok elosztási mennyiségeinek kiszámítása:
+
+    - **1. Epoch**:
+
+      $$
+      \text{Elosztási Mennyiség}_1 = 3,479,788.70 = A \times \dfrac{1}{\ln(1 + 1)} = A \times \dfrac{1}{\ln(2)}
+      $$
+
+    - **2. Epoch**:
+
+      $$
+      \text{Elosztási Mennyiség}_2 = 2,195,502.227 = A \times \dfrac{1}{\ln(2 + 1)} = A \times \dfrac{1}{\ln(3)}
+      $$
+
+    - **3. Epoch**:
+
+      $$
+      \text{Elosztási Mennyiség}_3 = 1,739,894.35 = A \times \dfrac{1}{\ln(3 + 1)} = A \times \dfrac{1}{\ln(4)}
+      $$
+
+   Az egyes epochok elosztási mennyiségét az epoch számának megfelelő logaritmus függvény értéke határozza meg.
+
+**Elosztási Jellemzők**
+
+- Mivel $ \ln(t + 1) $ növekszik, ahogy $ t $ növekszik, a nevező nagyobb lesz, ami az összes elosztási mennyiséget fokozatosan csökkenti.
+- Az epochonkénti elosztási mennyiség idővel csökken, közelítve a nullához.
+- Ez a kialakítás ösztönzi a korai résztvevőket és növeli a token ritkaságát.
+
+### Átfogó Elosztási Ütemterv
+
+Az alábbiakban egy részleges táblázat összegzi az epochonkénti elosztási mennyiségeket és dátumokat.
+Az összes epoch részletes információiért kérjük, tekintse meg a külön [dokumentumot](/attach/token_allocation_per_epoch.csv) és [kódot](/attach/token_allocation_per_epoch.py).
+
+| Epoch Szám | Dátum          | Elosztási Mennyiség (Jet) |
+|------------|----------------|---------------------------|
+| 1          | 2025-01-01     | 3,479,788.70              |
+| 2          | 2025-01-06     | 2,195,502.227             |
+| 3          | 2025-01-11     | 1,739,894.35              |
+| ...        | ...            | ...                       |
+| 2774       | 2062-12-18     | 304,223.285               |
+| 2775       | 2062-12-23     | 304,209.4607              |
+| 2776       | 2062-12-28     | 304,195.6425              |
+
+### Tokenelosztási Kritériumok Szolgáltatásonként
+
+#### Arányok Számítása a Szolgáltatások Között
+
+Az egyes szolgáltatások elosztási arányát a teljesítmény pontszámuk $ P_n $ alapján számítják ki a teljes teljesítmény pontszám $ P $ viszonylatában:
+
+$$
+\text{Arány a } n \text{ szolgáltatásra} = \frac{P_n}{P}
+$$
+
+Ahol:
+
+- $ P_n $: A $ n $ szolgáltatás teljesítmény pontszáma.
+- $ P $: Az összes szolgáltatás teljesítmény pontszámának összege.
+
+#### Elosztási Mennyiség Számítása Szolgáltatásonként
+
+Az $ n $ szolgáltatás által kapott tokenek mennyisége minden epochban $ S_n $:
+
+$$
+S_n = \min\left(f_{\text{total}}(t) \times \left( \frac{P_n}{P} \right), \text{Maximum Token Elosztás a } n \text{ szolgáltatásra}\right)
+$$
+
+- $ f_{\text{total}}(t) $: Az epochra vonatkozóan módosított teljes elosztási mennyiség.
+- $ \text{Maximum Token Elosztás a } n \text{ szolgáltatásra} $: A szolgáltatás szintje alapján kiosztott maximális token mennyiség (lásd a szint alapú maximális token elosztást alább).
+
+#### Elosztatlan Tokenek Kezelése
+
+##### Elosztatlan Tokenek Átvitele
+
+- Az egyes epochokból elosztatlan tokenek **hozzáadódnak** a következő epoch teljes elosztási mennyiségéhez.
+- Ez biztosítja a hatékony token elosztást még akkor is, ha a kezdeti szolgáltatási részvétel alacsony.
+
+##### Módosított Teljes Elosztási Mennyiség Számítása Epochonként
+
+A következő epoch teljes elosztási mennyisége:
+
+$$
+f_{\text{total}}(t+1) = f(t+1) + \text{Elosztatlan Tokenek az Előző Epochból}
+$$
+
+- $ f_{\text{total}}(t+1) $: A $ t+1 $ epochra vonatkozóan módosított teljes elosztási mennyiség.
+- $ f(t+1) $: Az alap elosztási függvény alapján számított elosztási mennyiség.
+- **Átvitt Elosztatlan Tokenek**: Az $ t $ epochban el nem osztott tokenek száma.
+
+#### Teljesítmény Pontszám ($ P_n $) Számítása Szolgáltatásonként
+
+Minden szolgáltatás teljesítmény pontszámát az alábbi mutatók alapján számítják ki. Az egyes mutatók súlya a kormányzás révén állítható.
+
+1. **JetPack Token Fogyasztás ($ M_{1n} $)**
+    - **Súly**: $ w_1 = 50\% $
+    - **Leírás**: A szolgáltatáson belül a felhasználók által elfogyasztott JetPack tokenek teljes mennyisége.
+
+2. **Degen Bunny Szavazatok Száma ($ M_{2n} $)**
+    - **Súly**: $ w_2 = 30\% $
+    - **Leírás**: Az OG Degen Bunnies által kapott szavazatok száma.
+
+3. **Aktív Felhasználók Száma ($ M_{3n} $)**
+    - **Súly**: $ w_3 = 20\% $
+    - **Leírás**: Az epoch során a szolgáltatást elérő és aktív egyedi felhasználók száma.
+
+Minden szolgáltatás teljesítmény pontszáma $ P_n $ a következőképpen számítandó:
+
+$$
+P_n = w_1 \times \left( \frac{M_{1n}}{M_{1\text{total}}} \right) + w_2 \times \left( \frac{M_{2n}}{M_{2\text{total}}} \right) + w_3 \times \left( \frac{M_{3n}}{M_{3\text{total}}} \right)
+$$
+
+Ahol:
+
+- $ M_{1n} $: A $ n $ szolgáltatás JetPack token fogyasztása.
+- $ M_{1\text{total}} $: Az összes szolgáltatás JetPack token fogyasztása.
+- $ M_{2n} $: A $ n $ szolgáltatás Degen Bunny szavazatainak száma.
+- $ M_{2\text{total}} $: Az összes szolgáltatás Degen Bunny szavazatainak száma.
+- $ M_{3n} $: A $ n $ szolgáltatás aktív felhasználóinak száma.
+- $ M_{3\text{total}} $: Az összes szolgáltatás aktív felhasználóinak száma.
+
+**Példa**:
+
+- **A Szolgáltatás**:
+    - $ M_{1A} = 500 $
+    - $ M_{2A} = 150 $
+    - $ M_{3A} = 200 $
+- **B Szolgáltatás**:
+    - $ M_{1B} = 300 $
+    - $ M_{2B} = 200 $
+    - $ M_{3B} = 100 $
+- **C Szolgáltatás**:
+    - $ M_{1C} = 200 $
+    - $ M_{2C} = 150 $
+    - $ M_{3C} = 700 $
+
+**Összegek**:
+
+- $ M_{1\text{total}} = 500 + 300 + 200 = 1000 $
+- $ M_{2\text{total}} = 150 + 200 + 150 = 500 $
+- $ M_{3\text{total}} = 200 + 100 + 700 = 1000 $
+
+**Súlyok**:
+
+- $ w_1 = 0.5 $
+- $ w_2 = 0.3 $
+- $ w_3 = 0.2 $
+
+**A Szolgáltatás Teljesítmény Pontszámának Számítása**:
+
+$$
+\begin{align*}
+P_A &= 0.5 \times \left( \frac{500}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{200}{1000} \right) \\
+&= 0.5 \times 0.5 + 0.3 \times 0.3 + 0.2 \times 0.2 \\
+&= 0.25 + 0.09 + 0.04 \\
+&= 0.38
+\end{align*}
+$$
+
+**B Szolgáltatás Teljesítmény Pontszámának Számítása**:
+
+$$
+\begin{align*}
+P_B &= 0.5 \times \left( \frac{300}{1000} \right) + 0.3 \times \left( \frac{200}{500} \right) + 0.2 \times \left( \frac{100}{1000} \right) \\
+&= 0.5 \times 0.3 + 0.3 \times 0.4 + 0.2 \times 0.1 \\
+&= 0.15 + 0.12 + 0.02 \\
+&= 0.29
+\end{align*}
+$$
+
+**C Szolgáltatás Teljesítmény Pontszámának Számítása**:
+
+$$
+\begin{align*}
+P_C &= 0.5 \times \left( \frac{200}{1000} \right) + 0.3 \times \left( \frac{150}{500} \right) + 0.2 \times \left( \frac{700}{1000} \right) \\
+&= 0.5 \times 0.2 + 0.3 \times 0.3 + 0.2 \times 0.7 \\
+&= 0.10 + 0.09 + 0.14 \\
+&= 0.33
+\end{align*}
+$$
+
+Így a teljesítmény pontszámok:
+
+- **A Szolgáltatás**: $ P_A = 0.38 $
+- **B Szolgáltatás**: $ P_B = 0.29 $
+- **C Szolgáltatás**: $ P_C = 0.33 $
+
+#### Szint Meghatározási Kritériumok és Maximális Token Elosztási Mennyiség
+
+A teljesítmény pontszám $ P_n $ alapján minden szolgáltatás **1-től 9-ig terjedő szintekbe** van besorolva. Ez a besorolás az összes szolgáltatás teljesítmény pontszámának **kumulatív felső percentilisét** használja.
+
+##### Kumulatív Felső Percentilisek és Maximális Token Elosztási Mennyiségek Szintenként
+
+| **Szint** | **Kumulatív Felső Percentilis** | **Maximális Token Elosztás (Jet)** |
+|-----------|---------------------------------|------------------------------------|
+| Szint 1   | Felső 4%                        | 30,000                             |
+| Szint 2   | Felső 11%                       | 25,000                             |
+| Szint 3   | Felső 23%                       | 20,000                             |
+| Szint 4   | Felső 40%                       | 15,000                             |
+| Szint 5   | Felső 60%                       | 10,000                             |
+| Szint 6   | Felső 77%                       | 7,000                              |
+| Szint 7   | Felső 89%                       | 5,000                              |
+| Szint 8   | Felső 96%                       | 3,000                              |
+| Szint 9   | Felső 100%                      | 1,000                              |
+
+##### Szint Meghatározási Módszer
+
+1. **Teljesítmény Pontszámok Számítása**
+
+   Használja a korábban meghatározott módszert minden szolgáltatás teljesítmény pontszámának $ P_n $ kiszámításához.
+
+2. **Szolgáltatások Rangsorolása**
+
+   Rangsorolja az összes szolgáltatást **csökkenő sorrendben** a teljesítmény pontszámuk alapján.
+
+3. **Kumulatív Felső Percentilisek Számítása**
+
+   Minden szolgáltatás esetében számítsa ki a kumulatív felső percentilist:
+
+   $$
+   \text{Kumulatív Felső Percentilis (\%)} = \left(1 - \frac{\text{Rang} - 1}{N} \right) \times 100\%
+   $$
+
+   Ahol:
+
+    - $ \text{Rang} $: A szolgáltatás rangja (1-től kezdve).
+    - $ N $: Az összes szolgáltatás száma.
+
+4. **Szintek Hozzárendelése**
+
+   Szintek hozzárendelése a kumulatív felső percentilisek alapján:
+
+    - **Szint 1**: Kumulatív felső percentilis > 96%
+    - **Szint 2**: 89% < Kumulatív felső percentilis ≤ 96%
+    - **Szint 3**: 77% < Kumulatív felső percentilis ≤ 89%
+    - **Szint 4**: 60% < Kumulatív felső percentilis ≤ 77%
+    - **Szint 5**: 40% < Kumulatív felső percentilis ≤ 60%
+    - **Szint 6**: 23% < Kumulatív felső percentilis ≤ 40%
+    - **Szint 7**: 11% < Kumulatív felső percentilis ≤ 23%
+    - **Szint 8**: 4% < Kumulatív felső percentilis ≤ 11%
+    - **Szint 9**: Kumulatív felső percentilis ≤ 4%
+
+**Példa**:
+
+Összesen **3** szolgáltatással:
+
+1. **Rangsorolás és Kumulatív Felső Percentilisek Számítása**
+
+    - **A Szolgáltatás**:
+
+        - Teljesítmény Pontszám: $ P_A = 0.38 $
+        - Rang: 1
+        - Kumulatív Felső Percentilis:
+
+          $$
+          \text{Kumulatív Felső Percentilis} = \left(1 - \frac{1 - 1}{3} \right) \times 100\% = 100\%
+          $$
+
+    - **C Szolgáltatás**:
+
+        - Teljesítmény Pontszám: $ P_C = 0.33 $
+        - Rang: 2
+        - Kumulatív Felső Percentilis:
+
+          $$
+          \text{Kumulatív Felső Percentilis} = \left(1 - \frac{2 - 1}{3} \right) \times 100\% = 66.67\%
+          $$
+
+    - **B Szolgáltatás**:
+
+        - Teljesítmény Pontszám: $ P_B = 0.29 $
+        - Rang: 3
+        - Kumulatív Felső Percentilis:
+
+          $$
+          \text{Kumulatív Felső Percentilis} = \left(1 - \frac{3 - 1}{3} \right) \times 100\% = 33.33\%
+          $$
+
+2. **Szintek Hozzárendelése**
+
+    - **A Szolgáltatás**:
+
+        - Kumulatív Felső Percentilis: 100%
+        - **Szint**: **Szint 1** (Kumulatív Felső Percentilis > 96%)
+        - **Maximális Token Elosztás**: 30,000 Jet
+
+    - **C Szolgáltatás**:
+
+        - Kumulatív Felső Percentilis: 66.67%
+        - **Szint**: **Szint 4** (60% < Kumulatív Felső Percentilis ≤ 77%)
+        - **Maximális Token Elosztás**: 15,000 Jet
+
+    - **B Szolgáltatás**:
+
+        - Kumulatív Felső Percentilis: 33.33%
+        - **Szint**: **Szint 6** (23% < Kumulatív Felső Percentilis ≤ 40%)
+        - **Maximális Token Elosztás**: 7,000 Jet
+
+**Megjegyzések**:
+
+- **Azonos Pontszámok**: Az azonos teljesítmény pontszámmal rendelkező szolgáltatások ugyanazt a rangot kapják. A kumulatív felső percentilisek számításakor az átlagos rangot használják.
+- **Maximális Token Elosztás** a szolgáltatás szintje alapján kapható maximális token mennyiséget jelenti.
+
+### Példa Forgatókönyv
+
+#### 1. Epoch ($ t = 1 $)
+
+- **Alap Elosztási Mennyiség**: $ f(1) = 3,479,788.70 \text{ Jet} $
+- **Módosított Teljes Elosztási Mennyiség**: $ f_{\text{total}}(1) = 3,479,788.70 \text{ Jet} $
+
+**Elosztási Mennyiség Számítása Szolgáltatásonként**
+
+A teljesítmény pontszámok és szintek alapján:
+
+- **Teljes Teljesítmény Pontszám $ P $**: $ P = P_A + P_B + P_C = 0.38 + 0.29 + 0.33 = 1.00 $
+
+1. **A Szolgáltatás**:
+
+    - Arány: $ \frac{P_A}{P} = \frac{0.38}{1.00} = 0.38 $
+    - Elosztási Mennyiség:
+
+      $$
+      S_A = \min\left( 3,479,788.70 \times 0.38, 30,000 \right) = \min(1,322,319.71, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **C Szolgáltatás**:
+
+    - Arány: $ \frac{P_C}{P} = \frac{0.33}{1.00} = 0.33 $
+    - Elosztási Mennyiség:
+
+      $$
+      S_C = \min\left( 3,479,788.70 \times 0.33, 15,000 \right) = \min(1,148,330.27, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **B Szolgáltatás**:
+
+    - Arány: $ \frac{P_B}{P} = \frac{0.29}{1.00} = 0.29 $
+    - Elosztási Mennyiség:
+
+      $$
+      S_B = \min\left( 3,479,788.70 \times 0.29, 7,000 \right) = \min(1,009,138.72, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Elosztási Eredmények**
+
+- **Összesen Elosztott Tokenek**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Elosztatlan Tokenek**: $ 3,479,788.70 - 52,000 = 3,427,788.70 \text{ Jet} $
+
+#### 2. Epoch ($ t = 2 $)
+
+- **Alap Elosztási Mennyiség**:
+
+  $$
+  f(2) = 2,195,502.227 \text{ Jet}
+  $$
+
+- **Átvitt Tokenek**: $ 3,427,788.70 \text{ Jet} $
+- **Módosított Teljes Elosztási Mennyiség**:
+
+  $$
+  f_{\text{total}}(2) = 2,195,502.227 + 3,427,788.70 = 5,623,290.927 \text{ Jet}
+  $$
+
+**Frissített Teljesítmény Pontszámok és Szintek**
+
+Feltételezve a teljesítmény pontszámok változását:
+
+- **A Szolgáltatás**:
+
+    - Teljesítmény Pontszám: $ P_A = 0.40 $
+    - Rang: 1
+    - Kumulatív Felső Percentilis: 100%
+    - **Szint**: Szint 1
+    - **Maximális Token Elosztás**: 30,000 Jet
+
+- **C Szolgáltatás**:
+
+    - Teljesítmény Pontszám: $ P_C = 0.35 $
+    - Rang: 2
+    - Kumulatív Felső Percentilis: 66.67%
+    - **Szint**: Szint 4
+    - **Maximális Token Elosztás**: 15,000 Jet
+
+- **B Szolgáltatás**:
+
+    - Teljesítmény Pontszám: $ P_B = 0.25 $
+    - Rang: 3
+    - Kumulatív Felső Percentilis: 33.33%
+    - **Szint**: Szint 6
+    - **Maximális Token Elosztás**: 7,000 Jet
+
+**Teljes Teljesítmény Pontszám $ P $**: $ P = 0.40 + 0.35 + 0.25 = 1.00 $
+
+**Elosztási Mennyiség Számítása Szolgáltatásonként**
+
+1. **A Szolgáltatás**:
+
+    - Arány: $ \frac{P_A}{P} = 0.40 $
+    - Elosztási Mennyiség:
+
+      $$
+      S_A = \min\left( 5,623,290.927 \times 0.40, 30,000 \right) = \min(2,249,316.37, 30,000) = 30,000 \text{ Jet}
+      $$
+
+2. **C Szolgáltatás**:
+
+    - Arány: $ \frac{P_C}{P} = 0.35 $
+    - Elosztási Mennyiség:
+
+      $$
+      S_C = \min\left( 5,623,290.927 \times 0.35, 15,000 \right) = \min(1,968,151.83, 15,000) = 15,000 \text{ Jet}
+      $$
+
+3. **B Szolgáltatás**:
+
+    - Arány: $ \frac{P_B}{P} = 0.25 $
+    - Elosztási Mennyiség:
+
+      $$
+      S_B = \min\left( 5,623,290.927 \times 0.25, 7,000 \right) = \min(1,405,822.73, 7,000) = 7,000 \text{ Jet}
+      $$
+
+**Elosztási Eredmények**
+
+- **Összesen Elosztott Tokenek**: $ 30,000 + 15,000 + 7,000 = 52,000 \text{ Jet} $
+- **Elosztatlan Tokenek**: $ 5,623,290.927 - 52,000 = 5,571,290.927 \text{ Jet} $
+
+### Az Elosztatlan Tokenek Felhalmozódásának Hatása
+
+- **Növekvő Szolgáltatási Részvétel és Javuló Teljesítmény** fokozatosan csökkenti az elosztatlan tokenek mennyiségét.
+- **A kezdeti szolgáltatások kihasználhatják a maximális elosztási mennyiséget** a növekedés elősegítésére.
+- A tokenek átvitele segít **fenntartani az érték stabilitását** és szabályozni a forgalmat.
+
+## Felhasználói Jutalmak és Token Használat
+
+### **Felhasználói Jutalmazási Mechanizmus**
+
+- **Tevékenységalapú Jutalmak**: A felhasználók JetPack tokeneket kapnak, amikor **előre megállapodott tevékenységeket** végeznek (pl. tartalomkészítés, játék) egy szolgáltatáson belül.
+- **Token Jutalmazási Kritériumok**: Az egyes tevékenységekért járó tokenek mennyiségét a szolgáltatás és a JetPack ökoszisztéma üzemeltetője közötti **konzultáció során határozzák meg**.
+
+### **Token Használati Módszerek**
+
+1. **A Szolgáltatáson Belül**:
+    - **Prémium Funkciók Elérése**: Tokenek használata fizetős funkciók vagy tartalmak eléréséhez a szolgáltatáson belül.
+    - **Áruk Vásárlása**: Digitális áruk vagy szolgáltatáson belüli elemek vásárlása tokenekkel.
+
+2. **A JetPack Wallet Szolgáltatás Cseréjének Használata**:
+    - **Token Értékesítés**: A felhasználók tokenjeiket **ADA**-ra (a **Cardano** valutája) cserélhetik.
+    - **Pénztárca Kezelés**: A JetPack pénztárca lehetővé teszi a tokenek biztonságos kezelését és más szolgáltatásokra történő átvitelét.
+
+### **Várható Előnyök a Token Értékének Növekedéséből**
+
+- **Token Likviditás**: A tokenek tőzsdéken történő kereskedése növeli azok **likviditását**.
+- **Gazdasági Nyereségek**: A felhasználók **további gazdasági előnyöket** érhetnek el a tokenek eladásával, ha azok értéke növekszik.
+
+## Token Vásárlás és Újraelosztás
+
+### **További Token Vásárlások Szolgáltatások Által**
+
+- **Amikor az Elosztott Tokenek Kimerülnek**: Ha egy szolgáltatás felhasználja az összes kiosztott tokenjét, további tokeneket vásárolhat a **JetPack Wallet Szolgáltatás Cseréjéből**.
+- **Vásárlási Valuta**: A tokeneket **ADA**-val vásárolják.
+- **A Vásárolt Tokenek Felhasználása**: A vásárolt tokenek felhasználhatók **felhasználói jutalmakra** vagy **a szolgáltatáson belül**.
+
+### **Újraértékesíthető és Nem Újraértékesíthető Tokenek**
+
+- **Elosztott Tokenek** (**Nem Újraértékesíthető**): A szolgáltatásoknak kiosztott tokenek **nem értékesíthetők újra**, és csak **felhasználói jutalmakra** használhatók.
+- **Vásárolt Tokenek és Felhasználóktól Szerzett Tokenek** (**Újraértékesíthető**): Az ADA-val vásárolt tokenek és a felhasználóktól kapott tokenek **újraértékesíthetők**, segítve a **likviditás megszerzését**.
+
+### **Token Újraelosztás és Ökoszisztéma Aktiválás**
+
+1. **Token Forgalmi Struktúra**:
+    - A szolgáltatások tokenekkel jutalmazzák a felhasználókat; a felhasználók azokat a szolgáltatásokon belül használják vagy eladják a tőzsdéken.
+    - A szolgáltatások tokeneket szereznek a felhasználóktól vagy vásárolnak, hogy fenntartsák a **fenntartható jutalmazási rendszert**.
+
+2. **Ökoszisztéma Aktiválási Hatások**:
+    - A token forgalom elősegíti a **felhasználói elkötelezettséget** és a **szolgáltatás aktiválását**.
+    - Ez hozzájárul a **token érték stabilizálásához** és az ökoszisztéma **fenntartható növekedéséhez**.
