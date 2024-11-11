@@ -11,6 +11,12 @@ export default {
       breadcrumb: false
     }
   },
+  roadmap: {
+    title: 'Roadmap',
+    theme: {
+      breadcrumb: false
+    }
+  },
   design: {
     title: 'Design Assets',
     theme: {
