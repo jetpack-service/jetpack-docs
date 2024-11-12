@@ -18,6 +18,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 export default withBundleAnalyzer(withNextra({
+  output: 'export',
+  images: {
+    unoptimized: true // mandatory, otherwise won't export
+  },
   i18n: {
     locales: [
       'en',
