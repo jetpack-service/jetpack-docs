@@ -36,7 +36,6 @@ const themeConfig: DocsThemeConfig = {
   i18n: [
     { locale: 'en', name: 'English', direction: 'ltr' },
     { locale: 'zh-Hans', name: '简体中文', direction: 'ltr' },
-    { locale: 'zh-Hant', name: '繁體中文', direction: 'ltr' },
     { locale: 'hi', name: 'हिन्दी', direction: 'ltr' },
     { locale: 'es', name: 'Español', direction: 'ltr' },
     { locale: 'fr', name: 'Français', direction: 'ltr' },
@@ -44,12 +43,12 @@ const themeConfig: DocsThemeConfig = {
     { locale: 'ru', name: 'Русский', direction: 'ltr' },
     { locale: 'pt', name: 'Português', direction: 'ltr' },
     { locale: 'id', name: 'Bahasa Indonesia', direction: 'ltr' },
-    { locale: 'bn', name: 'বাংলা', direction: 'ltr' },
-    { locale: 'de', name: 'Deutsch', direction: 'ltr' },
-    { locale: 'ur-IN', name: 'اردو (بھارت)', direction: 'rtl' },
-    { locale: 'ja', name: '日本語', direction: 'ltr' },
     { locale: 'mr', name: 'मराठी', direction: 'ltr' },
-    { locale: 'ko', name: '한국어', direction: 'ltr' }
+    { locale: 'ja', name: '日本語', direction: 'ltr' },
+    { locale: 'ur-IN', name: 'اردو (بھارت)', direction: 'rtl' },
+    { locale: 'zh-Hant', name: '繁體中文', direction: 'ltr' },
+    { locale: 'ko', name: '한국어', direction: 'ltr' },
+    { locale: 'de', name: 'Deutsch', direction: 'ltr' }
   ],
 };
 
