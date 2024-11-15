@@ -22,5 +22,12 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  faq: {
+    title: 'Preguntas Frecuentes',
+    theme: {
+      breadcrumb: false,
+      toc: false
+    }
   }
 }

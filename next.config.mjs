@@ -1,5 +1,6 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
 import nextra from 'nextra'
+import toc from 'remark-toc'
 
 const withNextra = nextra({
   theme: 'nextra-theme-docs',
@@ -10,6 +11,11 @@ const withNextra = nextra({
   },
   search: {
     codeblocks: false
+  },
+  mdxOptions: {
+    remarkPlugins: [
+      toc
+    ],
   }
 })
 

@@ -22,5 +22,12 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  faq: {
+    title: 'वारंवार विचारले जाणारे प्रश्न',
+    theme: {
+      breadcrumb: false,
+      toc: false
+    }
   }
 }
