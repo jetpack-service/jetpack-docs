@@ -35,5 +35,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  term: {
+    title: 'サービス利用規約',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

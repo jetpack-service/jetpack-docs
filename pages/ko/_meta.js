@@ -35,5 +35,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  term: {
+    title: '서비스 이용약관',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

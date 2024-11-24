@@ -35,5 +35,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  term: {
+    title: 'Service Terms',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

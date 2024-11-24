@@ -35,5 +35,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  term: {
+    title: 'सेवा की शर्तें',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

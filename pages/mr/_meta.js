@@ -35,5 +35,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  term: {
+    title: 'सेवा अटी',
+    theme: {
+      breadcrumb: false
+    }
   }
 }
