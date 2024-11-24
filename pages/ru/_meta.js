@@ -18,7 +18,7 @@ export default {
     }
   },
   design: {
-    title: 'Дизайнерские ресурсы',
+    title: 'Дизайнерские материалы',
     theme: {
       breadcrumb: false
     }
@@ -28,6 +28,12 @@ export default {
     theme: {
       breadcrumb: false,
       toc: false
+    }
+  },
+  privacy: {
+    title: 'Политика конфиденциальности',
+    theme: {
+      breadcrumb: false
     }
   }
 }

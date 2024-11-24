@@ -6,19 +6,19 @@ export default {
     }
   },
   distribution: {
-    title: 'Logique de distribution',
+    title: 'Logique de Distribution',
     theme: {
       breadcrumb: false
     }
   },
   roadmap: {
-    title: 'Feuille de route',
+    title: 'Feuille de Route',
     theme: {
       breadcrumb: false
     }
   },
   design: {
-    title: 'Ressources de conception',
+    title: 'Ressources de Design',
     theme: {
       breadcrumb: false
     }
@@ -28,6 +28,12 @@ export default {
     theme: {
       breadcrumb: false,
       toc: false
+    }
+  },
+  privacy: {
+    title: 'Politique de Confidentialité',
+    theme: {
+      breadcrumb: false
     }
   }
 }

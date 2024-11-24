@@ -64,7 +64,7 @@ const languages = [
 // List of files to translate
 const files = [
   'pages/en/_meta.js',
-  'pages/en/faq.mdx'
+  'pages/en/privacy.mdx'
 ];
 
 // Translate text via OpenAI API (using Chat Completion)
@@ -136,7 +136,7 @@ async function translateAndSaveFiles() {
 
         // 파일이 이미 존재하는 경우 번역 생략
         if (await fileExists(newFilePath)) {
-          console.log(`File already exists, skipping: ${newFilePath}`);
+          console.log(`File already exists, overwriting: ${newFilePath}`);
           // continue;
         }
 

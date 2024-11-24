@@ -29,5 +29,11 @@ export default {
       breadcrumb: false,
       toc: false
     }
+  },
+  privacy: {
+    title: '개인정보 처리방침',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

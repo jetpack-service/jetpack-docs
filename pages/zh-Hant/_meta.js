@@ -6,7 +6,7 @@ export default {
     }
   },
   distribution: {
-    title: '分發邏輯',
+    title: '分配邏輯',
     theme: {
       breadcrumb: false
     }
@@ -28,6 +28,12 @@ export default {
     theme: {
       breadcrumb: false,
       toc: false
+    }
+  },
+  privacy: {
+    title: '隱私政策',
+    theme: {
+      breadcrumb: false
     }
   }
 }

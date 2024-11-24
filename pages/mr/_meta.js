@@ -18,7 +18,7 @@ export default {
     }
   },
   design: {
-    title: 'डिझाइन साधने',
+    title: 'डिझाइन मालमत्ता',
     theme: {
       breadcrumb: false
     }
@@ -28,6 +28,12 @@ export default {
     theme: {
       breadcrumb: false,
       toc: false
+    }
+  },
+  privacy: {
+    title: 'गोपनीयता धोरण',
+    theme: {
+      breadcrumb: false
     }
   }
 }

@@ -29,5 +29,11 @@ export default {
       breadcrumb: false,
       toc: false
     }
+  },
+  privacy: {
+    title: 'رازداری کی پالیسی',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

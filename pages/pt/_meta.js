@@ -24,10 +24,16 @@ export default {
     }
   },
   faq: {
-    title: 'FAQ',
+    title: 'Perguntas Frequentes',
     theme: {
       breadcrumb: false,
       toc: false
+    }
+  },
+  privacy: {
+    title: 'Política de Privacidade',
+    theme: {
+      breadcrumb: false
     }
   }
 }

@@ -29,5 +29,11 @@ export default {
       breadcrumb: false,
       toc: false
     }
+  },
+  privacy: {
+    title: 'Política de Privacidad',
+    theme: {
+      breadcrumb: false
+    }
   }
 }
