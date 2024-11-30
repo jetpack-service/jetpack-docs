@@ -41,5 +41,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  cookie: {
+    title: 'سياسة الكوكيز',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

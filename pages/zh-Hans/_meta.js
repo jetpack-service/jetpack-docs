@@ -41,5 +41,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  cookie: {
+    title: 'Cookie 政策',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

@@ -41,5 +41,11 @@ export default {
     theme: {
       breadcrumb: false
     }
+  },
+  cookie: {
+    title: 'کوکی پالیسی',
+    theme: {
+      breadcrumb: false
+    }
   }
 }

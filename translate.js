@@ -64,7 +64,7 @@ const languages = [
 // List of files to translate
 const files = [
   'pages/en/_meta.js',
-  'pages/en/term.mdx'
+  'pages/en/cookie.mdx'
 ];
 
 // Translate text via OpenAI API (using Chat Completion)
