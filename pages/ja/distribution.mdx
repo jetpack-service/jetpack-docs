@@ -133,11 +133,11 @@ $$
 次のエポックの総配布量は次の通りです:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Undistributed Tokens from Previous Epoch}
 $$
 
 - $ f_{\text{total}}(t+1) $: エポック $ t+1 $ の調整済み総配布量。
-- $ f(t+1) $: 基本配布関数に基づく配布量。
+- $ A \times f(t+1) $: 基本配布関数に基づく配布量。
 - **繰越未配布トークン**: エポック $ t $ で配布されなかったトークンの数。
 
 #### サービスごとのパフォーマンススコア ($ P_n $) の計算

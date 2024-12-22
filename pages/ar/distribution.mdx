@@ -133,11 +133,11 @@ $$
 كمية التوزيع الإجمالية للـ epoch التالي هي:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Undistributed Tokens from Previous Epoch}
 $$
 
 - $ f_{\text{total}}(t+1) $: كمية التوزيع الإجمالية المعدلة للـ epoch $ t+1 $.
-- $ f(t+1) $: كمية التوزيع بناءً على دالة التوزيع الأساسية.
+- $ A \times f(t+1) $: كمية التوزيع بناءً على دالة التوزيع الأساسية.
 - **الرموز غير الموزعة المرحّلة**: عدد الرموز التي لم يتم توزيعها في epoch $ t $.
 
 #### حساب درجة الأداء ($ P_n $) لكل خدمة

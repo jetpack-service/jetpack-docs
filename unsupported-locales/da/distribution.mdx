@@ -133,11 +133,11 @@ $$
 Den samlede fordelingsmængde for den næste epoch er:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Ufordelte Tokens fra Forrige Epoch}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Ufordelte Tokens fra Forrige Epoch}
 $$
 
 - $ f_{\text{total}}(t+1) $: Justeret total fordelingsmængde for epoch $ t+1 $.
-- $ f(t+1) $: Fordelingsmængde baseret på den grundlæggende fordelingsfunktion.
+- $ A \times f(t+1) $: Fordelingsmængde baseret på den grundlæggende fordelingsfunktion.
 - **Overførte Ufordelte Tokens**: Antal tokens, der ikke blev fordelt i epoch $ t $.
 
 #### Beregning af Præstationsscore ($ P_n $) pr. Service

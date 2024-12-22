@@ -133,11 +133,11 @@ $$
 Bir sonraki epoch için toplam dağıtım miktarı:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Önceki Epoch'tan Dağıtılmayan Tokenlar}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Önceki Epoch'tan Dağıtılmayan Tokenlar}
 $$
 
 - $ f_{\text{total}}(t+1) $: Epoch $ t+1 $ için ayarlanmış toplam dağıtım miktarı.
-- $ f(t+1) $: Temel dağıtım fonksiyonuna dayalı dağıtım miktarı.
+- $ A \times f(t+1) $: Temel dağıtım fonksiyonuna dayalı dağıtım miktarı.
 - **Devredilen Dağıtılmayan Tokenlar**: Epoch $ t $'de dağıtılmayan token sayısı.
 
 #### Hizmet Başına Performans Puanı ($ P_n $) Hesaplanması

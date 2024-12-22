@@ -133,11 +133,11 @@ $$
 Die Gesamtverteilungsmenge für die nächste Epoche ist:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Nicht verteilte Tokens aus der vorherigen Epoche}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Nicht verteilte Tokens aus der vorherigen Epoche}
 $$
 
 - $ f_{\text{total}}(t+1) $: Angepasste Gesamtverteilungsmenge für Epoche $ t+1 $.
-- $ f(t+1) $: Verteilungsmenge basierend auf der grundlegenden Verteilungsfunktion.
+- $ A \times f(t+1) $: Verteilungsmenge basierend auf der grundlegenden Verteilungsfunktion.
 - **Übertragene nicht verteilte Tokens**: Anzahl der Tokens, die in Epoche $ t $ nicht verteilt wurden.
 
 #### Berechnung der Leistungsbewertung ($ P_n $) pro Dienst

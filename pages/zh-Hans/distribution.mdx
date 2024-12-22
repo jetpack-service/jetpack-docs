@@ -133,11 +133,11 @@ $$
 下一个 epoch 的总分配量为：
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Undistributed Tokens from Previous Epoch}
 $$
 
 - $ f_{\text{total}}(t+1) $：epoch $ t+1 $ 的调整后总分配量。
-- $ f(t+1) $：基于基本分配函数的分配量。
+- $ A \times f(t+1) $：基于基本分配函数的分配量。
 - **结转的未分配代币**：epoch $ t $ 中未分配的代币数量。
 
 #### 计算每个服务的绩效得分 ($ P_n $)

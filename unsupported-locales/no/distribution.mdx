@@ -133,11 +133,11 @@ $$
 Den totale distribusjonsmengden for neste epoch er:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Udistribuerte Tokens fra Forrige Epoch}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Udistribuerte Tokens fra Forrige Epoch}
 $$
 
 - $ f_{\text{total}}(t+1) $: Justert total distribusjonsmengde for epoch $ t+1 $.
-- $ f(t+1) $: Distribusjonsmengde basert på den grunnleggende distribusjonsfunksjonen.
+- $ A \times f(t+1) $: Distribusjonsmengde basert på den grunnleggende distribusjonsfunksjonen.
 - **Overførte Udistribuerte Tokens**: Antall tokens som ikke ble distribuert i epoch $ t $.
 
 #### Beregning av Ytelsesscore ($ P_n $) per Tjeneste

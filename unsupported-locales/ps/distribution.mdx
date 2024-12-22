@@ -133,11 +133,11 @@ $$
 د راتلونکي epoch لپاره ټولیزه ویش اندازه ده:
 
 $$
-f_{\text{total}}(t+1) = f(t+1) + \text{Undistributed Tokens from Previous Epoch}
+f_{\text{total}}(t+1) = A \times f(t+1) + \text{Undistributed Tokens from Previous Epoch}
 $$
 
 - $ f_{\text{total}}(t+1) $: د epoch $ t+1 $ لپاره تنظیم شوې ټولیزه ویش اندازه.
-- $ f(t+1) $: د اساسي ویش فنکشن پر بنسټ ویش اندازه.
+- $ A \times f(t+1) $: د اساسي ویش فنکشن پر بنسټ ویش اندازه.
 - **انتقال شوي نه ویشل شوي ټوکنونه**: په epoch $ t $ کې نه ویشل شوي ټوکنونه.
 
 #### د هر خدمت لپاره د فعالیت نمره ($ P_n $) محاسبه کول
